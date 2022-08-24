@@ -6,7 +6,7 @@
 	<groupId>it.finanze.sanita.fse2</groupId>
 	<artifactId>gtw-eds-client-ms</artifactId>
 	<name>gtw-eds-client-ms</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.6-SNAPSHOT</version> <!-- SPRINT6 -->
 	<description>Gateway EDS Client FSE</description>
 
 	<parent>
@@ -26,15 +26,13 @@
 		<config.infra>${project.basedir}/infrastructure</config.infra>
 		<container.output>target/container</container.output>
 		<container.output.runtime>${container.output}/runtime</container.output.runtime>
+		<!-- Sonar integration -->
+		<sonar.organization>ministero-salute</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.exclusions>
 			src/main/java/ihe/**/*.*,
 			src/main/java/oasis/**/*.*,
-			src/main/java/org/**/*.*,
-			src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/CfUtility.java,
-			src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/FileUtility.java,
-			src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/JsonUtility.java,
-			src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/StringUtility.java,
-			src/main/java/it/finanze/sanita/fse2/ms/edsclient/client/impl/SOAPLoggingHandler.java
+			src/main/java/org/**/*.*
 		</sonar.exclusions>
 
 	</properties>
