@@ -1,11 +1,11 @@
 package it.finanze.sanita.fse2.ms.edsclient.controller.impl;
 
-import brave.Tracer;
-import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
-import lombok.extern.slf4j.Slf4j;
+import java.io.Serializable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.Serializable;
+import brave.Tracer;
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
 
 /**
  * 
@@ -13,7 +13,6 @@ import java.io.Serializable;
  *
  *	Abstract controller.
  */
-@Slf4j
 public abstract class AbstractCTL implements Serializable {
 
 	/**

@@ -1,5 +1,6 @@
 package it.finanze.sanita.fse2.ms.edsclient.controller.impl;
 
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +38,8 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 	@Override
 	public Boolean delete(String ooid, HttpServletRequest request) {
 		log.info("Ricevuto ooid : " + ooid );
+		
+		// TODO: Implementare chiamata ad eds
 		return true;
 	}
 
@@ -48,5 +51,10 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 		log.info("Mocking replace - EDS is not yet ready");
 		return new EDSPublicationResponseDTO(getLogTraceInfo(), true);
 	}
-    
+
+	@Override
+	public EDSPublicationResponseDTO update(EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
+		return new EDSPublicationResponseDTO(getLogTraceInfo(), true);
+	}
+
 }

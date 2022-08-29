@@ -4,6 +4,7 @@ import static java.util.Arrays.stream;
 
 import java.util.Optional;
 
+import it.finanze.sanita.fse2.ms.edsclient.utility.ProfileUtility;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -25,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EdsInvocationSRV implements IEdsInvocationSRV {
 
-
 	@Autowired
 	private IEdsInvocationRepo edsInvocationRepo;
 	
@@ -33,7 +33,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	private IEdsClient edsClient;
 
 	@Autowired
-	private Environment environment;
+	private ProfileUtility profileUtility;
 	
 	@Autowired
 	private EdsCFG edsCFG;
@@ -43,8 +43,8 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 		boolean out = false;
 		try {
 			IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(workflowInstanceId);
-			if(iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
-				if(isDevProfile()) {
+			if (iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
+				if (profileUtility.isDevProfile()) {
 					String json = StringUtility.toJSON(iniEdsInvocationETY.getData());
 					
 					Bundle bundle = FHIRR4Helper.deserializeResource(Bundle.class, json, true);
@@ -62,11 +62,5 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 			throw new BusinessException(ex);
 		}
 		return out;
-	}
-
-	private boolean isDevProfile() {
-		String[] profiles = environment.getActiveProfiles();
-		Optional<String> exists = stream(profiles).filter(i -> i.equals(Constants.Profile.DEV)).findFirst();
-		return exists.isPresent();
 	}
 }
