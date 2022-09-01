@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.7</version>
+		<version>2.7.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
@@ -74,7 +74,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.5</version>
+			<version>1.6.11</version>
 		</dependency>
 
 		<!-- LOGBACK JSON -->
@@ -113,7 +113,7 @@
 		<dependency>
 			<groupId>org.modelmapper.extensions</groupId>
 			<artifactId>modelmapper-spring</artifactId>
-			<version>2.4.2</version>
+			<version>3.1.0</version>
 		</dependency>
 
 		<!-- TEST -->
@@ -190,7 +190,7 @@
 		<dependency>
 			<groupId>net.sf.saxon</groupId>
 			<artifactId>Saxon-HE</artifactId>
-			<version>10.1</version>
+			<version>11.4</version>
 		</dependency>
 
 		<dependency>
@@ -230,14 +230,11 @@
 				<version>0.8.8</version>
 				<configuration>
 					<excludes>
-						<exclude>src/main/java/ihe/**/*.*</exclude>
-						<exclude>src/main/java/oasis/**/*.*</exclude>
-						<exclude>src/main/java/org/**/*.*</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/CfUtility.java</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/FileUtility.java</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/JsonUtility.java</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/StringUtility.java</exclude>
-						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/client/impl/SOAPLoggingHandler.java</exclude>
+						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/utility/**/*.*</exclude>
+						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/client/impl/**/*.*</exclude>
+						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/enums/**/*.*</exclude>
+						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/dto/request/**/*.*</exclude>
+						<exclude>src/main/java/it/finanze/sanita/fse2/ms/edsclient/dto/response/**/*.*</exclude>
 					</excludes>
 				</configuration>
 				<executions>
@@ -252,6 +249,20 @@
 						<phase>test</phase>
 						<goals>
 							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Security check -->
+			<plugin>
+				<groupId>org.owasp</groupId>
+				<artifactId>dependency-check-maven</artifactId>
+				<version>7.1.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
 						</goals>
 					</execution>
 				</executions>

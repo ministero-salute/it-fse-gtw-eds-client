@@ -1,24 +1,18 @@
 package it.finanze.sanita.fse2.ms.edsclient.service.impl;
 
-import static java.util.Arrays.stream;
-
-import java.util.Optional;
-
-import it.finanze.sanita.fse2.ms.edsclient.utility.ProfileUtility;
 import org.hl7.fhir.r4.model.Bundle;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IEdsClient;
 import it.finanze.sanita.fse2.ms.edsclient.client.impl.FHIRClient;
-import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.config.EdsCFG;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.repository.IEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.service.IEdsInvocationSRV;
 import it.finanze.sanita.fse2.ms.edsclient.utility.FHIRR4Helper;
+import it.finanze.sanita.fse2.ms.edsclient.utility.ProfileUtility;
 import it.finanze.sanita.fse2.ms.edsclient.utility.StringUtility;
 import lombok.extern.slf4j.Slf4j;
 

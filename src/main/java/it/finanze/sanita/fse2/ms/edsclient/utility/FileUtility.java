@@ -1,7 +1,5 @@
 package it.finanze.sanita.fse2.ms.edsclient.utility;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class FileUtils.
@@ -49,7 +48,7 @@ public final class FileUtility {
 				try {
 					is.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("Error while retrieving file from file system");
 				}
 			}
 		}

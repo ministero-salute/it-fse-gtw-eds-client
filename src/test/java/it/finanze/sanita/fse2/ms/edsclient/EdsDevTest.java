@@ -18,7 +18,7 @@ import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "mock.disabled=true")
 @ComponentScan(basePackages = {Constants.ComponentScan.BASE})
-@ActiveProfiles(Constants.Profile.DEV)
+@ActiveProfiles(Constants.Profile.TEST)
 class EdsDevTest extends AbstractTest {
 
     @Autowired
