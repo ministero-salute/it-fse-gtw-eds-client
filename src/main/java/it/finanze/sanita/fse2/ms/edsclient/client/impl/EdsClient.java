@@ -51,7 +51,7 @@ public class EdsClient implements IEdsClient {
         HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<DocumentResponseDTO> response = null;
-        String url = edsCFG.getEdsIngestionHost() + "/v1/" + edsCFG.getEdsIngestionPath();
+        String url = edsCFG.getEdsIngestionHost() + "/v1/document";
         try {
             response = restTemplate.exchange(url,
                     HttpMethod.POST, entity,

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IEdsClient;
 import it.finanze.sanita.fse2.ms.edsclient.client.impl.FHIRClient;
-import it.finanze.sanita.fse2.ms.edsclient.config.EdsCFG;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.repository.IEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
@@ -28,9 +27,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
 	@Autowired
 	private ProfileUtility profileUtility;
-	
-	@Autowired
-	private EdsCFG edsCFG;
+	 
 	
 	@Override
 	public Boolean findAndSendToEdsByWorkflowInstanceId(final String workflowInstanceId) {
@@ -39,10 +36,11 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 			IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(workflowInstanceId);
 			if (iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
 				if (profileUtility.isDevProfile()) {
+					String urlFhirDev = "http://localhost:8079/fhir";
 					String json = StringUtility.toJSON(iniEdsInvocationETY.getData());
 					
 					Bundle bundle = FHIRR4Helper.deserializeResource(Bundle.class, json, true);
-					FHIRClient client = new FHIRClient(edsCFG.getFhirServerTestUrl());
+					FHIRClient client = new FHIRClient(urlFhirDev);
 					client.saveBundleWithTransaction(bundle);
 					out = true;
 					log.info("FHIR bundle: {}", json);

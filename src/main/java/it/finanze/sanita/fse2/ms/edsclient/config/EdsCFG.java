@@ -20,10 +20,7 @@ public class EdsCFG implements Serializable {
 	@Value("${eds-ingestion.url.host}")
 	private String edsIngestionHost;
 
-	@Value("${eds-ingestion.url.path}")
-	private String edsIngestionPath;
-	
-	@Value("${fhir-server-test-url}")
-	private String fhirServerTestUrl;
+//	@Value("${eds-ingestion.url.path}")
+//	private String edsIngestionPath;
 
 }

@@ -1,0 +1,8 @@
+Legenda: 
+R - Removed
+A - Add
+
+
+16/09/2022
+R:
+eds-ingestion.url.path=document
