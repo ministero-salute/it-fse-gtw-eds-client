@@ -1,16 +1,17 @@
 package it.finanze.sanita.fse2.ms.edsclient.enums;
 
+import lombok.Getter;
+
 public enum ProcessorOperationEnum {
 
-	CREATE("Create"),
-	UPDATE("Update"),
-	DELETE("Delete"); 
+	PUBLISH("PUBLISH"),
+	DELETE("DELETE"),
+	REPLACE("REPLACE"),
+	UPDATE("UPDATE");
 
+	@Getter
 	private final String name;
 
-	public String getName() {
-		return name;
-	}
 	ProcessorOperationEnum(String pname) {
 		name = pname;
 	}

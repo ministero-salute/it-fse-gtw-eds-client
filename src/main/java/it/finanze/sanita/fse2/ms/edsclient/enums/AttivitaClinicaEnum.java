@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.ms.edsclient.enums;
 
+import lombok.Getter;
+
 public enum AttivitaClinicaEnum {
 
 	PHR("PHR", "Personal Health Record Update"),
@@ -8,20 +10,15 @@ public enum AttivitaClinicaEnum {
 	ERP("ERP", "Erogazione Prestazione Prenotata"),
 	Sistema_TS("Sistema TS", "Documenti sistema TS");
 
+	@Getter
 	private String code;
+	
+	@Getter
 	private String description;
 
 	private AttivitaClinicaEnum(String inCode, String inDescription) {
 		code = inCode;
 		description = inDescription;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public String getCode() {
-		return code;
 	}
 
 }

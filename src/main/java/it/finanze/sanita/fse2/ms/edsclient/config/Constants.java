@@ -1,5 +1,11 @@
 package it.finanze.sanita.fse2.ms.edsclient.config;
 
+import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
+import org.springframework.http.HttpMethod;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 
  * @author Riccardo Bonesi
@@ -76,19 +82,23 @@ public final class Constants {
 
 	}
 
-	public static final class IniClientConstants {
+	public static final class AppConstants {
 
-        private IniClientConstants(){}
+        private AppConstants(){}
 
-        public static final String HEADER_ACTION = "urn:ihe:iti:2007:RegisterDocumentSet-b";
-        public static final String HEADER_AUTH_CONTEXT = "urn:oasis:names:tc:SAML:2.0:ac:classes:X509";
-        public static final String HEADER_ATTRNAME_URI = "urn:oasis:names:tc:SAML:2.0:attrname-format:uri";
-		public static final String GENERIC_SUBJECT_SSN_OID = "^^^&2.16.840.1.113883.2.9.4.3.2&ISO";
+		public static Map<ProcessorOperationEnum, HttpMethod> methodMap = new HashMap<ProcessorOperationEnum, HttpMethod>() {
 
-		public static final String GENERIC_SSN_OID = "^^^^^^^^&2.16.840.1.113883.2.9.4.3.2&ISO";
-		public static final String AUTHOR_IVA_OID = "^^^^^^^^&2.16.840.1.113883.2.9.6.3.2%ISO";
-		public static final String AUTHOR_INSTITUTION_OID = "^^^^^&2.16.840.1.113883.2.9.4.1.3&ISO^^^^";
-		public static final String VALID_SSN_OID = "^^^&2.16.840.1.113883.2.9.4.3.2&ISO";
+			/**
+			 * Serial Version UID
+			 */
+			private static final long serialVersionUID = 5813388826870382105L;
+
+			{
+				put(ProcessorOperationEnum.PUBLISH, HttpMethod.POST);
+				put(ProcessorOperationEnum.REPLACE, HttpMethod.PUT);
+				put(ProcessorOperationEnum.UPDATE, HttpMethod.PUT);
+				put(ProcessorOperationEnum.DELETE, HttpMethod.DELETE);
+			}};
 	}
   
 	/**

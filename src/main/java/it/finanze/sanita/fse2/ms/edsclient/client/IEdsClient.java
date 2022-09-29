@@ -1,7 +1,7 @@
 package it.finanze.sanita.fse2.ms.edsclient.client;
 
 
-import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
 
 import java.io.Serializable;
 
@@ -12,5 +12,5 @@ import java.io.Serializable;
  */
 public interface IEdsClient extends Serializable {
 
-    Boolean sendData(IniEdsInvocationETY workflowInstanceId);
+    Boolean dispatchAndSendData(IngestorRequestDTO ingestorRequestDTO);
 }

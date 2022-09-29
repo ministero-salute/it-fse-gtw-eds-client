@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.ms.edsclient.enums;
 
+import lombok.Getter;
+
 public enum TipoDocAltoLivEnum {
 
 	WOR("WOR", "Documento di workflow"),
@@ -16,20 +18,15 @@ public enum TipoDocAltoLivEnum {
 	CER("CER","Certificato per DGC"),
 	VRB("VRB","Verbale");
 
+	@Getter
 	private String code;
+	
+	@Getter
 	private String description;
 
 	private TipoDocAltoLivEnum(String inCode, String inDescription) {
 		code = inCode;
 		description = inDescription;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public String getDescription() {
-		return description;
 	}
 
 }

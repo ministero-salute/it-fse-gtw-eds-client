@@ -3,11 +3,9 @@ package it.finanze.sanita.fse2.ms.edsclient.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,7 +34,7 @@ public interface IEDSPublicationCTL {
 			@ApiResponse(responseCode = "200", description = "Pubblicazione eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EDSPublicationResponseDTO.class))),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-    EDSPublicationResponseDTO publication(@RequestBody String workflowInstanceId, HttpServletRequest request);
+    EDSPublicationResponseDTO publication(@RequestBody PublicationRequestBodyDTO requestBodyDTO, HttpServletRequest request);
     
 	@PutMapping("/eds-replace")
 	@Operation(summary = "Sostituzione risorsa fhir", description = "Sostituzione risorsa fhir.")
@@ -56,13 +54,13 @@ public interface IEDSPublicationCTL {
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
 	EDSPublicationResponseDTO update(@RequestBody EdsMetadataUpdateReqDTO req, HttpServletRequest request);
 
-    @PostMapping("/eds-delete")
+    @DeleteMapping("/eds-delete")
 	@Operation(summary = "Delete risorsa fhir", description = "Delete risorsa fhir.")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Boolean.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Eliminazione eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EDSPublicationResponseDTO.class))),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-    Boolean delete(@RequestBody String ooid, HttpServletRequest request);
+    EDSPublicationResponseDTO delete(@RequestBody String ooid, HttpServletRequest request);
 
     
 }

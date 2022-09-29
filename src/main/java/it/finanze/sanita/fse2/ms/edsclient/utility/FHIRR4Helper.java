@@ -15,15 +15,7 @@ public class FHIRR4Helper {
 		context = FhirContext.forR4();
 		getContext().setNarrativeGenerator(new DefaultThymeleafNarrativeGenerator());
 	}
-
-	public static String serializeResource(IBaseResource resource, Boolean flagPrettyPrint, Boolean flagSuppressNarratives, Boolean flagSummaryMode) {
-		IParser parser = context.newJsonParser();
-		parser.setPrettyPrint(flagPrettyPrint);
-		parser.setSuppressNarratives(flagSuppressNarratives);
-		parser.setSummaryMode(flagSummaryMode);
-		return parser.encodeResourceToString(resource);
-	}
-
+	
 	@SuppressWarnings("unchecked")
 	public static <T> T deserializeResource(Class<? extends IBaseResource> resourceClass, String input, Boolean flagJson) {
 		IParser parser = null;

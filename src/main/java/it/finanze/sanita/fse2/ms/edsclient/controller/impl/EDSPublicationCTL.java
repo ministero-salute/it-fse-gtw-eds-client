@@ -1,6 +1,7 @@
 package it.finanze.sanita.fse2.ms.edsclient.controller.impl;
 
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,32 +30,31 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 	private IEdsInvocationSRV edsInvocationSRV;
     
     @Override
-    public EDSPublicationResponseDTO publication(final String workflowInstanceId, HttpServletRequest request) {
-        log.info("Workflow instance id received:" + workflowInstanceId +", calling eds invocation client...");
-        Boolean res = edsInvocationSRV.findAndSendToEdsByWorkflowInstanceId(workflowInstanceId);
+    public EDSPublicationResponseDTO publication(final PublicationRequestBodyDTO requestBodyDTO, HttpServletRequest request) {
+        log.info("Workflow instance id received:" + requestBodyDTO.getWorkflowInstanceId() +", calling eds invocation client...");
+        Boolean res = edsInvocationSRV.publishByWorkflowInstanceIdAndPriority(requestBodyDTO);
         return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
     }
 
 	@Override
-	public Boolean delete(String ooid, HttpServletRequest request) {
+	public EDSPublicationResponseDTO delete(String ooid, HttpServletRequest request) {
 		log.info("Ricevuto ooid : " + ooid );
-		
-		// TODO: Implementare chiamata ad eds
-		return true;
+		Boolean res = edsInvocationSRV.deleteByIdentifier(ooid);
+		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
 
 	@Override
 	public EDSPublicationResponseDTO replace(final IndexerValueDTO replaceInfo, final HttpServletRequest request) {
 		log.info("Executing replace operation of document having identifier: {}", replaceInfo.getIdentificativoDocUpdate());
-		
-		// TODO: Implementare chiamata ad eds
-		log.info("Mocking replace - EDS is not yet ready");
-		return new EDSPublicationResponseDTO(getLogTraceInfo(), true);
+		Boolean res = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdentificativoDocUpdate(), replaceInfo.getWorkflowInstanceId());
+		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
 
 	@Override
 	public EDSPublicationResponseDTO update(EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
-		return new EDSPublicationResponseDTO(getLogTraceInfo(), true);
+		log.info("Executing update operation of document having identifier: {}", dto.getIdDoc());
+		Boolean res = edsInvocationSRV.updateByRequest(dto);
+		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
 
 }

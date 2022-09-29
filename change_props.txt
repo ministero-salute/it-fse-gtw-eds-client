@@ -2,7 +2,14 @@ Legenda:
 R - Removed
 A - Add
 
-
 16/09/2022
 R:
 eds-ingestion.url.path=document
+
+28/09/2022
+A:
+log.level=trace
+log.kafka-log.enable=true
+kafka.log.base-topic=MDS-SA-0004_FU_001_LOG
+kafka.producer.client-id=springboot-gtw-eds-client
+kafka.bootstrap-servers=kafka.bootstrap-servers=${KAFKA_HOST}:${KAFKA_PORT1},${KAFKA_HOST}:${KAFKA_PORT2},${KAFKA_HOST}:${KAFKA_PORT3}

@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.ms.edsclient.enums;
 
+import lombok.Getter;
+
 public enum PracticeSettingCodeEnum {
 
 	AD_PSC001("Allergologia"),
@@ -88,14 +90,11 @@ public enum PracticeSettingCodeEnum {
 	AD_PSC199("Raccolta Consenso"),
 	AD_PSC999("Altro");
 
+	@Getter
 	private String description;
 
 	private PracticeSettingCodeEnum(String inDescription) {
 		description = inDescription;
-	}
-
-	public String getDescription() {
-		return description;
 	}
 
 }

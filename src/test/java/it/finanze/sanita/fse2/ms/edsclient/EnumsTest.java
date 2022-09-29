@@ -17,8 +17,8 @@ class EnumsTest {
     @Test
     @DisplayName("ProcessOperationEnum test")
     void processorOperationEnumTest() {
-        String name = ProcessorOperationEnum.CREATE.getName();
-        Assertions.assertEquals(name, ProcessorOperationEnum.CREATE.getName());
+        String name = ProcessorOperationEnum.PUBLISH.getName();
+        Assertions.assertEquals(name, ProcessorOperationEnum.PUBLISH.getName());
     }
 
     @Test

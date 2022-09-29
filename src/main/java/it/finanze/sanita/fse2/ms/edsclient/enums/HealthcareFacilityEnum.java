@@ -1,5 +1,7 @@
 package it.finanze.sanita.fse2.ms.edsclient.enums;
 
+import lombok.Getter;
+
 public enum HealthcareFacilityEnum {
 
 	Ospedale("Ospedale"),
@@ -8,14 +10,11 @@ public enum HealthcareFacilityEnum {
 	SistemaTS("SistemaTS"),
 	Cittadino("Cittadino");
 
+	@Getter
 	private String code;
 
 	private HealthcareFacilityEnum(String inCode) {
 		code = inCode;
-	}
-
-	public String getCode() {
-		return code;
 	}
 
 }

@@ -31,7 +31,7 @@ class EdsDevTest extends AbstractTest {
         final IniEdsInvocationETY invocation = insertIniEdsInvocation(workflowInstanceId);
 
         assertNotNull(invocation, "Invocation must exist to test the client call");
-        assertThrows(HttpServerErrorException.InternalServerError.class, () -> callEdsClient(workflowInstanceId));
+        assertThrows(HttpServerErrorException.InternalServerError.class, () -> callPublishEdsClient(workflowInstanceId));
     }
     
 }
