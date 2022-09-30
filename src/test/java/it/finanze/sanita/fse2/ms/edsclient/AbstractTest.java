@@ -41,7 +41,7 @@ public abstract class AbstractTest {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
-                "/v1/eds-publish";
+                "/v1/documents";
         PublicationRequestBodyDTO requestBodyDTO = new PublicationRequestBodyDTO();
         requestBodyDTO.setPriorityType(PriorityTypeEnum.HIGH);
         requestBodyDTO.setWorkflowInstanceId(workflowInstanceId);
@@ -52,10 +52,10 @@ public abstract class AbstractTest {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
-                "/v1/eds-update";
+                "/v1/documents/" + idDoc + "/metadata";
 
         PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO(); 
-        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(new EdsMetadataUpdateReqDTO(idDoc, workflowInstanceId, dtoUpdate)); 
+        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate));
         
         return restTemplate.exchange(url, HttpMethod.PUT, request, EDSPublicationResponseDTO.class);
     }
@@ -65,11 +65,11 @@ public abstract class AbstractTest {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
-                "/v1/eds-replace";
+                "/v1/documents/" + idDoc;
 
         IndexerValueDTO dtoReplace = new IndexerValueDTO(); 
         dtoReplace.setWorkflowInstanceId(workflowInstanceId); 
-        dtoReplace.setIdentificativoDocUpdate(idDoc); 
+        dtoReplace.setIdDoc(idDoc);
         HttpEntity<IndexerValueDTO> request = new HttpEntity<IndexerValueDTO>(dtoReplace); 
         
         return restTemplate.exchange(url, HttpMethod.PUT, request, EDSPublicationResponseDTO.class);
@@ -79,11 +79,9 @@ public abstract class AbstractTest {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
-                "/v1/eds-delete";
-
-        HttpEntity<String> request = new HttpEntity<String>(ooid); 
+                "/v1/documents/" + ooid;
         
-        return restTemplate.exchange(url, HttpMethod.DELETE, request, EDSPublicationResponseDTO.class);
+        return restTemplate.exchange(url, HttpMethod.DELETE, null, EDSPublicationResponseDTO.class);
     }
 
     @SuppressWarnings("unchecked")

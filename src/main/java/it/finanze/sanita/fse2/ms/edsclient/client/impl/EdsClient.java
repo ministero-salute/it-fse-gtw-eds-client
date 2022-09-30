@@ -1,5 +1,8 @@
 package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
+import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
+import org.apache.commons.lang3.ObjectUtils;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +22,8 @@ import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.ConnectionRefusedException;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -68,9 +73,9 @@ public class EdsClient implements IEdsClient {
     
     
     private DocumentReferenceDTO buildRequestBody(IngestorRequestDTO ingestorRequestDTO) {
-        DocumentReferenceDTO requestBody = null; 
-        
-        
+        DocumentReferenceDTO requestBody = null;
+        IniEdsInvocationETY ety = ingestorRequestDTO.getIniEdsInvocationETY() != null ? ingestorRequestDTO.getIniEdsInvocationETY() : null;
+
         switch(ingestorRequestDTO.getOperation()) {
             case UPDATE:
                 if (ingestorRequestDTO.getUpdateReqDTO() == null) {
@@ -83,31 +88,31 @@ public class EdsClient implements IEdsClient {
                 requestBody.setJsonString(JsonUtility.objectToJson(ingestorRequestDTO.getUpdateReqDTO()));
                 break;
 			case REPLACE:
-                if (ingestorRequestDTO.getIniEdsInvocationETY() == null) {
-                    // bad request
-                    throw new BusinessException(MSG_UNSUPPORTED);
-                }
-	        	requestBody = new DocumentReferenceDTO(); 
+	        	requestBody = new DocumentReferenceDTO();
 	            requestBody.setIdentifier(ingestorRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.REPLACE);
-	            requestBody.setJsonString(JsonUtility.objectToJson(ingestorRequestDTO.getIniEdsInvocationETY().getData()));
-	        	break; 
+                if (ety != null && ety.getData() != null) {
+                    requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
+                } else {
+                    throw new BusinessException(MSG_UNSUPPORTED);
+                }
+                break;
 	        	
 	        case DELETE: 
 	        	break;
 
             case PUBLISH:
 	        default:
-                if (ingestorRequestDTO.getIniEdsInvocationETY() == null) {
-                    // bad request
-                    throw new BusinessException(MSG_UNSUPPORTED);
-                }
 	        	requestBody = new DocumentReferenceDTO();
 	            requestBody.setIdentifier(ingestorRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
-	            requestBody.setJsonString(JsonUtility.objectToJson(ingestorRequestDTO.getIniEdsInvocationETY().getData()));
                 requestBody.setPriorityType(ingestorRequestDTO.getPriorityType());
-	        	break; 
+                if (ety != null && ety.getData() != null) {
+                    requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
+                } else {
+                    throw new BusinessException(MSG_UNSUPPORTED);
+                }
+	        	break;
         } 
         
         return requestBody; 

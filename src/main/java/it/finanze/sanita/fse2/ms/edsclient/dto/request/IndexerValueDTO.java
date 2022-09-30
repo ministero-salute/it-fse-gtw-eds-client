@@ -20,5 +20,5 @@ public class IndexerValueDTO {
     /**
      * Identifier of document to be updated. Is not {@code null} only if the notification is sent for update.
      */
-    private String identificativoDocUpdate;
+    private String idDoc;
 }

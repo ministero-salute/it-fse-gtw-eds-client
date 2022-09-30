@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ComponentScan(basePackages = {Constants.ComponentScan.BASE})
 @ActiveProfiles(Constants.Profile.TEST)
@@ -51,5 +53,12 @@ class EnumsTest {
     void healthcareFacilityEnumTest() {
         String code = HealthcareFacilityEnum.Cittadino.getCode();
         Assertions.assertEquals(code, HealthcareFacilityEnum.Cittadino.getCode());
+    }
+
+    @Test
+    @DisplayName("testResultLogEnum")
+    void testResultLogEnum() {
+        String code = ResultLogEnum.KO.getCode();
+        assertEquals(code, ResultLogEnum.KO.getCode());
     }
 }
