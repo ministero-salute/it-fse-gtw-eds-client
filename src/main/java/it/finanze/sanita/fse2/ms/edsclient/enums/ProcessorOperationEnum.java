@@ -15,4 +15,19 @@ public enum ProcessorOperationEnum {
 	ProcessorOperationEnum(String pname) {
 		name = pname;
 	}
+
+	public ILogEnum toLogOperation() {
+		switch (this) {
+		case PUBLISH:
+			return OperationLogEnum.PUB_CDA2;
+		case DELETE:
+			return OperationLogEnum.DELETE_CDA2;
+		case REPLACE:
+			return OperationLogEnum.REPLACE_CDA2;
+		case UPDATE:
+			return OperationLogEnum.UPDATE_CDA;
+		default:
+			return null;
+		}
+	}
 }

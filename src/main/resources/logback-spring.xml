@@ -46,8 +46,6 @@
 		</encoder>
 	</appender>
 
-
-
 	<logger name="kafka-logger" level="${log.level}"
 		additivity="false">
 		<appender name="kafka-appender" class="it.finanze.sanita.fse2.ms.edsclient.logging.KafkaAppender">

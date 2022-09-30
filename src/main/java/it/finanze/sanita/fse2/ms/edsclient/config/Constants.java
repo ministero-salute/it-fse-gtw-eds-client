@@ -84,7 +84,11 @@ public final class Constants {
 
 	public static final class AppConstants {
 
-        private AppConstants(){}
+        private AppConstants() {}
+
+		public static final String UNKNOWN_ISSUER = "UNKNOWN_ISSUER";
+
+		public static final String UNKNOWN_DOCUMENT_TYPE = "UNKNOWN_DOCUMENT_TYPE";
 
 		public static Map<ProcessorOperationEnum, HttpMethod> methodMap = new HashMap<ProcessorOperationEnum, HttpMethod>() {
 

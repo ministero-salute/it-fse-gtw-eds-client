@@ -1,5 +1,9 @@
 package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
+import java.util.Date;
+import java.util.List;
+
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,9 +18,12 @@ import it.finanze.sanita.fse2.ms.edsclient.config.EdsCFG;
 import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.ErrorLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
+import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.ConnectionRefusedException;
+import it.finanze.sanita.fse2.ms.edsclient.logging.LoggerHelper;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,26 +42,29 @@ public class EdsClient implements IEdsClient {
     private transient RestTemplate restTemplate;
 
     @Autowired
+    private LoggerHelper logger;
+
+    @Autowired
     private EdsCFG edsCFG;
 
     @Override
     public Boolean dispatchAndSendData(IngestorRequestDTO ingestorRequestDTO) {
-        log.info("Calling eds ingestion ep - START"); 
-        log.info("Operation: " + ingestorRequestDTO.getOperation().getName());
+        final Date startingDate = new Date();
+        log.info("Calling EDS ingestion ep - START"); 
+        log.debug("Operation: {}", ingestorRequestDTO.getOperation().getName());
         
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json"); 
         
         DocumentReferenceDTO requestBody = buildRequestBody(ingestorRequestDTO);
-        
         HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<DocumentResponseDTO> response = null;
-        String url = edsCFG.getEdsIngestionHost() + "/v1/document";
+        final String url = edsCFG.getEdsIngestionHost() + "/v1/document";
         try {
-            response = restTemplate.exchange(url,Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity,
+            response = restTemplate.exchange(url, Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity,
                     DocumentResponseDTO.class);
-            log.info("{} status returned from eds", response.getStatusCode());
+            log.debug("{} status returned from eds", response.getStatusCode());
         } catch(ResourceAccessException cex) {
             log.error("Connect error while call eds ingestion ep :" + cex);
             throw new ConnectionRefusedException(edsCFG.getEdsIngestionHost(),"Connection refused");
@@ -63,13 +73,20 @@ public class EdsClient implements IEdsClient {
             throw new BusinessException("Generic error while call eds ingestion ep :" + ex);
         }
 
+        String issuer = extractFieldFromToken(ingestorRequestDTO.getIniEdsInvocationETY().getMetadata(), "iss");
+        String documentType = extractFieldFromMetadata(ingestorRequestDTO.getIniEdsInvocationETY().getMetadata(), "typeCodeName");
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            logger.info("Informazioni inviate all'Ingestion", requestBody.getOperation().toLogOperation(), ResultLogEnum.OK, startingDate, issuer, documentType);
+        } else {
+            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", requestBody.getOperation().toLogOperation(), ResultLogEnum.KO, startingDate, ErrorLogEnum.KO_PUB, issuer, documentType);
+        }
+
         return response.getStatusCode().is2xxSuccessful();
     } 
     
-    
     private DocumentReferenceDTO buildRequestBody(IngestorRequestDTO ingestorRequestDTO) {
         DocumentReferenceDTO requestBody = null; 
-        
         
         switch(ingestorRequestDTO.getOperation()) {
             case UPDATE:
@@ -112,5 +129,30 @@ public class EdsClient implements IEdsClient {
         
         return requestBody; 
 
+    }
+
+    private String extractFieldFromMetadata(List<Document> metadata, String fieldName) {
+        String field = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;
+        for (Document meta : metadata) {
+            if (meta.get("documentEntry") != null) {
+                field = ((Document) meta.get("documentEntry")).getString("typeCodeName");
+                break;
+            }
+        }
+        return field;
+    }
+
+    private String extractFieldFromToken(final List<Document> metadata, final String fieldName) {
+        String field = Constants.AppConstants.UNKNOWN_ISSUER;
+        for (Document meta : metadata) {
+            if (meta.get("tokenEntry") != null) {
+                final Document payload = (Document) meta.get("payload");
+                if (payload != null) {
+                    field = payload.getString(fieldName);
+                }
+                break;
+            }
+        }
+        return field;
     }
 }
