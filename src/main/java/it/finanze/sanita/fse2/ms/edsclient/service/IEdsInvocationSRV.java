@@ -11,5 +11,5 @@ public interface IEdsInvocationSRV {
 	
 	Boolean replaceByWorkflowInstanceIdAndIdentifier(String identifier, String workflowInstanceId);
 	
-	Boolean updateByRequest(EdsMetadataUpdateReqDTO updateReqDTO);
+	Boolean updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO);
 }

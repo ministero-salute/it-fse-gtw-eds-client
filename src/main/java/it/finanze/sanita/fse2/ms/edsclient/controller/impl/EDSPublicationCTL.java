@@ -27,7 +27,7 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 	private static final long serialVersionUID = 8414558048109050743L;
 	
 	@Autowired
-	private IEdsInvocationSRV edsInvocationSRV;
+	private transient IEdsInvocationSRV edsInvocationSRV;
     
     @Override
     public EDSPublicationResponseDTO publication(final PublicationRequestBodyDTO requestBodyDTO, HttpServletRequest request) {
@@ -44,16 +44,16 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 	}
 
 	@Override
-	public EDSPublicationResponseDTO replace(final IndexerValueDTO replaceInfo, final HttpServletRequest request) {
-		log.info("Executing replace operation of document having identifier: {}", replaceInfo.getIdentificativoDocUpdate());
-		Boolean res = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdentificativoDocUpdate(), replaceInfo.getWorkflowInstanceId());
+	public EDSPublicationResponseDTO replace(final String idDoc, final IndexerValueDTO replaceInfo, final HttpServletRequest request) {
+		log.info("Executing replace operation of document having identifier: {}", replaceInfo.getIdDoc());
+		Boolean res = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId());
 		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
 
 	@Override
-	public EDSPublicationResponseDTO update(EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
-		log.info("Executing update operation of document having identifier: {}", dto.getIdDoc());
-		Boolean res = edsInvocationSRV.updateByRequest(dto);
+	public EDSPublicationResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
+		log.info("Executing update operation of document having identifier: {}", idDoc);
+		Boolean res = edsInvocationSRV.updateByRequest(idDoc, dto);
 		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
 

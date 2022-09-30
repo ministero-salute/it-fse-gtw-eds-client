@@ -88,14 +88,14 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public Boolean updateByRequest(EdsMetadataUpdateReqDTO updateReqDTO) {
+	public Boolean updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO) {
 		boolean out = false;
 		out = edsClient.dispatchAndSendData(
 				IngestorRequestDTO.builder()
 						.updateReqDTO(updateReqDTO)
 						.iniEdsInvocationETY(null)
 						.operation(ProcessorOperationEnum.UPDATE)
-						.identifier(updateReqDTO.getIdDoc())
+						.identifier(idDoc)
 						.priorityType(null)
 						.build()
 		);

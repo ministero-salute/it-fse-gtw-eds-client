@@ -3,6 +3,8 @@ package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 import java.util.Date;
 import java.util.List;
 
+import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
+import org.apache.commons.lang3.ObjectUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -26,6 +28,8 @@ import it.finanze.sanita.fse2.ms.edsclient.exceptions.ConnectionRefusedException
 import it.finanze.sanita.fse2.ms.edsclient.logging.LoggerHelper;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -73,21 +77,26 @@ public class EdsClient implements IEdsClient {
             throw new BusinessException("Generic error while call eds ingestion ep :" + ex);
         }
 
-        String issuer = extractFieldFromToken(ingestorRequestDTO.getIniEdsInvocationETY().getMetadata(), "iss");
-        String documentType = extractFieldFromMetadata(ingestorRequestDTO.getIniEdsInvocationETY().getMetadata(), "typeCodeName");
+        String issuer = Constants.AppConstants.UNKNOWN_ISSUER;
+        String documentType = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;
+        if (ingestorRequestDTO.getIniEdsInvocationETY() != null) {
+            issuer = extractFieldFromToken(ingestorRequestDTO.getIniEdsInvocationETY().getMetadata(), "iss");
+            documentType = extractFieldFromMetadata(ingestorRequestDTO.getIniEdsInvocationETY().getMetadata(), "typeCodeName");
+        }
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            logger.info("Informazioni inviate all'Ingestion", requestBody.getOperation().toLogOperation(), ResultLogEnum.OK, startingDate, issuer, documentType);
+            logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().toLogOperation(), ResultLogEnum.OK, startingDate, issuer, documentType);
         } else {
-            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", requestBody.getOperation().toLogOperation(), ResultLogEnum.KO, startingDate, ErrorLogEnum.KO_PUB, issuer, documentType);
+            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().toLogOperation(), ResultLogEnum.KO, startingDate, ErrorLogEnum.KO_PUB, issuer, documentType);
         }
 
         return response.getStatusCode().is2xxSuccessful();
     } 
     
     private DocumentReferenceDTO buildRequestBody(IngestorRequestDTO ingestorRequestDTO) {
-        DocumentReferenceDTO requestBody = null; 
-        
+        DocumentReferenceDTO requestBody = null;
+        IniEdsInvocationETY ety = ingestorRequestDTO.getIniEdsInvocationETY() != null ? ingestorRequestDTO.getIniEdsInvocationETY() : null;
+
         switch(ingestorRequestDTO.getOperation()) {
             case UPDATE:
                 if (ingestorRequestDTO.getUpdateReqDTO() == null) {
@@ -100,31 +109,31 @@ public class EdsClient implements IEdsClient {
                 requestBody.setJsonString(JsonUtility.objectToJson(ingestorRequestDTO.getUpdateReqDTO()));
                 break;
 			case REPLACE:
-                if (ingestorRequestDTO.getIniEdsInvocationETY() == null) {
-                    // bad request
-                    throw new BusinessException(MSG_UNSUPPORTED);
-                }
-	        	requestBody = new DocumentReferenceDTO(); 
+	        	requestBody = new DocumentReferenceDTO();
 	            requestBody.setIdentifier(ingestorRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.REPLACE);
-	            requestBody.setJsonString(JsonUtility.objectToJson(ingestorRequestDTO.getIniEdsInvocationETY().getData()));
-	        	break; 
+                if (ety != null && ety.getData() != null) {
+                    requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
+                } else {
+                    throw new BusinessException(MSG_UNSUPPORTED);
+                }
+                break;
 	        	
 	        case DELETE: 
 	        	break;
 
             case PUBLISH:
 	        default:
-                if (ingestorRequestDTO.getIniEdsInvocationETY() == null) {
-                    // bad request
-                    throw new BusinessException(MSG_UNSUPPORTED);
-                }
 	        	requestBody = new DocumentReferenceDTO();
 	            requestBody.setIdentifier(ingestorRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
-	            requestBody.setJsonString(JsonUtility.objectToJson(ingestorRequestDTO.getIniEdsInvocationETY().getData()));
                 requestBody.setPriorityType(ingestorRequestDTO.getPriorityType());
-	        	break; 
+                if (ety != null && ety.getData() != null) {
+                    requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
+                } else {
+                    throw new BusinessException(MSG_UNSUPPORTED);
+                }
+	        	break;
         } 
         
         return requestBody; 

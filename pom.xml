@@ -29,6 +29,7 @@
 		<!-- Sonar integration -->
 		<sonar.organization>ministero-salute</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.exclusions>src/main/java/it/finanze/sanita/fse2/ms/edsclient/logging/**/*.*</sonar.exclusions>
 	</properties>
 
 	<dependencies>

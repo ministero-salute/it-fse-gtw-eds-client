@@ -3,7 +3,7 @@ package it.finanze.sanita.fse2.ms.edsclient.config;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import org.springframework.http.HttpMethod;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 /**
@@ -90,19 +90,13 @@ public final class Constants {
 
 		public static final String UNKNOWN_DOCUMENT_TYPE = "UNKNOWN_DOCUMENT_TYPE";
 
-		public static Map<ProcessorOperationEnum, HttpMethod> methodMap = new HashMap<ProcessorOperationEnum, HttpMethod>() {
-
-			/**
-			 * Serial Version UID
-			 */
-			private static final long serialVersionUID = 5813388826870382105L;
-
-			{
-				put(ProcessorOperationEnum.PUBLISH, HttpMethod.POST);
-				put(ProcessorOperationEnum.REPLACE, HttpMethod.PUT);
-				put(ProcessorOperationEnum.UPDATE, HttpMethod.PUT);
-				put(ProcessorOperationEnum.DELETE, HttpMethod.DELETE);
-			}};
+		public static final Map<ProcessorOperationEnum, HttpMethod> methodMap = new EnumMap<>(ProcessorOperationEnum.class);
+		static {
+			methodMap.put(ProcessorOperationEnum.PUBLISH, HttpMethod.POST);
+			methodMap.put(ProcessorOperationEnum.REPLACE, HttpMethod.PUT);
+			methodMap.put(ProcessorOperationEnum.UPDATE, HttpMethod.PUT);
+			methodMap.put(ProcessorOperationEnum.DELETE, HttpMethod.DELETE);
+		}
 	}
   
 	/**
