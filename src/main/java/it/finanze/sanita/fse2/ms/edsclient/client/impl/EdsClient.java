@@ -143,9 +143,12 @@ public class EdsClient implements IEdsClient {
         String field = Constants.AppConstants.UNKNOWN_ISSUER;
         for (Document meta : metadata) {
             if (meta.get("tokenEntry") != null) {
-                final Document payload = (Document) meta.get("payload");
-                if (payload != null) {
-                    field = payload.getString(fieldName);
+                final Document token = (Document) meta.get("tokenEntry");
+                if (token.get("payload") != null) {
+                    final Document payload = (Document) token.get("payload");
+                    if (payload != null) {
+                        field = payload.getString(fieldName);
+                    }
                 }
                 break;
             }
