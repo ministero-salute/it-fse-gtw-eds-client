@@ -61,7 +61,7 @@ public class EdsClient implements IEdsClient {
         HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<DocumentResponseDTO> response = null;
-        final String url = edsCFG.getEdsIngestionHost() + "/v1/document";
+        final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier());
         try {
             response = restTemplate.exchange(url, Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity,
                     DocumentResponseDTO.class);
@@ -160,5 +160,24 @@ public class EdsClient implements IEdsClient {
             }
         }
         return field;
+    }
+    
+    private String buildRequestPath(ProcessorOperationEnum operation, String identifier) {
+        String requestPath = "";
+
+        switch(operation) {
+            case REPLACE:
+                break;
+            case UPDATE:
+                requestPath = "/metadata";
+                break;
+            case DELETE:
+                requestPath = "/identifier/"+ identifier;
+                break;
+            case PUBLISH:
+            default:
+                break;
+        }
+        return requestPath;
     }
 }
