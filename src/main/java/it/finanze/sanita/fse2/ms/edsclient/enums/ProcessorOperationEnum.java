@@ -4,30 +4,20 @@ import lombok.Getter;
 
 public enum ProcessorOperationEnum {
 
-	PUBLISH("PUBLISH"),
-	DELETE("DELETE"),
-	REPLACE("REPLACE"),
-	UPDATE("UPDATE");
+	PUBLISH("PUBLISH", OperationLogEnum.PUB_CDA2),
+	DELETE("DELETE", OperationLogEnum.DELETE_CDA2),
+	REPLACE("REPLACE", OperationLogEnum.REPLACE_CDA2),
+	UPDATE("UPDATE", OperationLogEnum.UPDATE_CDA);
 
 	@Getter
 	private final String name;
 
-	ProcessorOperationEnum(String pname) {
+	@Getter
+	private final OperationLogEnum operationLogEnum;
+
+	ProcessorOperationEnum(String pname, OperationLogEnum logType) {
 		name = pname;
+		operationLogEnum = logType;
 	}
 
-	public ILogEnum toLogOperation() {
-		switch (this) {
-		case PUBLISH:
-			return OperationLogEnum.PUB_CDA2;
-		case DELETE:
-			return OperationLogEnum.DELETE_CDA2;
-		case REPLACE:
-			return OperationLogEnum.REPLACE_CDA2;
-		case UPDATE:
-			return OperationLogEnum.UPDATE_CDA;
-		default:
-			return null;
-		}
-	}
 }

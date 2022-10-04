@@ -97,6 +97,7 @@ public final class Constants {
 			methodMap.put(ProcessorOperationEnum.UPDATE, HttpMethod.PUT);
 			methodMap.put(ProcessorOperationEnum.DELETE, HttpMethod.DELETE);
 		}
+
 	}
   
 	/**

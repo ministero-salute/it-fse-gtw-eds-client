@@ -3,8 +3,6 @@ package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 import java.util.Date;
 import java.util.List;
 
-import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
-import org.apache.commons.lang3.ObjectUtils;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -26,10 +24,9 @@ import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.ConnectionRefusedException;
 import it.finanze.sanita.fse2.ms.edsclient.logging.LoggerHelper;
+import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -54,7 +51,7 @@ public class EdsClient implements IEdsClient {
     @Override
     public Boolean dispatchAndSendData(IngestorRequestDTO ingestorRequestDTO) {
         final Date startingDate = new Date();
-        log.info("Calling EDS ingestion ep - START"); 
+        log.debug("Calling EDS ingestion ep - START"); 
         log.debug("Operation: {}", ingestorRequestDTO.getOperation().getName());
         
         HttpHeaders headers = new HttpHeaders();
@@ -85,9 +82,9 @@ public class EdsClient implements IEdsClient {
         }
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().toLogOperation(), ResultLogEnum.OK, startingDate, issuer, documentType);
+            logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate, issuer, documentType);
         } else {
-            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().toLogOperation(), ResultLogEnum.KO, startingDate, ErrorLogEnum.KO_PUB, issuer, documentType);
+            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, ErrorLogEnum.KO_PUB, issuer, documentType);
         }
 
         return response.getStatusCode().is2xxSuccessful();

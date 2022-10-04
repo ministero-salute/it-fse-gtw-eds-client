@@ -31,28 +31,28 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
     
     @Override
     public EDSPublicationResponseDTO publication(final PublicationRequestBodyDTO requestBodyDTO, HttpServletRequest request) {
-        log.info("Workflow instance id received:" + requestBodyDTO.getWorkflowInstanceId() +", calling eds invocation client...");
+        log.debug("Workflow instance id received:" + requestBodyDTO.getWorkflowInstanceId() +", calling eds invocation client...");
         Boolean res = edsInvocationSRV.publishByWorkflowInstanceIdAndPriority(requestBodyDTO);
         return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
     }
 
 	@Override
 	public EDSPublicationResponseDTO delete(String ooid, HttpServletRequest request) {
-		log.info("Ricevuto ooid : " + ooid );
+		log.debug("Ricevuto ooid : " + ooid );
 		Boolean res = edsInvocationSRV.deleteByIdentifier(ooid);
 		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
 
 	@Override
 	public EDSPublicationResponseDTO replace(final String idDoc, final IndexerValueDTO replaceInfo, final HttpServletRequest request) {
-		log.info("Executing replace operation of document having identifier: {}", replaceInfo.getIdDoc());
+		log.debug("Executing replace operation of document having identifier: {}", replaceInfo.getIdDoc());
 		Boolean res = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId());
 		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
 
 	@Override
 	public EDSPublicationResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
-		log.info("Executing update operation of document having identifier: {}", idDoc);
+		log.debug("Executing update operation of document having identifier: {}", idDoc);
 		Boolean res = edsInvocationSRV.updateByRequest(idDoc, dto);
 		return new EDSPublicationResponseDTO(getLogTraceInfo(), res);
 	}
