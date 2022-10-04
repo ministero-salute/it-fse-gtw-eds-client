@@ -9,7 +9,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IEdsClient;
@@ -22,7 +21,6 @@ import it.finanze.sanita.fse2.ms.edsclient.enums.ErrorLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.edsclient.exceptions.ConnectionRefusedException;
 import it.finanze.sanita.fse2.ms.edsclient.logging.LoggerHelper;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
@@ -60,20 +58,6 @@ public class EdsClient implements IEdsClient {
         DocumentReferenceDTO requestBody = buildRequestBody(ingestorRequestDTO);
         HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<DocumentResponseDTO> response = null;
-        final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier());
-        try {
-            response = restTemplate.exchange(url, Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity,
-                    DocumentResponseDTO.class);
-            log.debug("{} status returned from eds", response.getStatusCode());
-        } catch(ResourceAccessException cex) {
-            log.error("Connect error while call eds ingestion ep :" + cex);
-            throw new ConnectionRefusedException(edsCFG.getEdsIngestionHost(),"Connection refused");
-        } catch(Exception ex) {
-            log.error("Generic error while call eds ingestion ep :" + ex);
-            throw new BusinessException("Generic error while call eds ingestion ep :" + ex);
-        }
-
         String issuer = Constants.AppConstants.UNKNOWN_ISSUER;
         String documentType = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;
         if (ingestorRequestDTO.getIniEdsInvocationETY() != null) {
@@ -81,10 +65,17 @@ public class EdsClient implements IEdsClient {
             documentType = extractFieldFromMetadata(ingestorRequestDTO.getIniEdsInvocationETY().getMetadata(), "typeCodeName");
         }
 
-        if (response.getStatusCode().is2xxSuccessful()) {
+        ResponseEntity<DocumentResponseDTO> response = null;
+        final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier());
+        try {
+            response = restTemplate.exchange(url, Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity,
+                    DocumentResponseDTO.class);
+            log.debug("{} status returned from eds", response.getStatusCode());
             logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate, issuer, documentType);
-        } else {
+        } catch(Exception ex) {
             logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, ErrorLogEnum.KO_PUB, issuer, documentType);
+            log.error("Generic error while call eds ingestion ep: " + ex);
+            throw ex;
         }
 
         return response.getStatusCode().is2xxSuccessful();
