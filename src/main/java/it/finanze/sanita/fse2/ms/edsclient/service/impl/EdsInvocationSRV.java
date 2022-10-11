@@ -1,9 +1,11 @@
 package it.finanze.sanita.fse2.ms.edsclient.service.impl;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IEdsClient;
+import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
@@ -23,12 +25,10 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
 	@Autowired
 	private IEdsClient edsClient;
-
-	 
 	
 	@Override
-	public Boolean publishByWorkflowInstanceIdAndPriority(final PublicationRequestBodyDTO requestBodyDTO) {
-		boolean out = false;
+	public EdsResponseDTO publishByWorkflowInstanceIdAndPriority(final PublicationRequestBodyDTO requestBodyDTO) {
+		EdsResponseDTO out = new EdsResponseDTO();
 		try {
 			IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo
 					.findByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
@@ -42,17 +42,20 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 								.priorityType(requestBodyDTO.getPriorityType())
 								.build()
 				);
+			} else {
+				out.setEsito(false);
+				out.setErrorMessage("Nessun documento trovato per il workflowInstanceId: " + requestBodyDTO.getWorkflowInstanceId());
 			}
 		} catch (Exception ex) {
-			log.error("Error while running find and send to eds by workflow instance id : ", ex);
-			throw new BusinessException(ex);
+			out.setErrorMessage(ExceptionUtils.getRootCauseMessage(ex));
+			out.setEsito(false);
 		}
 		return out;
 	}
 
 	@Override
-	public Boolean deleteByIdentifier(final String identifier) {
-		boolean out = false;
+	public EdsResponseDTO deleteByIdentifier(final String identifier) {
+		EdsResponseDTO out = new EdsResponseDTO();
 		try {
 			out = edsClient.dispatchAndSendData(
 					IngestorRequestDTO.builder()
@@ -70,8 +73,9 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public Boolean replaceByWorkflowInstanceIdAndIdentifier(String identifier, String workflowInstanceId) {
-		boolean out = false;
+	public EdsResponseDTO replaceByWorkflowInstanceIdAndIdentifier(String identifier, String workflowInstanceId) {
+		EdsResponseDTO out = new EdsResponseDTO();
+
 		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(workflowInstanceId);
 		if (iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
 			out = edsClient.dispatchAndSendData(
@@ -88,8 +92,8 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public Boolean updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO) {
-		boolean out = false;
+	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO) {
+		EdsResponseDTO out = new EdsResponseDTO();
 		out = edsClient.dispatchAndSendData(
 				IngestorRequestDTO.builder()
 						.updateReqDTO(updateReqDTO)
@@ -99,6 +103,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 						.priorityType(null)
 						.build()
 		);
+		
 		return out;
 	}
 }

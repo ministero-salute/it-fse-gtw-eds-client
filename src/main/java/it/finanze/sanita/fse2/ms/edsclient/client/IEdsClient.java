@@ -1,9 +1,10 @@
 package it.finanze.sanita.fse2.ms.edsclient.client;
 
 
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
-
 import java.io.Serializable;
+
+import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
 
 /**
  * Interface of Eds client.
@@ -12,5 +13,5 @@ import java.io.Serializable;
  */
 public interface IEdsClient extends Serializable {
 
-    Boolean dispatchAndSendData(IngestorRequestDTO ingestorRequestDTO);
+    EdsResponseDTO dispatchAndSendData(IngestorRequestDTO ingestorRequestDTO);
 }

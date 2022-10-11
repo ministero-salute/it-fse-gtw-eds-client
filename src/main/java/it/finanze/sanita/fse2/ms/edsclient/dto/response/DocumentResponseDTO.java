@@ -7,21 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 public class DocumentResponseDTO extends ResponseDTO { 
 
-	/**
-	 * Serial Version UID 
-	 */
-	private static final long serialVersionUID = 21641554325694264L; 
-	
-	
-	private String transactionId;
-
-	public DocumentResponseDTO() {
-		super();
-	}
-
-	public DocumentResponseDTO(final LogTraceInfoDTO traceInfo, final String inTransactionId) {
+	public DocumentResponseDTO(final LogTraceInfoDTO traceInfo) {
 		super(traceInfo);
-		transactionId = inTransactionId;
 	}
 	
 }

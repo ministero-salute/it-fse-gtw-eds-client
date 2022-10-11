@@ -2,11 +2,6 @@ package it.finanze.sanita.fse2.ms.edsclient;
 
 import java.util.List;
 
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationMetadataReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
-import it.finanze.sanita.fse2.ms.edsclient.enums.PriorityTypeEnum;
 import org.bson.Document;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +12,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import it.finanze.sanita.fse2.ms.edsclient.dto.response.EDSPublicationResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationMetadataReqDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.PriorityTypeEnum;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 
@@ -37,7 +37,7 @@ public abstract class AbstractTest {
      * @param workflowInstanceId of the transaction
      * @return entity containing all the events found
      */
-    ResponseEntity<EDSPublicationResponseDTO> callPublishEdsClient(String workflowInstanceId) {
+    ResponseEntity<EdsResponseDTO> callPublishEdsClient(String workflowInstanceId) {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
@@ -45,10 +45,10 @@ public abstract class AbstractTest {
         PublicationRequestBodyDTO requestBodyDTO = new PublicationRequestBodyDTO();
         requestBodyDTO.setPriorityType(PriorityTypeEnum.HIGH);
         requestBodyDTO.setWorkflowInstanceId(workflowInstanceId);
-        return restTemplate.postForEntity(url, requestBodyDTO, EDSPublicationResponseDTO.class);
+        return restTemplate.postForEntity(url, requestBodyDTO, EdsResponseDTO.class);
     } 
     
-    ResponseEntity<EDSPublicationResponseDTO> callUpdateEdsClient(final String idDoc, final String workflowInstanceId, PublicationMetadataReqDTO dto) {
+    ResponseEntity<EdsResponseDTO> callUpdateEdsClient(final String idDoc, final String workflowInstanceId, PublicationMetadataReqDTO dto) {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
@@ -57,11 +57,11 @@ public abstract class AbstractTest {
         PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO(); 
         HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate));
         
-        return restTemplate.exchange(url, HttpMethod.PUT, request, EDSPublicationResponseDTO.class);
+        return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
     }
     
     
-    ResponseEntity<EDSPublicationResponseDTO> callReplaceEdsClient(final String idDoc, final String workflowInstanceId) {
+    ResponseEntity<EdsResponseDTO> callReplaceEdsClient(final String idDoc, final String workflowInstanceId) {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
@@ -72,16 +72,16 @@ public abstract class AbstractTest {
         dtoReplace.setIdDoc(idDoc);
         HttpEntity<IndexerValueDTO> request = new HttpEntity<IndexerValueDTO>(dtoReplace); 
         
-        return restTemplate.exchange(url, HttpMethod.PUT, request, EDSPublicationResponseDTO.class);
+        return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
     } 
     
-    ResponseEntity<EDSPublicationResponseDTO> callDeleteEdsClient(final String ooid) {
+    ResponseEntity<EdsResponseDTO> callDeleteEdsClient(final String ooid) {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
                 "/v1/documents/" + ooid;
         
-        return restTemplate.exchange(url, HttpMethod.DELETE, null, EDSPublicationResponseDTO.class);
+        return restTemplate.exchange(url, HttpMethod.DELETE, null, EdsResponseDTO.class);
     }
 
     @SuppressWarnings("unchecked")
