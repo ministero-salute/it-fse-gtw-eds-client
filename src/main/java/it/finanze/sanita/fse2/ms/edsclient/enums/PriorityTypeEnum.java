@@ -3,9 +3,9 @@ package it.finanze.sanita.fse2.ms.edsclient.enums;
 import lombok.Getter;
 
 public enum PriorityTypeEnum {
-    LOW("low"),
-    MEDIUM("medium"),
-    HIGH("high");
+    LOW("LOW"),
+    MEDIUM("MEDIUM"),
+    HIGH("HIGH");
 
     @Getter
     private final String description;
