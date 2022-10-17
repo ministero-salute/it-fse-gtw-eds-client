@@ -4,10 +4,10 @@ import lombok.Getter;
 
 public enum ProcessorOperationEnum {
 
-	PUBLISH("PUBLISH", OperationLogEnum.PUB_CDA2),
-	DELETE("DELETE", OperationLogEnum.DELETE_CDA2),
-	REPLACE("REPLACE", OperationLogEnum.REPLACE_CDA2),
-	UPDATE("UPDATE", OperationLogEnum.UPDATE_CDA);
+	PUBLISH("PUBLISH", OperationLogEnum.PUB_CDA2, ErrorLogEnum.KO_PUB),
+	DELETE("DELETE", OperationLogEnum.DELETE_CDA2, ErrorLogEnum.KO_DELETE),
+	REPLACE("REPLACE", OperationLogEnum.REPLACE_CDA2, ErrorLogEnum.KO_REPLACE),
+	UPDATE("UPDATE", OperationLogEnum.UPDATE_CDA, ErrorLogEnum.KO_UPDATE);
 
 	@Getter
 	private final String name;
@@ -15,9 +15,13 @@ public enum ProcessorOperationEnum {
 	@Getter
 	private final OperationLogEnum operationLogEnum;
 
-	ProcessorOperationEnum(String pname, OperationLogEnum logType) {
+	@Getter
+	private final ErrorLogEnum errorLogEnum;
+
+	ProcessorOperationEnum(String pname, OperationLogEnum logType, ErrorLogEnum errorLogEnum) {
 		name = pname;
 		operationLogEnum = logType;
+		this.errorLogEnum = errorLogEnum;
 	}
 
 }
