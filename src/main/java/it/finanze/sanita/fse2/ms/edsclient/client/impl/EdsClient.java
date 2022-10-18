@@ -75,7 +75,7 @@ public class EdsClient implements IEdsClient {
             logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate, issuer, documentType, subjectRole);
             output.setEsito(true);
         } catch(Exception ex) {
-            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, ErrorLogEnum.KO_PUB, issuer, documentType, subjectRole);
+            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, ingestorRequestDTO.getOperation().getErrorLogEnum(), issuer, documentType, subjectRole);
             output.setErrorMessage(ExceptionUtils.getRootCauseMessage(ex));
         }
 
