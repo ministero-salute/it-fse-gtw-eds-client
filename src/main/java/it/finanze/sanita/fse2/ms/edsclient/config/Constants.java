@@ -92,6 +92,8 @@ public final class Constants {
 
 		public static final String UNKNOWN_DOCUMENT_TYPE = "UNKNOWN_DOCUMENT_TYPE";
 
+		public static final String JWT_MISSING_SUBJECT_ROLE = "UNDEFINED_SUBJECT_ROLE";
+
 		public static final Map<ProcessorOperationEnum, HttpMethod> methodMap = new EnumMap<>(ProcessorOperationEnum.class);
 		static {
 			methodMap.put(ProcessorOperationEnum.PUBLISH, HttpMethod.POST);
