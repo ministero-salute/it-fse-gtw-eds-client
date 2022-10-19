@@ -64,19 +64,21 @@ public class EdsClient implements IEdsClient {
 
         String issuer = Constants.AppConstants.UNKNOWN_ISSUER;
         String documentType = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;
+        String subjectRole = Constants.AppConstants.JWT_MISSING_SUBJECT_ROLE;
         IniEdsInvocationETY ety = ingestorRequestDTO.getIniEdsInvocationETY() != null ? ingestorRequestDTO.getIniEdsInvocationETY() : null;
         if (ety != null && ety.getMetadata() != null) {
             issuer = RequestUtility.extractFieldFromToken(ety.getMetadata(), "iss");
             documentType = RequestUtility.extractFieldFromMetadata(ety.getMetadata(), "typeCodeName");
+            subjectRole = RequestUtility.extractFieldFromToken(ety.getMetadata(), "subject_role");
         }
 
         final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier());
         try {
             restTemplate.exchange(url, Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity, DocumentResponseDTO.class);
-            logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate, issuer, documentType);
+            logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate, issuer, documentType, subjectRole);
             output.setEsito(true);
         } catch(Exception ex) {
-            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, ingestorRequestDTO.getOperation().getErrorLogEnum(), issuer, documentType);
+            logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, ingestorRequestDTO.getOperation().getErrorLogEnum(), issuer, documentType, subjectRole);
             output.setErrorMessage(ExceptionUtils.getRootCauseMessage(ex));
         }
 
