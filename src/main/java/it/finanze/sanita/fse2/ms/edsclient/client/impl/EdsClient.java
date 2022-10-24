@@ -19,7 +19,6 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
-import it.finanze.sanita.fse2.ms.edsclient.enums.ErrorLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
@@ -67,9 +66,9 @@ public class EdsClient implements IEdsClient {
         String subjectRole = Constants.AppConstants.JWT_MISSING_SUBJECT_ROLE;
         IniEdsInvocationETY ety = ingestorRequestDTO.getIniEdsInvocationETY() != null ? ingestorRequestDTO.getIniEdsInvocationETY() : null;
         if (ety != null && ety.getMetadata() != null) {
-            issuer = RequestUtility.extractFieldFromToken(ety.getMetadata(), "iss");
+            issuer = RequestUtility.extractIssuerFromToken(ety.getMetadata(), "iss");
             documentType = RequestUtility.extractFieldFromMetadata(ety.getMetadata(), "typeCodeName");
-            subjectRole = RequestUtility.extractFieldFromToken(ety.getMetadata(), "subject_role");
+            subjectRole = RequestUtility.extractSubjectRoleFromToken(ety.getMetadata());
         }
 
         final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier());

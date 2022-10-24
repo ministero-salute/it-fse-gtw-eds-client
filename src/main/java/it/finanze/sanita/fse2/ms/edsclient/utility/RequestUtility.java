@@ -3,10 +3,11 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.utility;
 
-import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
+import java.util.List;
+
 import org.bson.Document;
 
-import java.util.List;
+import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 
 public class RequestUtility {
     private RequestUtility() {}
@@ -21,7 +22,7 @@ public class RequestUtility {
         return field;
     }
 
-    public static String extractFieldFromToken(final List<Document> metadata, final String fieldName) {
+    public static String extractIssuerFromToken(final List<Document> metadata, final String fieldName) {
         String field = Constants.AppConstants.UNKNOWN_ISSUER;
         for (Document meta : metadata) {
             if (meta.get("tokenEntry") != null) {
@@ -36,5 +37,23 @@ public class RequestUtility {
             }
         }
         return field;
+    }
+
+    public static String extractSubjectRoleFromToken(final List<Document> metadata) {
+        String subjectRole = Constants.AppConstants.JWT_MISSING_SUBJECT_ROLE;
+        
+        for (Document meta : metadata) {
+            if (meta.get("tokenEntry") != null) {
+                final Document token = (Document) meta.get("tokenEntry");
+                if (token.get("payload") != null) {
+                    final Document payload = (Document) token.get("payload");
+                    if (payload != null) {
+                        subjectRole = payload.getString("subject_role");
+                    }
+                }
+                break;
+            }
+        }
+        return subjectRole;
     }
 }
