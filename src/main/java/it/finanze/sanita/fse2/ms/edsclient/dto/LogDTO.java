@@ -30,4 +30,7 @@ public class LogDTO {
 
 	private String op_role;
 	
+	private String gateway_name;
+	
+	private String microservice_name;
 }

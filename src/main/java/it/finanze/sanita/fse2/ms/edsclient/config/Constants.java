@@ -97,6 +97,8 @@ public final class Constants {
 
 		public static final String JWT_MISSING_SUBJECT_ROLE = "UNDEFINED_SUBJECT_ROLE";
 
+		public static final String MOCKED_GATEWAY_NAME = "mocked-gateway";
+
 		public static final Map<ProcessorOperationEnum, HttpMethod> methodMap = new EnumMap<>(ProcessorOperationEnum.class);
 		static {
 			methodMap.put(ProcessorOperationEnum.PUBLISH, HttpMethod.POST);
