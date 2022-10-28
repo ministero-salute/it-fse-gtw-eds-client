@@ -79,13 +79,6 @@
 			<version>0.1.5</version>
 		</dependency>
 
-		<!-- LOGSTASH LOGBACK ENCODER -->
-		<dependency>
-			<groupId>net.logstash.logback</groupId>
-			<artifactId>logstash-logback-encoder</artifactId>
-			<version>7.2</version>
-		</dependency>
-
 		<!-- DEVTOOL -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -135,17 +128,6 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-		</dependency>
-
-		<!-- KAFKA -->
-		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka-test</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
