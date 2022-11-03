@@ -24,6 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL {
 	
+	/**
+	 * Serial version uid.
+	 */
+	private static final long serialVersionUID = -358675423912784785L;
+	
 	@Autowired
 	private transient IEdsInvocationSRV edsInvocationSRV;
     

@@ -3,18 +3,26 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.enums;
 
-import lombok.Getter;
-
 public enum PriorityTypeEnum {
-    LOW("LOW"),
-    MEDIUM("MEDIUM"),
-    HIGH("HIGH");
+	LOW("LOW", "_LOW"),
+	MEDIUM("MEDIUM", "_MEDIUM"),
+	HIGH("HIGH", "_HIGH");
 
-    @Getter
-    private final String description;
+	private final String description;
 
-    PriorityTypeEnum(String description) {
-        this.description = description;
-    }
+	private final String queue;
+
+	PriorityTypeEnum(String inDescription, String inQueue) {
+		description = inDescription;
+		queue = inQueue;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public String getQueue() {
+		return queue;
+	}
 
 }
