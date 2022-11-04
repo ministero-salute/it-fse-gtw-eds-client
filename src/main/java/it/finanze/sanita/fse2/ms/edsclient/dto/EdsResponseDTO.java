@@ -10,9 +10,16 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class EdsResponseDTO extends AbstractDTO {
 
+	/**
+	 * Serial version uid.
+	 */
+	private static final long serialVersionUID = 3367398009484127223L;
+
 	private boolean esito;
 	
-	private String errorMessage;
+	private String exClassCanonicalName;
+	
+	private String messageError;
 
 	public EdsResponseDTO() {
 		this.esito = false;

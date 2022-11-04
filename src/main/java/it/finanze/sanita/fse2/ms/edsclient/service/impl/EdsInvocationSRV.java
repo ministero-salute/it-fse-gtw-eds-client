@@ -3,6 +3,7 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,26 +33,22 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	@Override
 	public EdsResponseDTO publishByWorkflowInstanceIdAndPriority(final PublicationRequestBodyDTO requestBodyDTO) {
 		EdsResponseDTO out = new EdsResponseDTO();
-		try {
-			IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo
-					.findByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
-			if (iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
-				out = edsClient.dispatchAndSendData(
-						IngestorRequestDTO.builder()
-								.updateReqDTO(null)
-								.iniEdsInvocationETY(iniEdsInvocationETY)
-								.operation(ProcessorOperationEnum.PUBLISH)
-								.identifier(requestBodyDTO.getIdentificativoDoc())
-								.priorityType(requestBodyDTO.getPriorityType())
-								.build()
-				);
-			} else {
-				out.setEsito(false);
-				out.setErrorMessage("Nessun documento trovato per il workflowInstanceId: " + requestBodyDTO.getWorkflowInstanceId());
-			}
-		} catch (Exception ex) {
-			out.setErrorMessage(ExceptionUtils.getRootCauseMessage(ex));
+
+		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
+		if(iniEdsInvocationETY==null || iniEdsInvocationETY.getData() == null) {
 			out.setEsito(false);
+			out.setMessageError("Nessun documento trovato per il workflowInstanceId: " + requestBodyDTO.getWorkflowInstanceId());
+		}
+
+		if(StringUtils.isEmpty(out.getMessageError())) {
+			try {
+				IngestorRequestDTO request = IngestorRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(iniEdsInvocationETY)
+						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).priorityType(requestBodyDTO.getPriorityType()).build();
+				out = edsClient.dispatchAndSendData(request);
+			} catch (Exception ex) {
+				out.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
+				out.setMessageError(ex.getMessage());
+			}
 		}
 		return out;
 	}

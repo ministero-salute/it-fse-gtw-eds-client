@@ -76,7 +76,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callPublishEdsClient(TEST_WORKFLOW_INSTANCE_ID);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
         assertNotNull(invocation, "Invocation must exist to test the client call");
     }
 
@@ -90,7 +90,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callPublishEdsClient(TEST_WORKFLOW_INSTANCE_ID);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
     }
 
     @Test
@@ -122,7 +122,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callUpdateEdsClient(docId, TEST_WORKFLOW_INSTANCE_ID, publicationMetadataReqDTO);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
     }
 
     @Test
@@ -137,7 +137,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callUpdateEdsClient(docId, TEST_WORKFLOW_INSTANCE_ID, publicationMetadataReqDTO);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
     }
 
     @Test
@@ -167,7 +167,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callReplaceEdsClient(docId, TEST_WORKFLOW_INSTANCE_ID);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
     }
 
     @Test
@@ -180,7 +180,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callReplaceEdsClient(docId, TEST_WORKFLOW_INSTANCE_ID);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
     }
 
     @Test
@@ -205,7 +205,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callDeleteEdsClient(docId);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
     }
 
     @Test
@@ -215,7 +215,7 @@ class EdsClientTest extends AbstractTest {
         ResponseEntity<EdsResponseDTO> response = callDeleteEdsClient(docId);
         assertNotNull(response);
         assertFalse(response.getBody().isEsito());
-        assertNotNull(response.getBody().getErrorMessage());
+        assertNotNull(response.getBody().getMessageError());
     }
 
     private void mockEdsClient(ProcessorOperationEnum operation, HttpStatus status) {
