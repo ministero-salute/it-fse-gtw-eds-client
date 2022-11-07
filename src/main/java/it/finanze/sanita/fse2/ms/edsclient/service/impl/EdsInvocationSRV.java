@@ -93,17 +93,10 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
 	@Override
 	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO) {
-		EdsResponseDTO out = new EdsResponseDTO();
-		out = edsClient.dispatchAndSendData(
-				IngestorRequestDTO.builder()
-						.updateReqDTO(updateReqDTO)
-						.iniEdsInvocationETY(null)
-						.operation(ProcessorOperationEnum.UPDATE)
-						.identifier(idDoc)
-						.priorityType(null)
-						.build()
-		);
+		return edsClient.dispatchAndSendData(
+				IngestorRequestDTO.builder().updateReqDTO(updateReqDTO)
+						.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE)
+						.identifier(idDoc).priorityType(null).build());
 		
-		return out;
 	}
 }
