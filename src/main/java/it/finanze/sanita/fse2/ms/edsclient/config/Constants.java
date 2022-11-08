@@ -10,9 +10,6 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * 
- * @author Riccardo Bonesi
- *
  * Constants application.
  */
 public final class Constants {

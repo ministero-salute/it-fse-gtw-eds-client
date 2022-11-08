@@ -5,10 +5,7 @@ package it.finanze.sanita.fse2.ms.edsclient.exceptions;
 
 
 /**
- * @author vincenzoingenito
- * 
  * Connection refused error exception.
- *
  */
 public class ConnectionRefusedException extends RuntimeException {
 

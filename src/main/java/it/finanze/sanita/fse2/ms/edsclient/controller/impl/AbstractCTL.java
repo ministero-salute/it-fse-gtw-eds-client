@@ -11,9 +11,6 @@ import brave.Tracer;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
 
 /**
- * 
- * @author vincenzoingenito
- *
  *	Abstract controller.
  */
 public abstract class AbstractCTL implements Serializable {

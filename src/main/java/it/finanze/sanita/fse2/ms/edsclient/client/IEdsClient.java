@@ -11,8 +11,6 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
 
 /**
  * Interface of Eds client.
- * 
- * @author Riccardo Bonesi
  */
 public interface IEdsClient extends Serializable {
 

@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * The Class LivenessCheckController.
- *
- * @author vincenzoingenito
  */
 @RestController
 @Tag(name = "Health check Status Actuator")

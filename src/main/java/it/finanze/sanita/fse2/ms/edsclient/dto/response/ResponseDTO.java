@@ -8,9 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
- * @author CPIERASC
- *
  *	Base response.
  */
 @Getter

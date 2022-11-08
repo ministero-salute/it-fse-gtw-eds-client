@@ -22,9 +22,6 @@ import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
  
 
 /**
- * 
- * @author vincenzoingenito
- *
  *	Configuration for MongoDB.
  */
 @Configuration

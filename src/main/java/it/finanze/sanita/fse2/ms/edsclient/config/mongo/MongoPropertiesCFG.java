@@ -12,8 +12,6 @@ import java.io.Serializable;
 
 
 /**
- *	@author vincenzoingenito
- *
  *	Mongo properties configuration.
  */
 @Data

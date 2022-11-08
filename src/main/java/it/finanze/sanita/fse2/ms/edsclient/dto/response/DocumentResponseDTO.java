@@ -12,6 +12,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 public class DocumentResponseDTO extends ResponseDTO { 
 
+	/**
+	 * Serial version uid.
+	 */
+	private static final long serialVersionUID = -3137648330719798096L;
+
 	public DocumentResponseDTO(final LogTraceInfoDTO traceInfo) {
 		super(traceInfo);
 	}

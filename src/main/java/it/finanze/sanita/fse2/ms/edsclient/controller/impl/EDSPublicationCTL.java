@@ -17,7 +17,6 @@ import it.finanze.sanita.fse2.ms.edsclient.service.IEdsInvocationSRV;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *
  *	INI Publication controller.
  */
 @Slf4j

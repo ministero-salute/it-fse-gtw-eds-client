@@ -28,9 +28,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.response.ErrorResponseDTO;
 
 
 /**
- *
  *	Controller EDS publication.
- *	@author Riccardo Bonesi
  */
 @RequestMapping(path = "/v1")
 @Tag(name = "Servizio pubblicazione verso INI")

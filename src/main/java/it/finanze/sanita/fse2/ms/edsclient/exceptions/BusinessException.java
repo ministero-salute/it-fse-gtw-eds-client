@@ -4,8 +4,6 @@
 package it.finanze.sanita.fse2.ms.edsclient.exceptions;
 
 /**
- * @author vincenzoingenito
- * 
  * Generic business exception.
  */
 public class BusinessException extends RuntimeException {
