@@ -61,7 +61,8 @@ public class EdsClient implements IEdsClient {
     		DocumentReferenceDTO requestBody = buildRequestBody(ingestorRequestDTO);
     		HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
-    		final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier());
+    		final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier(),
+    				ingestorRequestDTO.getWorkflowInstanceId());
 
     		restTemplate.exchange(url, Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity, DocumentResponseDTO.class);
     		logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate);
@@ -122,7 +123,8 @@ public class EdsClient implements IEdsClient {
 
     }
     
-    private String buildRequestPath(ProcessorOperationEnum operation, String identifier) {
+    private String buildRequestPath(final ProcessorOperationEnum operation, final String identifier,
+    		final String workflowInstanceId) {
         String requestPath = "";
 
         switch(operation) {
@@ -133,6 +135,7 @@ public class EdsClient implements IEdsClient {
                 requestPath = "/identifier/"+ identifier;
                 break;
             case PUBLISH:
+            	requestPath = "/workflowinstanceid/"+ workflowInstanceId;
             case REPLACE:
             default:
                 break;

@@ -30,5 +30,7 @@ public class IngestorRequestDTO {
     private ProcessorOperationEnum operation;
 
     private String identifier;
+    
+    private String workflowInstanceId;
 
 }

@@ -43,7 +43,8 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 		if(StringUtils.isEmpty(out.getMessageError())) {
 			try {
 				IngestorRequestDTO request = IngestorRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(iniEdsInvocationETY)
-						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).priorityType(requestBodyDTO.getPriorityType()).build();
+						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).priorityType(requestBodyDTO.getPriorityType()).
+						workflowInstanceId(requestBodyDTO.getWorkflowInstanceId()).build();
 				out = edsClient.dispatchAndSendData(request);
 			} catch (Exception ex) {
 				out.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
