@@ -64,4 +64,58 @@ class EnumsTest {
         String code = ResultLogEnum.KO.getCode();
         assertEquals(code, ResultLogEnum.KO.getCode());
     }
+    
+    @Test
+    @DisplayName("testDocumentTypeEnum")
+    void testDocumentTypeEnum() {
+        String docTypeCFV = DocumentTypeEnum.CFV.getDocumentType();
+        String tempCFV = DocumentTypeEnum.CFV.getTemplateId();
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.11.1.2", tempCFV);
+        Assertions.assertEquals("Certificato vaccinale", docTypeCFV);
+
+        String docTypeLAB = DocumentTypeEnum.LAB.getDocumentType();
+        String tempLAB = DocumentTypeEnum.LAB.getTemplateId(); 
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.1", tempLAB);
+        Assertions.assertEquals("Referto di Laboratorio", docTypeLAB);
+
+        String docTypeRAD = DocumentTypeEnum.RAD.getDocumentType();
+        String tempRAD = DocumentTypeEnum.RAD.getTemplateId(); 
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.7.1", tempRAD);
+        Assertions.assertEquals("Referto di Radiologia", docTypeRAD);
+
+        String docTypeLDO = DocumentTypeEnum.LDO.getDocumentType();
+        String tempLDO = DocumentTypeEnum.LDO.getTemplateId();  
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.5", tempLDO);
+        Assertions.assertEquals("Lettera di Dimissione Ospedaliera", docTypeLDO);
+
+        String docTypeVPS = DocumentTypeEnum.VPS.getDocumentType();
+        String tempVPS = DocumentTypeEnum.VPS.getTemplateId();
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.6.1", tempVPS);
+        Assertions.assertEquals("Verbale di Pronto Soccorso", docTypeVPS);
+       
+        String docTypeRSA = DocumentTypeEnum.RSA.getDocumentType();
+        String tempRSA = DocumentTypeEnum.RSA.getTemplateId();
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.9.1", tempRSA);
+        Assertions.assertEquals("Referto di Specialistica Ambulatoriale", docTypeRSA);
+
+        String docTypePSS = DocumentTypeEnum.PSS.getDocumentType();
+        String tempPSS = DocumentTypeEnum.PSS.getTemplateId();
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.4.1.1", tempPSS);
+        Assertions.assertEquals("Profilo Sanitario Sintetico", docTypePSS);
+
+        String docTypePRS = DocumentTypeEnum.PRS.getDocumentType();
+        String tempPRS = DocumentTypeEnum.PRS.getTemplateId();
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.2", tempPRS);
+        Assertions.assertEquals("Prescrizione", docTypePRS);
+
+        String docTypePTO = DocumentTypeEnum.PTO.getDocumentType();
+        String tempPTO = DocumentTypeEnum.PTO.getTemplateId();
+        Assertions.assertEquals("2.16.840.1.113883.2.9.4.3.14", tempPTO);
+        Assertions.assertEquals("Piano Terapeutico", docTypePTO);
+
+        String docTypeVAC = DocumentTypeEnum.VAC.getDocumentType();
+        String tempVAC = DocumentTypeEnum.VAC.getTemplateId();
+        Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.11.1.1", tempVAC);
+        Assertions.assertEquals("Scheda della singola Vaccinazione", docTypeVAC);
+    }
 }
