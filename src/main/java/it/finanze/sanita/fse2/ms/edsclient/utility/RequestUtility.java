@@ -10,6 +10,7 @@ import org.bson.Document;
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 
 public class RequestUtility {
+	
     private RequestUtility() {}
     public static String extractFieldFromMetadata(List<Document> metadata, String fieldName) {
         String field = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;

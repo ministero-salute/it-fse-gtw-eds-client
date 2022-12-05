@@ -86,6 +86,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 							.operation(ProcessorOperationEnum.REPLACE)
 							.identifier(identifier)
 							.priorityType(null)
+							.workflowInstanceId(workflowInstanceId)
 							.build()
 			);
 		}

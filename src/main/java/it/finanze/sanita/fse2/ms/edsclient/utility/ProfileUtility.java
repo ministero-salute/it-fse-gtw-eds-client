@@ -11,6 +11,7 @@ import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 
 @Component
 public class ProfileUtility {
+	
     @Autowired
     private Environment environment;
 

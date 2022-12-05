@@ -12,12 +12,8 @@ public class JsonUtility {
 
     /**
      * Private constructor to avoid instantiation.
-     *
-     * @throws IllegalStateException
      */
-    private JsonUtility() {
-//		throw new IllegalStateException("Questa è una classe di utilità non va istanziata!!!");
-    }
+    private JsonUtility() {}
 
     private static ObjectMapper mapper = new ObjectMapper();
 

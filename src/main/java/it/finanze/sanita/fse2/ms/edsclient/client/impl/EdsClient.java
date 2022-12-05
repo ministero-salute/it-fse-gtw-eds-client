@@ -32,17 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 public class EdsClient implements IEdsClient {
 
     private static final String MSG_UNSUPPORTED = "Unsupported exception";
-
-    /**
-     * Serial version UID
-     */
-    private static final long serialVersionUID = 5665880440554069040L;
+ 
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Autowired
-    private transient RestTemplate restTemplate;
-
-    @Autowired
-    private transient LoggerHelper logger;
+    private LoggerHelper logger;
 
     @Autowired
     private EdsCFG edsCFG;
@@ -134,9 +129,10 @@ public class EdsClient implements IEdsClient {
             case DELETE:
                 requestPath = "/identifier/"+ identifier;
                 break;
+            case REPLACE:
             case PUBLISH:
             	requestPath = "/workflowinstanceid/"+ workflowInstanceId;
-            case REPLACE:
+            	break;
             default:
                 break;
         }
