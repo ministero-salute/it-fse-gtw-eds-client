@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Tag(name = "Health check Status Actuator")
-public class LivenessCheckController implements HealthIndicator {
+public class LivenessCheckCTL implements HealthIndicator {
 
 	/**
 	 * Return system state.
