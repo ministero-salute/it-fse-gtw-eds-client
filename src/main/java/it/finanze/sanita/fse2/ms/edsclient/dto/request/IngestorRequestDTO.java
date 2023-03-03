@@ -3,6 +3,8 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.dto.request;
 
+import org.springframework.lang.Nullable;
+
 import it.finanze.sanita.fse2.ms.edsclient.enums.PriorityTypeEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
@@ -10,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 @Data
 @Builder
