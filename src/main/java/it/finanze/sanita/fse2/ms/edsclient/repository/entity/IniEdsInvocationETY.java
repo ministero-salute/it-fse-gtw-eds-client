@@ -28,17 +28,20 @@ import java.util.List;
 @NoArgsConstructor
 public class IniEdsInvocationETY {
 
+	public static final String FIELD_WIF = "workflow_instance_id";
+	public static final String FIELD_DATA = "data";
+	public static final String FIELD_METADATA = "metadata";
+
 	@Id
 	private String id;
 	
-	@Field(name = "workflow_instance_id")
+	@Field(name = FIELD_WIF)
 	private String workflowInstanceId;
 	
-	@Field(name = "data")
+	@Field(name = FIELD_DATA)
 	private org.bson.Document data;
 	
-	@Field(name = "metadata")
+	@Field(name = FIELD_METADATA)
 	private List<org.bson.Document> metadata;
-	
 	 
 }

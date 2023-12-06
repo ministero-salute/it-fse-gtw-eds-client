@@ -59,6 +59,11 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 				out.setMessageError(ex.getMessage());
 			}
 		}
+
+		if(out != null && out.isEsito()) {
+			edsInvocationRepo.removeByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
+		}
+
 		return out;
 	}
 
@@ -87,17 +92,21 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
 		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(workflowInstanceId);
 		if (iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
-			out = edsClient.dispatchAndSendData(
-					IngestorRequestDTO.builder()
-							.updateReqDTO(null)
-							.iniEdsInvocationETY(iniEdsInvocationETY)
-							.operation(ProcessorOperationEnum.REPLACE)
-							.identifier(identifier)
-							.priorityType(null)
-							.workflowInstanceId(workflowInstanceId)
-							.build()
-			);
+
+			IngestorRequestDTO req = IngestorRequestDTO.builder()
+				.updateReqDTO(null)
+				.iniEdsInvocationETY(iniEdsInvocationETY)
+				.operation(ProcessorOperationEnum.REPLACE)
+				.identifier(identifier)
+				.priorityType(null)
+				.workflowInstanceId(workflowInstanceId)
+				.build();
+
+			out = edsClient.dispatchAndSendData(req);
 		}
+
+		if(out != null && out.isEsito()) edsInvocationRepo.removeByWorkflowInstanceId(workflowInstanceId);
+
 		return out;
 	}
 

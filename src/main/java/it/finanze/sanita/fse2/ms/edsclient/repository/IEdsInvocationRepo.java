@@ -16,6 +16,6 @@ import java.io.Serializable;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 
 public interface IEdsInvocationRepo extends Serializable {
-
 	IniEdsInvocationETY findByWorkflowInstanceId(String workflowInstanceId);
+	IniEdsInvocationETY removeByWorkflowInstanceId(String workflowInstanceId);
 }
