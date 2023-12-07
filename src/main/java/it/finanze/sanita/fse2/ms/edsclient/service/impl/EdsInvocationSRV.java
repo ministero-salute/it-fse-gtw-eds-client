@@ -11,6 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.service.impl;
 
+import it.finanze.sanita.fse2.ms.edsclient.service.IConfigSRV;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
 	@Autowired
 	private IEdsInvocationRepo edsInvocationRepo;
+
+	@Autowired
+	private IConfigSRV configSRV;
 
 	@Autowired
 	private IEdsClient edsClient;
@@ -60,7 +64,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 			}
 		}
 
-		if(out != null && out.isEsito()) {
+		if(out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()) {
 			edsInvocationRepo.removeByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
 		}
 
@@ -105,7 +109,9 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 			out = edsClient.dispatchAndSendData(req);
 		}
 
-		if(out != null && out.isEsito()) edsInvocationRepo.removeByWorkflowInstanceId(workflowInstanceId);
+		if(out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()){
+			edsInvocationRepo.removeByWorkflowInstanceId(workflowInstanceId);
+		}
 
 		return out;
 	}
