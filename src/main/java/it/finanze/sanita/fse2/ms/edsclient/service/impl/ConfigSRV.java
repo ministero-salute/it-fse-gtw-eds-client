@@ -18,7 +18,6 @@ import java.util.Map;
 
 import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.PROPS_NAME_REMOVE_METADATA_ENABLE;
 import static it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum.EDS_CLIENT;
-import static it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum.values;
 
 @Service
 @Slf4j
@@ -37,7 +36,7 @@ public class ConfigSRV implements IConfigSRV {
 
     @PostConstruct
     public void postConstruct() {
-        for(ConfigItemTypeEnum en : values()) {
+        for(ConfigItemTypeEnum en : ConfigItemTypeEnum.priority()) {
             log.info("[GTW-CFG] Retrieving {} properties ...", en.name());
             ConfigItemDTO items = client.getConfigurationItems(en);
             List<ConfigItemDTO.ConfigDataItemDTO> opts = items.getConfigurationItems();
@@ -46,6 +45,7 @@ public class ConfigSRV implements IConfigSRV {
                     log.info("[GTW-CFG] Property {} is set as {}", key, value);
                     props.put(key, Pair.of(new Date().getTime(), value));
                 });
+                if(opt.getItems().isEmpty()) log.info("[GTW-CFG] No props were found");
             }
         }
         integrity();
@@ -57,7 +57,7 @@ public class ConfigSRV implements IConfigSRV {
         if (new Date().getTime() - lastUpdate >= DELTA_MS) {
             synchronized(ConfigSRV.class) {
                 if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-                    refresh(EDS_CLIENT, PROPS_NAME_REMOVE_METADATA_ENABLE);
+                    refresh(PROPS_NAME_REMOVE_METADATA_ENABLE);
                 }
             }
         }
@@ -66,9 +66,9 @@ public class ConfigSRV implements IConfigSRV {
         );
     }
 
-    private void refresh(ConfigItemTypeEnum type, String name) {
+    private void refresh(String name) {
         String previous = props.getOrDefault(name, Pair.of(0L, null)).getValue();
-        String prop = client.getProps(type, name, previous);
+        String prop = client.getProps(name, previous, EDS_CLIENT);
         props.put(name, Pair.of(new Date().getTime(), prop));
     }
 
