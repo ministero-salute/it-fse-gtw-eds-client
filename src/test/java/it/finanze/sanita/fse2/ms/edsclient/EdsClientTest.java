@@ -18,15 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 
 import java.util.UUID;
 
+import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -58,6 +59,9 @@ class EdsClientTest extends AbstractTest {
     @SpyBean
     private RestTemplate restTemplate;
 
+    @MockBean
+    private ConfigSRV config;
+
     private static final String TEST_WORKFLOW_INSTANCE_ID = UUID.randomUUID().toString();
     IniEdsInvocationETY invocation;
 
@@ -72,6 +76,7 @@ class EdsClientTest extends AbstractTest {
         assertNotNull(invocation, "Invocation must exist to test the client call");
         mockEdsClient(ProcessorOperationEnum.PUBLISH, HttpStatus.OK);
 
+        when(config.isRemoveMetadataEnable()).thenReturn(false);
         final ResponseEntity<EdsResponseDTO> response = callPublishEdsClient(TEST_WORKFLOW_INSTANCE_ID);
 
         assertNotNull(response, "A response should be returned");
@@ -158,6 +163,8 @@ class EdsClientTest extends AbstractTest {
         String req = "{\"tipologiaStruttura\":\"Ospedale\",\"attiCliniciRegoleAccesso\":[\"P99\"],\"tipoDocumentoLivAlto\":\"WOR\",\"assettoOrganizzativo\":\"AD_PSC001\",\"dataInizioPrestazione\":\"1661246473\",\"dataFinePrestazione\":\"1661246473\",\"conservazioneANorma\":\"string\",\"tipoAttivitaClinica\":\"PHR\",\"identificativoSottomissione\":\"2.16.840.1.113883.2.9.2.90.4.4^090A02205783394_PRESPEC\"}";
         JsonUtility.jsonToObject(req, PublicationMetadataReqDTO.class);
         mockEdsClient(ProcessorOperationEnum.REPLACE, HttpStatus.OK);
+
+        when(config.isRemoveMetadataEnable()).thenReturn(false);
 
         final ResponseEntity<EdsResponseDTO> response = callReplaceEdsClient(docId, TEST_WORKFLOW_INSTANCE_ID);
 
