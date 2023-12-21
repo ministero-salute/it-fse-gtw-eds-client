@@ -20,7 +20,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ComponentScan(basePackages = {Constants.ComponentScan.BASE})
@@ -125,5 +128,11 @@ class EnumsTest {
         String tempVAC = DocumentTypeEnum.VAC.getTemplateId();
         Assertions.assertEquals("2.16.840.1.113883.2.9.10.1.11.1.1", tempVAC);
         Assertions.assertEquals("Scheda della singola Vaccinazione", docTypeVAC);
+    }
+
+    @Test
+    @DisplayName("Get by template id return null")
+    void testGetByTemplateId_ReturnNull(){
+        assertNull(DocumentTypeEnum.getByTemplateId(""));
     }
 }

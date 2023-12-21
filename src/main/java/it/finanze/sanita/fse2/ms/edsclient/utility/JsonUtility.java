@@ -23,7 +23,7 @@ public class JsonUtility {
      */
     private JsonUtility() {}
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Methods that converts an Object to a JSON string.
@@ -58,9 +58,5 @@ public class JsonUtility {
         }
 
         return obj;
-    }
-
-    public static <T> T clone (Object object, Class<T> outputClass) {
-        return JsonUtility.jsonToObject(JsonUtility.objectToJson(object), outputClass);
     }
 }
