@@ -64,8 +64,8 @@ Please check the [AUTHORS](AUTHORS) file for extended reference.
 | org.springframework.boot:spring-boot-starter-actuator     | 2.7.18  | Apache License 2.0 |
 | io.micrometer:micrometer-registry-prometheus              | 1.9.17  | Apache License 2.0 |
 | org.springdoc:springdoc-openapi-ui                        | 1.6.11  | Apache License 2.0 |
-| ch.qos.logback.contrib:logback-json-classic               | 0.1.5   | Apache License 2.0 |
-| ch.qos.logback.contrib:logback-jackson                    | 0.1.5   | Apache License 2.0 |
+| ch.qos.logback.contrib:logback-json-classic               | 0.1.5   | EPL1.0 & LGPL2.1   |
+| ch.qos.logback.contrib:logback-jackson                    | 0.1.5   | EPL1.0 & LGPL2.1   |
 | org.projectlombok:lombok                                  | 1.18.30 | MIT License        |
 | org.springframework.boot:spring-boot-starter-test         | 2.7.18  | Apache License 2.0 |
 | org.springframework.boot:spring-boot-starter-data-mongodb | 2.7.18  | Apache License 2.0 |
