@@ -45,7 +45,7 @@ Contributions are most welcome. Before proceeding, please read the [Code of Cond
 ## Contributors
 Here is a list of contributors. Thank you to everyone involved for improving this project, day by day.
 
-[![Contributors](https://contrib.rocks/image?repo=ministero-salute/it-fse-gtw-eds-client)](https://github.com/ministero-salute/it-fse-gtw-dispatcher/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=ministero-salute/it-fse-gtw-eds-client)](https://github.com/ministero-salute/it-fse-gtw-eds-client/graphs/contributors)
 
 # Licence
 
