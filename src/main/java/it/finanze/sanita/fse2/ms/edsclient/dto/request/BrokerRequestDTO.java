@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class IngestorRequestDTO {
+public class BrokerRequestDTO {
 
     @Nullable
     private EdsMetadataUpdateReqDTO updateReqDTO;

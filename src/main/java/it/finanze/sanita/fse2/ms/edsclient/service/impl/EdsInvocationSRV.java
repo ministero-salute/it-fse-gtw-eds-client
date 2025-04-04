@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import it.finanze.sanita.fse2.ms.edsclient.client.IEdsClient;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
@@ -54,7 +54,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
 		if(StringUtils.isEmpty(out.getMessageError())) {
 			try {
-				IngestorRequestDTO request = IngestorRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(iniEdsInvocationETY)
+				BrokerRequestDTO request = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(iniEdsInvocationETY)
 						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).priorityType(requestBodyDTO.getPriorityType()).
 						workflowInstanceId(requestBodyDTO.getWorkflowInstanceId()).build();
 				out = edsClient.dispatchAndSendData(request);
@@ -76,7 +76,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 		EdsResponseDTO out = new EdsResponseDTO();
 		try {
 			out = edsClient.dispatchAndSendData(
-					IngestorRequestDTO.builder()
+					BrokerRequestDTO.builder()
 							.updateReqDTO(null)
 							.iniEdsInvocationETY(null)
 							.identifier(identifier)
@@ -97,7 +97,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(workflowInstanceId);
 		if (iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
 
-			IngestorRequestDTO req = IngestorRequestDTO.builder()
+			BrokerRequestDTO req = BrokerRequestDTO.builder()
 				.updateReqDTO(null)
 				.iniEdsInvocationETY(iniEdsInvocationETY)
 				.operation(ProcessorOperationEnum.REPLACE)
@@ -119,7 +119,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	@Override
 	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO) {
 		return edsClient.dispatchAndSendData(
-				IngestorRequestDTO.builder().updateReqDTO(updateReqDTO)
+				BrokerRequestDTO.builder().updateReqDTO(updateReqDTO)
 						.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE)
 						.identifier(idDoc).priorityType(null).build());
 		

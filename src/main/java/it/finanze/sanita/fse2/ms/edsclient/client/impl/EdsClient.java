@@ -25,7 +25,7 @@ import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.config.EdsCFG;
 import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.IngestorRequestDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
@@ -51,52 +51,74 @@ public class EdsClient implements IEdsClient {
     private EdsCFG edsCFG;
 
     @Override
-    public EdsResponseDTO dispatchAndSendData(IngestorRequestDTO ingestorRequestDTO) {
-    	EdsResponseDTO output = new EdsResponseDTO();
-    	final Date startingDate = new Date();
-    	try {
-    		log.debug("Calling EDS ingestion ep - START"); 
-    		log.debug("Operation: {}", ingestorRequestDTO.getOperation().getName());
+    public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
+        EdsResponseDTO output = new EdsResponseDTO();
+        final Date startingDate = new Date();
 
-    		HttpHeaders headers = new HttpHeaders();
-    		headers.set("Content-Type", "application/json"); 
+        boolean isCreate = ProcessorOperationEnum.PUBLISH.getName().equalsIgnoreCase(brokerRequestDTO.getOperation().getName());
+        final String baseUrl = isCreate ? edsCFG.getGtwBrokerHost() : edsCFG.getEdsIngestionHost();
+        final String endpoint = isCreate ? "/v1/bundle" : "/v1/document";
+        final String url = isCreate ? baseUrl + endpoint : baseUrl + endpoint +
+                buildRequestPath(brokerRequestDTO.getOperation(),
+                        brokerRequestDTO.getIdentifier(),
+                        brokerRequestDTO.getWorkflowInstanceId());
+        final String successLog = isCreate ? "Informazioni inviate al broker" : "Informazioni inviate all'ingestion";
+        final String errorLog = isCreate ? "Errore riscontrato durante l'invio delle informazioni al broker"
+                : "Errore riscontrato durante l'invio delle informazioni all'ingestion";
 
-    		DocumentReferenceDTO requestBody = buildRequestBody(ingestorRequestDTO);
-    		HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
+        try {
+            log.debug("Calling EDS broker ep - START");
+            log.debug("Operation: {}", brokerRequestDTO.getOperation().getName());
 
-    		final String url = edsCFG.getEdsIngestionHost() + "/v1/document" + buildRequestPath(ingestorRequestDTO.getOperation(), ingestorRequestDTO.getIdentifier(),
-    				ingestorRequestDTO.getWorkflowInstanceId());
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
 
-    		restTemplate.exchange(url, Constants.AppConstants.methodMap.get(ingestorRequestDTO.getOperation()), entity, DocumentResponseDTO.class);
-    		logger.info("Informazioni inviate all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate);
-    		output.setEsito(true);
-    	} catch(Exception ex) {
-    		logger.error("Errore riscontrato durante l'invio delle informazioni all'Ingestion", ingestorRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, ingestorRequestDTO.getOperation().getErrorLogEnum());
-    		output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
-    		output.setMessageError(ex.getMessage());
-    	}
+            DocumentReferenceDTO requestBody = buildRequestBody(brokerRequestDTO);
+            HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
-    	return output;
+            restTemplate.exchange(url,
+                    Constants.AppConstants.methodMap.get(brokerRequestDTO.getOperation()),
+                    entity,
+                    DocumentResponseDTO.class);
+
+            logger.info(successLog,
+                    brokerRequestDTO.getOperation().getOperationLogEnum(),
+                    ResultLogEnum.OK,
+                    startingDate);
+            output.setEsito(true);
+        } catch(Exception ex) {
+            logger.error(errorLog,
+                    brokerRequestDTO.getOperation().getOperationLogEnum(),
+                    ResultLogEnum.KO,
+                    startingDate,
+                    brokerRequestDTO.getOperation().getErrorLogEnum());
+            output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
+            output.setMessageError(ex.getMessage());
+        }
+
+        return output;
     }
-    
-    private DocumentReferenceDTO buildRequestBody(IngestorRequestDTO ingestorRequestDTO) {
-        DocumentReferenceDTO requestBody = null;
-        IniEdsInvocationETY ety = ingestorRequestDTO.getIniEdsInvocationETY() != null ? ingestorRequestDTO.getIniEdsInvocationETY() : null;
 
-        switch(ingestorRequestDTO.getOperation()) {
+
+
+    private DocumentReferenceDTO buildRequestBody(BrokerRequestDTO brokerRequestDTO) {
+        DocumentReferenceDTO requestBody = null;
+        IniEdsInvocationETY ety = brokerRequestDTO.getIniEdsInvocationETY() != null ? brokerRequestDTO.getIniEdsInvocationETY() : null;
+
+        switch(brokerRequestDTO.getOperation()) {
             case UPDATE:
-                if (ingestorRequestDTO.getUpdateReqDTO() == null) {
+                if (brokerRequestDTO.getUpdateReqDTO() == null) {
                     // bad request
                     throw new BusinessException(MSG_UNSUPPORTED);
                 }
                 requestBody = new DocumentReferenceDTO();
-                requestBody.setIdentifier(ingestorRequestDTO.getIdentifier());
+                requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
                 requestBody.setOperation(ProcessorOperationEnum.UPDATE);
-                requestBody.setJsonString(JsonUtility.objectToJson(ingestorRequestDTO.getUpdateReqDTO()));
+                requestBody.setJsonString(JsonUtility.objectToJson(brokerRequestDTO.getUpdateReqDTO()));
                 break;
 			case REPLACE:
 	        	requestBody = new DocumentReferenceDTO();
-	            requestBody.setIdentifier(ingestorRequestDTO.getIdentifier());
+	            requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.REPLACE);
                 if (ety != null && ety.getData() != null) {
                     requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
@@ -111,9 +133,9 @@ public class EdsClient implements IEdsClient {
             case PUBLISH:
 	        default:
 	        	requestBody = new DocumentReferenceDTO();
-	            requestBody.setIdentifier(ingestorRequestDTO.getIdentifier());
+	            requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
-                requestBody.setPriorityType(ingestorRequestDTO.getPriorityType());
+                requestBody.setPriorityType(brokerRequestDTO.getPriorityType());
                 if (ety != null && ety.getData() != null) {
                     requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
                 } else {

@@ -31,5 +31,11 @@ public class EdsCFG implements Serializable {
 	@Value("${eds-ingestion.url.host}")
 	private String edsIngestionHost;
 
+	/** GTW Broker Config **/
+	@Value("${gtw-broker.url.host}")
+	private String gtwBrokerHost;
+
+
+
 
 }
