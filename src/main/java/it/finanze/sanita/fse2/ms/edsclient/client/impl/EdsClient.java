@@ -55,16 +55,14 @@ public class EdsClient implements IEdsClient {
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
 
-        boolean isCreate = ProcessorOperationEnum.PUBLISH.getName().equalsIgnoreCase(brokerRequestDTO.getOperation().getName());
-        final String baseUrl = isCreate ? edsCFG.getGtwBrokerHost() : edsCFG.getEdsIngestionHost();
-        final String endpoint = isCreate ? "/v1/bundle" : "/v1/document";
-        final String url = isCreate ? baseUrl + endpoint : baseUrl + endpoint +
+        final String baseUrl = edsCFG.getGtwBrokerHost();
+        final String endpoint = "/v1/document";
+        final String url = baseUrl + endpoint +
                 buildRequestPath(brokerRequestDTO.getOperation(),
                         brokerRequestDTO.getIdentifier(),
                         brokerRequestDTO.getWorkflowInstanceId());
-        final String successLog = isCreate ? "Informazioni inviate al broker" : "Informazioni inviate all'ingestion";
-        final String errorLog = isCreate ? "Errore riscontrato durante l'invio delle informazioni al broker"
-                : "Errore riscontrato durante l'invio delle informazioni all'ingestion";
+        final String successLog = "Informazioni inviate al broker";
+        final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
         try {
             log.debug("Calling EDS broker ep - START");
