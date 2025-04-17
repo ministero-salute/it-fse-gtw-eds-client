@@ -11,33 +11,26 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.controller.impl;
 
-import java.io.Serializable;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
-import brave.Tracer;
+import io.micrometer.tracing.Tracer;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
 
 /**
  *	Abstract controller.
  */
-public abstract class AbstractCTL implements Serializable {
+public abstract class AbstractCTL{
 
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = -3077780100650268134L;
-	
 	@Autowired
 	private Tracer tracer;
 
-        
+
 	protected LogTraceInfoDTO getLogTraceInfo() {
 		LogTraceInfoDTO out = new LogTraceInfoDTO(null, null);
 		if (tracer.currentSpan() != null) {
 			out = new LogTraceInfoDTO(
-					tracer.currentSpan().context().spanIdString(), 
-					tracer.currentSpan().context().traceIdString());
+					tracer.currentSpan().context().spanId(), 
+					tracer.currentSpan().context().traceId());
 		}
 		return out;
 	}

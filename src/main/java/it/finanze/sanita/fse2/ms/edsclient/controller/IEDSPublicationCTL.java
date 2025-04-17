@@ -11,9 +11,6 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Size;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +30,8 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.ErrorResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Size;
 
 
 /**

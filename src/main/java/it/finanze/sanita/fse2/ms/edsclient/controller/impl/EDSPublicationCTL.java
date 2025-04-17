@@ -11,8 +11,6 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.controller.impl;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,6 +21,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.ms.edsclient.service.IEdsInvocationSRV;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 /**

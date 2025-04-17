@@ -1,5 +1,19 @@
 package it.finanze.sanita.fse2.ms.edsclient;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.bson.Document;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import it.finanze.sanita.fse2.ms.edsclient.client.impl.EdsClient;
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
@@ -8,17 +22,6 @@ import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY
 import it.finanze.sanita.fse2.ms.edsclient.repository.impl.EdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
 import it.finanze.sanita.fse2.ms.edsclient.service.impl.EdsInvocationSRV;
-import org.bson.Document;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ActiveProfiles;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ComponentScan(basePackages = {Constants.ComponentScan.BASE})
@@ -28,13 +31,13 @@ public class EdsInvocationSRVTest {
     @Autowired
     private EdsInvocationSRV edsInvocationSRV;
 
-    @MockBean
+    @MockitoBean
     private EdsClient edsClient;
 
-    @MockBean
+    @MockitoBean
     private EdsInvocationRepo edsInvocationRepo;
 
-    @MockBean
+    @MockitoBean
     private ConfigSRV configSRV;
 
     @Test

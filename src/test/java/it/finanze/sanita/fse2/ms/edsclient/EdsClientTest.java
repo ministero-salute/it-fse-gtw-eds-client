@@ -18,23 +18,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 import java.util.UUID;
 
-import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -46,6 +47,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
+import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -56,10 +58,10 @@ class EdsClientTest extends AbstractTest {
     @Autowired
     MongoTemplate mongoTemplate;
 
-    @SpyBean
+    @MockitoSpyBean
     private RestTemplate restTemplate;
 
-    @MockBean
+    @MockitoBean
     private ConfigSRV config;
 
     private static final String TEST_WORKFLOW_INSTANCE_ID = UUID.randomUUID().toString();

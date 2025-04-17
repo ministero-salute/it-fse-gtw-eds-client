@@ -11,8 +11,9 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient;
 
-import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
-import it.finanze.sanita.fse2.ms.edsclient.enums.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,10 +21,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
+import it.finanze.sanita.fse2.ms.edsclient.enums.AttivitaClinicaEnum;
+import it.finanze.sanita.fse2.ms.edsclient.enums.DocumentTypeEnum;
+import it.finanze.sanita.fse2.ms.edsclient.enums.HealthcareFacilityEnum;
+import it.finanze.sanita.fse2.ms.edsclient.enums.PracticeSettingCodeEnum;
+import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
+import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
+import it.finanze.sanita.fse2.ms.edsclient.enums.TipoDocAltoLivEnum;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ComponentScan(basePackages = {Constants.ComponentScan.BASE})

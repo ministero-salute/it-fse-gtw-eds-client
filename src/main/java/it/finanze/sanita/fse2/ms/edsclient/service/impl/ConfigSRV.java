@@ -1,24 +1,25 @@
 package it.finanze.sanita.fse2.ms.edsclient.service.impl;
 
 
-import it.finanze.sanita.fse2.ms.edsclient.client.IConfigClient;
-import it.finanze.sanita.fse2.ms.edsclient.dto.ConfigItemDTO;
-import it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum;
-import it.finanze.sanita.fse2.ms.edsclient.service.IConfigSRV;
-import it.finanze.sanita.fse2.ms.edsclient.utility.ProfileUtility;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.PROPS_NAME_REMOVE_METADATA_ENABLE;
+import static it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum.EDS_CLIENT;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.PROPS_NAME_REMOVE_METADATA_ENABLE;
-import static it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum.EDS_CLIENT;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import it.finanze.sanita.fse2.ms.edsclient.client.IConfigClient;
+import it.finanze.sanita.fse2.ms.edsclient.dto.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum;
+import it.finanze.sanita.fse2.ms.edsclient.service.IConfigSRV;
+import it.finanze.sanita.fse2.ms.edsclient.utility.ProfileUtility;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
