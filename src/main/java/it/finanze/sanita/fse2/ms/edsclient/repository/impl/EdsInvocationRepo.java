@@ -11,21 +11,19 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.repository.impl;
 
-import com.mongodb.client.result.UpdateResult;
-import lombok.extern.slf4j.Slf4j;
+import static it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY.FIELD_WIF;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.repository.IEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
-
-import static it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY.*;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
+import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @Slf4j

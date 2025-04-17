@@ -57,10 +57,7 @@ public class EdsClient implements IEdsClient {
 
         final String baseUrl = edsCFG.getGtwBrokerHost();
         final String endpoint = "/v1/document";
-        final String url = baseUrl + endpoint +
-                buildRequestPath(brokerRequestDTO.getOperation(),
-                        brokerRequestDTO.getIdentifier(),
-                        brokerRequestDTO.getWorkflowInstanceId());
+        final String url = baseUrl + endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId());
         final String successLog = "Informazioni inviate al broker";
         final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
@@ -74,22 +71,12 @@ public class EdsClient implements IEdsClient {
             DocumentReferenceDTO requestBody = buildRequestBody(brokerRequestDTO);
             HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
-            restTemplate.exchange(url,
-                    Constants.AppConstants.methodMap.get(brokerRequestDTO.getOperation()),
-                    entity,
-                    DocumentResponseDTO.class);
+            restTemplate.exchange(url,Constants.AppConstants.methodMap.get(brokerRequestDTO.getOperation()), entity, DocumentResponseDTO.class);
 
-            logger.info(successLog,
-                    brokerRequestDTO.getOperation().getOperationLogEnum(),
-                    ResultLogEnum.OK,
-                    startingDate);
+            logger.info(successLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate);
             output.setEsito(true);
         } catch(Exception ex) {
-            logger.error(errorLog,
-                    brokerRequestDTO.getOperation().getOperationLogEnum(),
-                    ResultLogEnum.KO,
-                    startingDate,
-                    brokerRequestDTO.getOperation().getErrorLogEnum());
+            logger.error(errorLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, brokerRequestDTO.getOperation().getErrorLogEnum());
             output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
             output.setMessageError(ex.getMessage());
         }
