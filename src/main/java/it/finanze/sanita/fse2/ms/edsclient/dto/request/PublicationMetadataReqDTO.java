@@ -11,16 +11,20 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.dto.request;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import it.finanze.sanita.fse2.ms.edsclient.dto.AbstractDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.AttivitaClinicaEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.HealthcareFacilityEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.PracticeSettingCodeEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.TipoDocAltoLivEnum;
-import lombok.*;
-
-import javax.validation.constraints.Size;
-import java.util.List;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
