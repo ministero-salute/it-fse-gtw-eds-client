@@ -12,6 +12,9 @@
 package it.finanze.sanita.fse2.ms.edsclient.config;
 
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.springframework.http.HttpMethod;
 
 import java.util.EnumMap;
@@ -20,6 +23,7 @@ import java.util.Map;
 /**
  * Constants application.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Constants {
 
 	/**
@@ -64,17 +68,23 @@ public final class Constants {
 
 	}
 	
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class Collections {
 
 		public static final String INI_EDS_INVOCATION = "ini_eds_invocation";
 
-		private Collections() {
-
-		}
 	}
  
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class Profile {
+		/**
+		 * Test profile.
+		 */
 		public static final String TEST = "test";
+		
+		/**
+		 * Test profile.
+		 */
 		public static final String TEST_PREFIX = "test_";
 
 		/**
@@ -82,20 +92,15 @@ public final class Constants {
 		 */
 		public static final String DEV = "dev";
 		
-		public static final String DOCKER = "docker";
-
-		/** 
-		 * Constructor.
+		/**
+		 * Docker profile.
 		 */
-		private Profile() {
-			//This method is intentionally left blank.
-		}
+		public static final String DOCKER = "docker";
 
 	}
 
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class AppConstants {
-
-        private AppConstants() {}
 
 		public static final String UNKNOWN_ISSUER = "UNKNOWN_ISSUER";
 
@@ -112,14 +117,12 @@ public final class Constants {
 			methodMap.put(ProcessorOperationEnum.UPDATE, HttpMethod.PUT);
 			methodMap.put(ProcessorOperationEnum.DELETE, HttpMethod.DELETE);
 		}
-
 	}
-  
-	/**
-	 *	Constants.
-	 */
-	private Constants() {
-
+	
+	@NoArgsConstructor(access = AccessLevel.PRIVATE)
+	public static final class Properties {
+		public static final String MS_NAME = "gtw-eds-client";
+		 
 	}
 
 }
