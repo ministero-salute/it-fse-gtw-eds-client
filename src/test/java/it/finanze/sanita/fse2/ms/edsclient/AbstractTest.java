@@ -28,7 +28,6 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationMetadataReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
-import it.finanze.sanita.fse2.ms.edsclient.enums.PriorityTypeEnum;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 
@@ -54,7 +53,6 @@ public abstract class AbstractTest {
                 webServerAppCtxt.getServletContext().getContextPath() +
                 "/v1/documents";
         PublicationRequestBodyDTO requestBodyDTO = new PublicationRequestBodyDTO();
-        requestBodyDTO.setPriorityType(PriorityTypeEnum.HIGH);
         requestBodyDTO.setWorkflowInstanceId(workflowInstanceId);
         return restTemplate.postForEntity(url, requestBodyDTO, EdsResponseDTO.class);
     } 

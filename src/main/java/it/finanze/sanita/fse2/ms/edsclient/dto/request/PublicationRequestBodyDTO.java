@@ -11,7 +11,6 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.dto.request;
 
-import it.finanze.sanita.fse2.ms.edsclient.enums.PriorityTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +24,6 @@ public class PublicationRequestBodyDTO {
     
     private String identificativoDoc;
     
-    private PriorityTypeEnum priorityType;
-
+    private String destination;
+    
 }

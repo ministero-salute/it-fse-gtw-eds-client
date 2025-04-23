@@ -9,28 +9,20 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.edsclient.enums;
+package it.finanze.sanita.fse2.ms.edsclient.config;
 
-public enum PriorityTypeEnum {
-	LOW("LOW", "_LOW"),
-	MEDIUM("MEDIUM", "_MEDIUM"),
-	HIGH("HIGH", "_HIGH");
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-	private final String description;
+import lombok.Data;
 
-	private final String queue;
+@Data
+@Component
+public class BrokerCfg {
 
-	PriorityTypeEnum(String inDescription, String inQueue) {
-		description = inDescription;
-		queue = inQueue;
-	}
+	/** EDS Ingestion Config **/
+	@Value("${srv-broker.url.host}")
+	private String brokerHost;
 
-	public String getDescription() {
-		return description;
-	}
-
-	public String getQueue() {
-		return queue;
-	}
 
 }

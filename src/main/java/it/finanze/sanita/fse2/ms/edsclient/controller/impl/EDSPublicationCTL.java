@@ -25,88 +25,54 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *	INI Publication controller.
+ *	Eds Publication controller.
  */
 @Slf4j
 @RestController
 public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL {
-	
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = -358675423912784785L;
-	
+	 
 	@Autowired
 	private transient IEdsInvocationSRV edsInvocationSRV;
     
     @Override
     public EdsResponseDTO publication(final PublicationRequestBodyDTO requestBodyDTO, HttpServletRequest request) {
     	final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
-    	
-    	log.info("[START] {}() with arguments {}={}, {}={}", "publication",
-    			"traceId", traceInfoDTO.getTraceID(),
-        		"wif", requestBodyDTO.getWorkflowInstanceId() );
-    	
-    	log.info("[EXIT] {}() with arguments {}={}, {}={}", "publication",
-    			"traceId", traceInfoDTO.getTraceID(),
-        		"wif", requestBodyDTO.getWorkflowInstanceId() );
-    	
-        return edsInvocationSRV.publishByWorkflowInstanceIdAndPriority(requestBodyDTO);
+    	log.info("[START] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif", requestBodyDTO.getWorkflowInstanceId() );
+    	EdsResponseDTO out = edsInvocationSRV.publishByWorkflowInstanceId(requestBodyDTO); 
+    	log.info("[EXIT] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif", requestBodyDTO.getWorkflowInstanceId() );
+        return out;
     }
 
 	@Override
 	public EdsResponseDTO delete(String ooid, HttpServletRequest request) {
 		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 		
-		log.debug("Ricevuto ooid : " + ooid );
-		
-		log.info("[START] {}() with arguments {}={}", "delete",
-    			"traceId", traceInfoDTO.getTraceID()
-    			);
+		log.info("[START] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
+		EdsResponseDTO out = edsInvocationSRV.deleteByIdentifier(ooid); 
+    	log.info("[EXIT] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID() );
     	
-    	log.info("[EXIT] {}() with arguments {}={}", "delete",
-    			"traceId", traceInfoDTO.getTraceID()
-    			);
-    	
-		return edsInvocationSRV.deleteByIdentifier(ooid);
+		return out;
 	}
 
 	@Override
 	public EdsResponseDTO replace(final String idDoc, final IndexerValueDTO replaceInfo, final HttpServletRequest request) {
 		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 
-		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "replace",
-    			"traceId", traceInfoDTO.getTraceID(),
-        		"wif", replaceInfo.getWorkflowInstanceId(),
-        		"idDoc", replaceInfo.getIdDoc()
-        		);
-		
-		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "replace",
-    			"traceId", traceInfoDTO.getTraceID(),
-        		"wif", replaceInfo.getWorkflowInstanceId(),
-        		"idDoc", replaceInfo.getIdDoc()
-        		);
-		
-		return edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId());
+		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(), "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc() );
+		EdsResponseDTO out = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId());
+		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(), "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc() );
+		return out;
 	}
 
 	@Override
 	public EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
 		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 		
-		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "update",
-    			"traceId", traceInfoDTO.getTraceID(),
-        		"wif", dto.getWorkflowInstanceId(),
-        		"idDoc", idDoc
-        		);
+		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc );
+		EdsResponseDTO output = edsInvocationSRV.updateByRequest(idDoc, dto);
+		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
 		
-		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "update",
-    			"traceId", traceInfoDTO.getTraceID(),
-        		"wif", dto.getWorkflowInstanceId(),
-        		"idDoc", idDoc
-        		);
-		
-		return edsInvocationSRV.updateByRequest(idDoc, dto);
+		return output;
 	}
 
 }

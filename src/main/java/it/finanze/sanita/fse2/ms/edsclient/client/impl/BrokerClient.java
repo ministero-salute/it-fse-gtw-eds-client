@@ -20,9 +20,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import it.finanze.sanita.fse2.ms.edsclient.client.IEdsClient;
+import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
+import it.finanze.sanita.fse2.ms.edsclient.config.BrokerCfg;
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
-import it.finanze.sanita.fse2.ms.edsclient.config.EdsCFG;
 import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
@@ -36,8 +36,8 @@ import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
-public class EdsClient implements IEdsClient {
+@Component("uarClient")
+public class BrokerClient implements IBrokerClient {
 
     private static final String MSG_UNSUPPORTED = "Unsupported exception";
  
@@ -48,26 +48,24 @@ public class EdsClient implements IEdsClient {
     private LoggerHelper logger;
 
     @Autowired
-    private EdsCFG edsCFG;
+    private BrokerCfg brokerCfg;
 
     @Override
     public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
-
-        final String baseUrl = edsCFG.getGtwBrokerHost();
-        final String endpoint = "/v1/document";
-        final String url = baseUrl + endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId());
+//        v1/uar/document/workflowinstanceid/{wii}
+        
+        String endpoint = brokerCfg.getBrokerHost() + "/v1/uar/document";
+        
+        final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId());
         final String successLog = "Informazioni inviate al broker";
         final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
         try {
-            log.debug("Calling EDS broker ep - START");
-            log.debug("Operation: {}", brokerRequestDTO.getOperation().getName());
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-
             DocumentReferenceDTO requestBody = buildRequestBody(brokerRequestDTO);
             HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
@@ -120,7 +118,6 @@ public class EdsClient implements IEdsClient {
 	        	requestBody = new DocumentReferenceDTO();
 	            requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
-                requestBody.setPriorityType(brokerRequestDTO.getPriorityType());
                 if (ety != null && ety.getData() != null) {
                     requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
                 } else {

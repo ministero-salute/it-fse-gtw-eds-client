@@ -13,7 +13,6 @@ package it.finanze.sanita.fse2.ms.edsclient.dto.request;
 
 import org.springframework.lang.Nullable;
 
-import it.finanze.sanita.fse2.ms.edsclient.enums.PriorityTypeEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import lombok.AllArgsConstructor;
@@ -32,9 +31,6 @@ public class BrokerRequestDTO {
 
     @Nullable
     private IniEdsInvocationETY iniEdsInvocationETY;
-
-    @Nullable
-    private PriorityTypeEnum priorityType;
 
     private ProcessorOperationEnum operation;
 

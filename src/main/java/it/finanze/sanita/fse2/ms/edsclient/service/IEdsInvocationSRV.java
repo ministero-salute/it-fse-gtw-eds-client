@@ -17,7 +17,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO
 
 public interface IEdsInvocationSRV {
 
-	EdsResponseDTO publishByWorkflowInstanceIdAndPriority(PublicationRequestBodyDTO requestBodyDTO);
+	EdsResponseDTO publishByWorkflowInstanceId(PublicationRequestBodyDTO requestBodyDTO);
 	
 	EdsResponseDTO deleteByIdentifier(String identifier);
 	

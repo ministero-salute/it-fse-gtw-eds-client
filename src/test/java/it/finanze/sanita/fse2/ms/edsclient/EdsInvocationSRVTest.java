@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import it.finanze.sanita.fse2.ms.edsclient.client.impl.EdsClient;
+import it.finanze.sanita.fse2.ms.edsclient.client.impl.BrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
@@ -32,7 +32,7 @@ public class EdsInvocationSRVTest {
     private EdsInvocationSRV edsInvocationSRV;
 
     @MockitoBean
-    private EdsClient edsClient;
+    private BrokerClient brokerClient;
 
     @MockitoBean
     private EdsInvocationRepo edsInvocationRepo;
@@ -50,7 +50,7 @@ public class EdsInvocationSRVTest {
         iniEdsInvocationETY.setData(new Document("key", "test"));
         out.setEsito(true);
 
-        when(edsClient.dispatchAndSendData(Mockito.any())).thenReturn(out);
+        when(brokerClient.dispatchAndSendData(Mockito.any())).thenReturn(out);
         when(edsInvocationRepo.findByWorkflowInstanceId(Mockito.anyString())).thenReturn(iniEdsInvocationETY);
         when(configSRV.isRemoveMetadataEnable()).thenReturn(true);
         edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(identifier, workFlowInstanceId);
@@ -66,7 +66,7 @@ public class EdsInvocationSRVTest {
         request.setWorkflowInstanceId(workFlowInstanceId);
 
         when(edsInvocationRepo.findByWorkflowInstanceId(Mockito.anyString())).thenReturn(null);
-        out = edsInvocationSRV.publishByWorkflowInstanceIdAndPriority(request);
+        out = edsInvocationSRV.publishByWorkflowInstanceId(request);
 
 
         assertEquals(out.getMessageError(), "Nessun documento trovato per il workflowInstanceId: " + request.getWorkflowInstanceId());

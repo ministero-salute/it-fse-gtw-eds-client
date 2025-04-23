@@ -1,11 +1,20 @@
 package it.finanze.sanita.fse2.ms.edsclient.client.routes;
 
-import it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.API_CONFIG_ITEMS;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.API_PROPS;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.API_STATUS;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.API_VERSION;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.API_WHOIS;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.IDENTIFIER;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.IDENTIFIER_MS;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.QP_PROPS;
+import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.QP_TYPE;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static it.finanze.sanita.fse2.ms.edsclient.client.routes.base.ClientRoutes.Config.*;
+import it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum;
 
 @Component
 public final class ConfigClientRoutes {
@@ -14,7 +23,7 @@ public final class ConfigClientRoutes {
     private String configHost;
 
     public UriComponentsBuilder base() {
-        return UriComponentsBuilder.fromHttpUrl(configHost);
+    	return UriComponentsBuilder.fromUriString(configHost);
     }
 
     public String identifier() {

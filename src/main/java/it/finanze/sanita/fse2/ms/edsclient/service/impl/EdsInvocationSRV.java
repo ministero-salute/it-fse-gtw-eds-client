@@ -11,21 +11,21 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.service.impl;
 
-import it.finanze.sanita.fse2.ms.edsclient.service.IConfigSRV;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import it.finanze.sanita.fse2.ms.edsclient.client.IEdsClient;
+import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.repository.IEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
+import it.finanze.sanita.fse2.ms.edsclient.service.IConfigSRV;
 import it.finanze.sanita.fse2.ms.edsclient.service.IEdsInvocationSRV;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,10 +40,10 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	private IConfigSRV configSRV;
 
 	@Autowired
-	private IEdsClient edsClient;
+	private IBrokerClient brokerClient;
 	
 	@Override
-	public EdsResponseDTO publishByWorkflowInstanceIdAndPriority(final PublicationRequestBodyDTO requestBodyDTO) {
+	public EdsResponseDTO publishByWorkflowInstanceId(final PublicationRequestBodyDTO requestBodyDTO) {
 		EdsResponseDTO out = new EdsResponseDTO();
 
 		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
@@ -55,9 +55,9 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 		if(StringUtils.isEmpty(out.getMessageError())) {
 			try {
 				BrokerRequestDTO request = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(iniEdsInvocationETY)
-						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).priorityType(requestBodyDTO.getPriorityType()).
+						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).
 						workflowInstanceId(requestBodyDTO.getWorkflowInstanceId()).build();
-				out = edsClient.dispatchAndSendData(request);
+				out = brokerClient.dispatchAndSendData(request);
 			} catch (Exception ex) {
 				out.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
 				out.setMessageError(ex.getMessage());
@@ -75,13 +75,12 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	public EdsResponseDTO deleteByIdentifier(final String identifier) {
 		EdsResponseDTO out = new EdsResponseDTO();
 		try {
-			out = edsClient.dispatchAndSendData(
+			out = brokerClient.dispatchAndSendData(
 					BrokerRequestDTO.builder()
 							.updateReqDTO(null)
 							.iniEdsInvocationETY(null)
 							.identifier(identifier)
 							.operation(ProcessorOperationEnum.DELETE)
-							.priorityType(null)
 							.build());
 		} catch (Exception ex) {
 			log.error("Error while running delete by identifier : ", ex);
@@ -102,11 +101,10 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 				.iniEdsInvocationETY(iniEdsInvocationETY)
 				.operation(ProcessorOperationEnum.REPLACE)
 				.identifier(identifier)
-				.priorityType(null)
 				.workflowInstanceId(workflowInstanceId)
 				.build();
 
-			out = edsClient.dispatchAndSendData(req);
+			out = brokerClient.dispatchAndSendData(req);
 		}
 
 		if(out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()){
@@ -118,10 +116,10 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
 	@Override
 	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO) {
-		return edsClient.dispatchAndSendData(
+		return brokerClient.dispatchAndSendData(
 				BrokerRequestDTO.builder().updateReqDTO(updateReqDTO)
 						.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE)
-						.identifier(idDoc).priorityType(null).build());
+						.identifier(idDoc).build());
 		
 	}
 }
