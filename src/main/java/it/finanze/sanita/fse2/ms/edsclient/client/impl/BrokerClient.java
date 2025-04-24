@@ -97,11 +97,15 @@ public class BrokerClient implements IBrokerClient {
                 requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
                 requestBody.setOperation(ProcessorOperationEnum.UPDATE);
                 requestBody.setJsonString(JsonUtility.objectToJson(brokerRequestDTO.getUpdateReqDTO()));
+                requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
+                requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
                 break;
 			case REPLACE:
 	        	requestBody = new DocumentReferenceDTO();
 	            requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.REPLACE);
+                requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
+                requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
                 if (ety != null && ety.getData() != null) {
                     requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
                 } else {
@@ -117,6 +121,8 @@ public class BrokerClient implements IBrokerClient {
 	        	requestBody = new DocumentReferenceDTO();
 	            requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 	            requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
+                requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
+                requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
                 if (ety != null && ety.getData() != null) {
                     requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
                 } else {

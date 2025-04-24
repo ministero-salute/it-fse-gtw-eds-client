@@ -29,5 +29,9 @@ public class DocumentReferenceDTO {
 	private ProcessorOperationEnum operation;
 	
 	private String jsonString;
+
+	private String fiscalCode;
+
+	private String rde;
 	
 }
