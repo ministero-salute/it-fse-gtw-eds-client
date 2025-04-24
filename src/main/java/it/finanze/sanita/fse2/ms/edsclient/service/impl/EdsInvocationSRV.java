@@ -21,6 +21,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.repository.IEdsInvocationRepo;
@@ -57,7 +58,9 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 				BrokerRequestDTO request = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(iniEdsInvocationETY)
 						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).
 						workflowInstanceId(requestBodyDTO.getWorkflowInstanceId()).build();
-				out = brokerClient.dispatchAndSendData(request);
+				
+				DestinationEnum destination = DestinationEnum.fromString(requestBodyDTO.getDestination());
+				out = brokerClient.dispatchAndSendData(request,destination);
 			} catch (Exception ex) {
 				out.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
 				out.setMessageError(ex.getMessage());
@@ -72,16 +75,12 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public EdsResponseDTO deleteByIdentifier(final String identifier) {
+	public EdsResponseDTO deleteByIdentifier(final String identifier,DestinationEnum destinationEnum) {
 		EdsResponseDTO out = new EdsResponseDTO();
 		try {
-			out = brokerClient.dispatchAndSendData(
-					BrokerRequestDTO.builder()
-							.updateReqDTO(null)
-							.iniEdsInvocationETY(null)
-							.identifier(identifier)
-							.operation(ProcessorOperationEnum.DELETE)
-							.build());
+			BrokerRequestDTO broker = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(null)
+			.identifier(identifier).operation(ProcessorOperationEnum.DELETE).build();
+			out = brokerClient.dispatchAndSendData(broker,destinationEnum);
 		} catch (Exception ex) {
 			log.error("Error while running delete by identifier : ", ex);
 			throw new BusinessException(ex);
@@ -90,7 +89,8 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public EdsResponseDTO replaceByWorkflowInstanceIdAndIdentifier(String identifier, String workflowInstanceId) {
+	public EdsResponseDTO replaceByWorkflowInstanceIdAndIdentifier(String identifier, String workflowInstanceId,
+			DestinationEnum destinationEnum) {
 		EdsResponseDTO out = new EdsResponseDTO();
 
 		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(workflowInstanceId);
@@ -104,7 +104,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 				.workflowInstanceId(workflowInstanceId)
 				.build();
 
-			out = brokerClient.dispatchAndSendData(req);
+			out = brokerClient.dispatchAndSendData(req,destinationEnum);
 		}
 
 		if(out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()){
@@ -115,11 +115,13 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO) {
-		return brokerClient.dispatchAndSendData(
-				BrokerRequestDTO.builder().updateReqDTO(updateReqDTO)
-						.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE)
-						.identifier(idDoc).build());
+	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO,
+			DestinationEnum destinationEnum) {
+		BrokerRequestDTO brokerRequestDto = BrokerRequestDTO.builder().updateReqDTO(updateReqDTO)
+		.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE)
+		.identifier(idDoc).build();
+		
+		return brokerClient.dispatchAndSendData(brokerRequestDto,destinationEnum);
 		
 	}
 }

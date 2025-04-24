@@ -20,6 +20,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.service.IEdsInvocationSRV;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,8 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 		
 		log.info("[START] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
-		EdsResponseDTO out = edsInvocationSRV.deleteByIdentifier(ooid); 
+		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
+		EdsResponseDTO out = edsInvocationSRV.deleteByIdentifier(ooid,enums); 
     	log.info("[EXIT] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID() );
     	
 		return out;
@@ -59,7 +61,8 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 
 		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(), "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc() );
-		EdsResponseDTO out = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId());
+		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
+		EdsResponseDTO out = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId(),enums);
 		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(), "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc() );
 		return out;
 	}
@@ -69,7 +72,8 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 		
 		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc );
-		EdsResponseDTO output = edsInvocationSRV.updateByRequest(idDoc, dto);
+		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
+		EdsResponseDTO output = edsInvocationSRV.updateByRequest(idDoc, dto,enums);
 		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
 		
 		return output;

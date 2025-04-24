@@ -27,6 +27,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentReferenceDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
@@ -51,11 +52,11 @@ public class BrokerClient implements IBrokerClient {
     private BrokerCfg brokerCfg;
 
     @Override
-    public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
+    public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO, DestinationEnum destination) {
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
         
-        String endpoint = brokerCfg.getBrokerHost() + "/v1/uar/document";
+        String endpoint = brokerCfg.getBrokerHost() + "/v1/"+destination.getRestPath()+"/document";
         
         final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId());
         final String successLog = "Informazioni inviate al broker";

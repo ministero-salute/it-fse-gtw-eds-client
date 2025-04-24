@@ -18,6 +18,7 @@ import it.finanze.sanita.fse2.ms.edsclient.client.impl.BrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.repository.impl.EdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
@@ -49,11 +50,11 @@ public class EdsInvocationSRVTest {
         iniEdsInvocationETY.setWorkflowInstanceId("test");
         iniEdsInvocationETY.setData(new Document("key", "test"));
         out.setEsito(true);
-
-        when(brokerClient.dispatchAndSendData(Mockito.any())).thenReturn(out);
+        DestinationEnum enums = DestinationEnum.SEND_TO_UAR;
+        when(brokerClient.dispatchAndSendData(Mockito.any(),enums)).thenReturn(out);
         when(edsInvocationRepo.findByWorkflowInstanceId(Mockito.anyString())).thenReturn(iniEdsInvocationETY);
         when(configSRV.isRemoveMetadataEnable()).thenReturn(true);
-        edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(identifier, workFlowInstanceId);
+        edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(identifier, workFlowInstanceId,enums);
 
         verify(edsInvocationRepo, times(1)).removeByWorkflowInstanceId(Mockito.anyString());
     }
