@@ -54,9 +54,10 @@ public class BrokerClient implements IBrokerClient {
     public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
-//        v1/uar/document/workflowinstanceid/{wii}
         
         String endpoint = brokerCfg.getBrokerHost() + "/v1/uar/document";
+        //TODO - Add cod fiscale per UA-R
+        //TODO - Add rde per udp
         
         final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId());
         final String successLog = "Informazioni inviate al broker";
