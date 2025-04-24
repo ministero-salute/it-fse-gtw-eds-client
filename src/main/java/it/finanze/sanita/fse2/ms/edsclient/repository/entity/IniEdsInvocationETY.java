@@ -31,6 +31,8 @@ public class IniEdsInvocationETY {
 	public static final String FIELD_WIF = "workflow_instance_id";
 	public static final String FIELD_DATA = "data";
 	public static final String FIELD_METADATA = "metadata";
+	public static final String FIELD_FC = "fiscalCode";
+	public static final String FIELD_RDE = "rde";
 
 	@Id
 	private String id;
@@ -43,5 +45,12 @@ public class IniEdsInvocationETY {
 	
 	@Field(name = FIELD_METADATA)
 	private List<org.bson.Document> metadata;
+	
+	@Field(name = FIELD_FC)
+	private String fiscalCode;
+	
+	@Field(name = FIELD_RDE)
+	private String rde;
+	
 	 
 }

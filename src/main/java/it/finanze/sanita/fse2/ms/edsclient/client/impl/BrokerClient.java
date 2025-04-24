@@ -56,8 +56,6 @@ public class BrokerClient implements IBrokerClient {
         final Date startingDate = new Date();
         
         String endpoint = brokerCfg.getBrokerHost() + "/v1/uar/document";
-        //TODO - Add cod fiscale per UA-R
-        //TODO - Add rde per udp
         
         final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId());
         final String successLog = "Informazioni inviate al broker";
