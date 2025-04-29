@@ -75,11 +75,11 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public EdsResponseDTO deleteByIdentifier(final String identifier,DestinationEnum destinationEnum) {
+	public EdsResponseDTO deleteByIdentifier(final String identifier,final String fiscalCode,DestinationEnum destinationEnum) {
 		EdsResponseDTO out = new EdsResponseDTO();
 		try {
 			BrokerRequestDTO broker = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(null)
-			.identifier(identifier).operation(ProcessorOperationEnum.DELETE).build();
+			.identifier(identifier).operation(ProcessorOperationEnum.DELETE).fiscalCode(fiscalCode).build();
 			out = brokerClient.dispatchAndSendData(broker,destinationEnum);
 		} catch (Exception ex) {
 			log.error("Error while running delete by identifier : ", ex);
@@ -115,10 +115,9 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	}
 
 	@Override
-	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO,
-			DestinationEnum destinationEnum) {
+	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, DestinationEnum destinationEnum, String fiscalCode) {
 		BrokerRequestDTO brokerRequestDto = BrokerRequestDTO.builder().updateReqDTO(updateReqDTO)
-		.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE)
+		.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE).fiscalCode(fiscalCode)
 		.identifier(idDoc).build();
 		
 		return brokerClient.dispatchAndSendData(brokerRequestDto,destinationEnum);

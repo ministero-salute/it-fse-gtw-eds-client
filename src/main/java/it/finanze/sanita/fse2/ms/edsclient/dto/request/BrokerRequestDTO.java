@@ -37,5 +37,7 @@ public class BrokerRequestDTO {
     private String identifier;
     
     private String workflowInstanceId;
+    
+    private String fiscalCode;
 
 }

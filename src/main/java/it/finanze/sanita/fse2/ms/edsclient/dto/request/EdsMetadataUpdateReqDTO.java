@@ -19,4 +19,5 @@ import lombok.Data;
 public class EdsMetadataUpdateReqDTO {
     private String workflowInstanceId;
     private PublicationMetadataReqDTO body;
+    private String fiscalCode;
 }

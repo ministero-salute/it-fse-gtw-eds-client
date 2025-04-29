@@ -20,9 +20,9 @@ public interface IEdsInvocationSRV {
 
 	EdsResponseDTO publishByWorkflowInstanceId(PublicationRequestBodyDTO requestBodyDTO);
 	
-	EdsResponseDTO deleteByIdentifier(String identifier,DestinationEnum destinationEnum);
+	EdsResponseDTO deleteByIdentifier(String identifier,String fiscalCode,DestinationEnum destinationEnum);
 	
 	EdsResponseDTO replaceByWorkflowInstanceIdAndIdentifier(String identifier, String workflowInstanceId, DestinationEnum destinationEnum);
 	
-	EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, DestinationEnum destinationEnum);
+	EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, DestinationEnum destinationEnum, String fiscalCode);
 }

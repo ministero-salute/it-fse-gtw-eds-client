@@ -45,12 +45,12 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
     }
 
 	@Override
-	public EdsResponseDTO delete(String ooid, HttpServletRequest request) {
+	public EdsResponseDTO delete(String ooid,String fiscalCode, HttpServletRequest request) {
 		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 		
 		log.info("[START] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
 		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
-		EdsResponseDTO out = edsInvocationSRV.deleteByIdentifier(ooid,enums); 
+		EdsResponseDTO out = edsInvocationSRV.deleteByIdentifier(ooid,fiscalCode,enums); 
     	log.info("[EXIT] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID() );
     	
 		return out;
@@ -73,7 +73,7 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 		
 		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc );
 		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
-		EdsResponseDTO output = edsInvocationSRV.updateByRequest(idDoc, dto,enums);
+		EdsResponseDTO output = edsInvocationSRV.updateByRequest(idDoc, dto,enums,dto.getFiscalCode());
 		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
 		
 		return output;

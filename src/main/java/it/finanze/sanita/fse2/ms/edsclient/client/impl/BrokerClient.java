@@ -56,9 +56,10 @@ public class BrokerClient implements IBrokerClient {
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
         
-        String endpoint = brokerCfg.getBrokerHost() + "/v1/"+destination.getRestPath()+"/document";
+        String endpoint = brokerCfg.getBrokerHost() + "/v1/"+destination.getRestPath() + "/document";
         
-        final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId());
+        final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
+        		brokerRequestDTO.getFiscalCode());
         final String successLog = "Informazioni inviate al broker";
         final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
@@ -98,8 +99,8 @@ public class BrokerClient implements IBrokerClient {
                 requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
                 requestBody.setOperation(ProcessorOperationEnum.UPDATE);
                 requestBody.setJsonString(JsonUtility.objectToJson(brokerRequestDTO.getUpdateReqDTO()));
-                requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
-                requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
+                requestBody.setFiscalCode(brokerRequestDTO.getFiscalCode());
+//                requestBody.setRde(brokerRequestDTO.ge);
                 break;
 			case REPLACE:
 	        	requestBody = new DocumentReferenceDTO();
@@ -136,8 +137,8 @@ public class BrokerClient implements IBrokerClient {
 
     }
     
-    private String buildRequestPath(final ProcessorOperationEnum operation, final String identifier,
-    		final String workflowInstanceId) {
+    private String buildRequestPath(final ProcessorOperationEnum operation, final String identifier, final String workflowInstanceId,
+    		final String fiscalCode) {
         String requestPath = "";
 
         switch(operation) {
@@ -145,7 +146,7 @@ public class BrokerClient implements IBrokerClient {
                 requestPath = "/metadata";
                 break;
             case DELETE:
-                requestPath = "/identifier/"+ identifier;
+                requestPath = "/identifier/"+ identifier + "/" + fiscalCode;
                 break;
             case REPLACE:
             case PUBLISH:

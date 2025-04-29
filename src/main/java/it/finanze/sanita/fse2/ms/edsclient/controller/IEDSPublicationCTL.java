@@ -68,12 +68,13 @@ public interface IEDSPublicationCTL {
 		@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
 	EdsResponseDTO update(@Size(min = 1, max = 256) @PathVariable(value = "idDoc" , required = true) String idDoc, @RequestBody EdsMetadataUpdateReqDTO req, HttpServletRequest request);
 
-    @DeleteMapping("/documents/{idDoc}")
+    @DeleteMapping("/documents/{idDoc}/{fiscalCode}")
 	@Operation(summary = "Delete risorsa fhir", description = "Delete risorsa fhir.")
 	@ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Boolean.class)))
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Eliminazione eseguita con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EdsResponseDTO.class))),
 			@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-	EdsResponseDTO delete(@Size(min = 1, max = 256) @PathVariable(value = "idDoc", required = true) String idDoc, HttpServletRequest request);
+	EdsResponseDTO delete(@Size(min = 1, max = 256) @PathVariable(value = "idDoc", required = true) String idDoc,
+			@PathVariable(value = "fiscalCode", required = true) String fiscalCode,HttpServletRequest request);
 
 }

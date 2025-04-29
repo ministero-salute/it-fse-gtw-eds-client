@@ -64,7 +64,7 @@ public abstract class AbstractTest {
                 "/v1/documents/" + idDoc + "/metadata";
 
         PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO(); 
-        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate));
+        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate,"FISCAL_CODE"));
         
         return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
     }
