@@ -20,7 +20,6 @@ import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
@@ -34,93 +33,110 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EdsInvocationSRV implements IEdsInvocationSRV {
 
-	@Autowired
-	private IEdsInvocationRepo edsInvocationRepo;
+    @Autowired
+    private IEdsInvocationRepo edsInvocationRepo;
 
-	@Autowired
-	private IConfigSRV configSRV;
+    @Autowired
+    private IConfigSRV configSRV;
 
-	@Autowired
-	private IBrokerClient brokerClient;
-	
-	@Override
-	public EdsResponseDTO publishByWorkflowInstanceId(final PublicationRequestBodyDTO requestBodyDTO) {
-		EdsResponseDTO out = new EdsResponseDTO();
+    @Autowired
+    private IBrokerClient brokerClient;
 
-		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
-		if(iniEdsInvocationETY==null || iniEdsInvocationETY.getData() == null) {
-			out.setEsito(false);
-			out.setMessageError("Nessun documento trovato per il workflowInstanceId: " + requestBodyDTO.getWorkflowInstanceId());
-		}
+    @Override
+    public EdsResponseDTO publish(String idDoc, String workflowInstanceId, DestinationEnum destination) {
 
-		if(StringUtils.isEmpty(out.getMessageError())) {
-			try {
-				BrokerRequestDTO request = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(iniEdsInvocationETY)
-						.operation(ProcessorOperationEnum.PUBLISH).identifier(requestBodyDTO.getIdentificativoDoc()).
-						workflowInstanceId(requestBodyDTO.getWorkflowInstanceId()).build();
-				
-				DestinationEnum destination = DestinationEnum.fromString(requestBodyDTO.getDestination());
-				out = brokerClient.dispatchAndSendData(request,destination);
-			} catch (Exception ex) {
-				out.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
-				out.setMessageError(ex.getMessage());
-			}
-		}
+        EdsResponseDTO out = new EdsResponseDTO();
 
-		if(out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()) {
-			edsInvocationRepo.removeByWorkflowInstanceId(requestBodyDTO.getWorkflowInstanceId());
-		}
+        // Find document from DB
+        IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.find(workflowInstanceId);
+        if (iniEdsInvocationETY == null || iniEdsInvocationETY.getData() == null) {
+            String messageError = "Nessun documento trovato per il workflowInstanceId: " + workflowInstanceId;
+            out.setEsito(false);
+            out.setMessageError(messageError);
+            log.debug(messageError);
+        }
 
-		return out;
-	}
+        // Call EDS and send the document for publication
+        if (StringUtils.isEmpty(out.getMessageError())) {
+            try {
+                BrokerRequestDTO request = BrokerRequestDTO.builder()
+                        .updateReqDTO(null)
+                        .iniEdsInvocationETY(iniEdsInvocationETY)
+                        .operation(ProcessorOperationEnum.PUBLISH)
+                        .identifier(idDoc)
+                        .workflowInstanceId(workflowInstanceId)
+                        .build();
 
-	@Override
-	public EdsResponseDTO deleteByIdentifier(final String identifier,final String fiscalCode,DestinationEnum destinationEnum) {
-		EdsResponseDTO out = new EdsResponseDTO();
-		try {
-			BrokerRequestDTO broker = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(null)
-			.identifier(identifier).operation(ProcessorOperationEnum.DELETE).fiscalCode(fiscalCode).build();
-			out = brokerClient.dispatchAndSendData(broker,destinationEnum);
-		} catch (Exception ex) {
-			log.error("Error while running delete by identifier : ", ex);
-			throw new BusinessException(ex);
-		}
-		return out;
-	}
+                out = brokerClient.dispatchAndSendData(request, destination);
+            } catch (Exception ex) {
+                out.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
+                out.setMessageError(ex.getMessage());
+            }
+        }
 
-	@Override
-	public EdsResponseDTO replaceByWorkflowInstanceIdAndIdentifier(String identifier, String workflowInstanceId,
-			DestinationEnum destinationEnum) {
-		EdsResponseDTO out = new EdsResponseDTO();
+        if (out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()) {
+            edsInvocationRepo.remove(workflowInstanceId);
+        }
 
-		IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.findByWorkflowInstanceId(workflowInstanceId);
-		if (iniEdsInvocationETY != null && iniEdsInvocationETY.getData() != null) {
+        return out;
+    }
 
-			BrokerRequestDTO req = BrokerRequestDTO.builder()
-				.updateReqDTO(null)
-				.iniEdsInvocationETY(iniEdsInvocationETY)
-				.operation(ProcessorOperationEnum.REPLACE)
-				.identifier(identifier)
-				.workflowInstanceId(workflowInstanceId)
-				.build();
+    @Override
+    public EdsResponseDTO replace(String idDoc, String workflowInstanceId, DestinationEnum destination) {
 
-			out = brokerClient.dispatchAndSendData(req,destinationEnum);
-		}
+        EdsResponseDTO out = new EdsResponseDTO();
 
-		if(out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()){
-			edsInvocationRepo.removeByWorkflowInstanceId(workflowInstanceId);
-		}
+        // Retrieve document from DB
+        IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.find(workflowInstanceId);
 
-		return out;
-	}
+        if (iniEdsInvocationETY == null || iniEdsInvocationETY.getData() == null) {
+            String messageError = "Nessun documento trovato per il workflowInstanceId: " + workflowInstanceId;
+            out.setEsito(false);
+            out.setMessageError(messageError);
+            log.debug(messageError);
+        } else {
 
-	@Override
-	public EdsResponseDTO updateByRequest(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, DestinationEnum destinationEnum, String fiscalCode) {
-		BrokerRequestDTO brokerRequestDto = BrokerRequestDTO.builder().updateReqDTO(updateReqDTO)
-		.iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE).fiscalCode(fiscalCode)
-		.identifier(idDoc).build();
-		
-		return brokerClient.dispatchAndSendData(brokerRequestDto,destinationEnum);
-		
-	}
+            BrokerRequestDTO req = BrokerRequestDTO.builder()
+                    .updateReqDTO(null)
+                    .iniEdsInvocationETY(iniEdsInvocationETY)
+                    .operation(ProcessorOperationEnum.REPLACE)
+                    .identifier(idDoc)
+                    .workflowInstanceId(workflowInstanceId)
+                    .build();
+
+            out = brokerClient.dispatchAndSendData(req, destination);
+        }
+
+        if (out != null && out.isEsito() && configSRV.isRemoveMetadataEnable()) {
+            edsInvocationRepo.remove(workflowInstanceId);
+        }
+
+        return out;
+    }
+
+    @Override
+    public EdsResponseDTO delete(final String identifier, final String fiscalCode,
+            DestinationEnum destinationEnum) {
+        EdsResponseDTO out = new EdsResponseDTO();
+        try {
+            BrokerRequestDTO broker = BrokerRequestDTO.builder().updateReqDTO(null).iniEdsInvocationETY(null)
+                    .identifier(identifier).operation(ProcessorOperationEnum.DELETE).fiscalCode(fiscalCode).build();
+            out = brokerClient.dispatchAndSendData(broker, destinationEnum);
+        } catch (Exception ex) {
+            log.error("Error while running delete by identifier : ", ex);
+            throw new BusinessException(ex);
+        }
+        return out;
+    }
+
+    @Override
+    public EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO,
+            DestinationEnum destinationEnum, String fiscalCode) {
+        BrokerRequestDTO brokerRequestDto = BrokerRequestDTO.builder().updateReqDTO(updateReqDTO)
+                .iniEdsInvocationETY(null).operation(ProcessorOperationEnum.UPDATE).fiscalCode(fiscalCode)
+                .identifier(idDoc).build();
+
+        return brokerClient.dispatchAndSendData(brokerRequestDto, destinationEnum);
+
+    }
 }

@@ -11,7 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.dto.request;
 
-
+import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndexerValueDTO {
+public class DocumentRequestDTO {
 
     /**
      * Workflow instance id.
@@ -29,7 +29,10 @@ public class IndexerValueDTO {
     private String workflowInstanceId;
 
     /**
-     * Identifier of document to be updated. Is not {@code null} only if the notification is sent for update.
+     * Identifier of document to be updated. Is not {@code null} only if the
+     * notification is sent for update.
      */
     private String idDoc;
+
+    private DestinationEnum destination;
 }

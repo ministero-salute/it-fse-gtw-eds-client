@@ -23,7 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.config.BrokerCfg;
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
-import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentReferenceDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BrokerClient implements IBrokerClient {
 
     private static final String MSG_UNSUPPORTED = "Unsupported exception";
- 
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -55,11 +55,12 @@ public class BrokerClient implements IBrokerClient {
     public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO, DestinationEnum destination) {
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
-        
-        String endpoint = brokerCfg.getBrokerHost() + "/v1/"+destination.getRestPath() + "/document";
-        
-        final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(), brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
-        		brokerRequestDTO.getFiscalCode());
+
+        String endpoint = brokerCfg.getBrokerHost() + "/v1/" + destination.getRestPath() + "/document";
+
+        final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(),
+                brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
+                brokerRequestDTO.getFiscalCode());
         final String successLog = "Informazioni inviate al broker";
         final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
@@ -67,15 +68,18 @@ public class BrokerClient implements IBrokerClient {
         headers.set("Content-Type", "application/json");
 
         try {
-            DocumentReferenceDTO requestBody = buildRequestBody(brokerRequestDTO);
+            DocumentDTO requestBody = buildRequestBody(brokerRequestDTO);
             HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
-            restTemplate.exchange(url,Constants.AppConstants.methodMap.get(brokerRequestDTO.getOperation()), entity, DocumentResponseDTO.class);
+            restTemplate.exchange(url, Constants.AppConstants.methodMap.get(brokerRequestDTO.getOperation()), entity,
+                    DocumentResponseDTO.class);
 
-            logger.info(successLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK, startingDate);
+            logger.info(successLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK,
+                    startingDate);
             output.setEsito(true);
-        } catch(Exception ex) {
-            logger.error(errorLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO, startingDate, brokerRequestDTO.getOperation().getErrorLogEnum());
+        } catch (Exception ex) {
+            logger.error(errorLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO,
+                    startingDate, brokerRequestDTO.getOperation().getErrorLogEnum());
             output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
             output.setMessageError(ex.getMessage());
         }
@@ -83,29 +87,29 @@ public class BrokerClient implements IBrokerClient {
         return output;
     }
 
+    private DocumentDTO buildRequestBody(BrokerRequestDTO brokerRequestDTO) {
+        DocumentDTO requestBody = null;
+        IniEdsInvocationETY ety = brokerRequestDTO.getIniEdsInvocationETY() != null
+                ? brokerRequestDTO.getIniEdsInvocationETY()
+                : null;
 
-
-    private DocumentReferenceDTO buildRequestBody(BrokerRequestDTO brokerRequestDTO) {
-        DocumentReferenceDTO requestBody = null;
-        IniEdsInvocationETY ety = brokerRequestDTO.getIniEdsInvocationETY() != null ? brokerRequestDTO.getIniEdsInvocationETY() : null;
-
-        switch(brokerRequestDTO.getOperation()) {
+        switch (brokerRequestDTO.getOperation()) {
             case UPDATE:
                 if (brokerRequestDTO.getUpdateReqDTO() == null) {
                     // bad request
                     throw new BusinessException(MSG_UNSUPPORTED);
                 }
-                requestBody = new DocumentReferenceDTO();
+                requestBody = new DocumentDTO();
                 requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
                 requestBody.setOperation(ProcessorOperationEnum.UPDATE);
                 requestBody.setJsonString(JsonUtility.objectToJson(brokerRequestDTO.getUpdateReqDTO()));
                 requestBody.setFiscalCode(brokerRequestDTO.getFiscalCode());
-//                requestBody.setRde(brokerRequestDTO.ge);
+                // requestBody.setRde(brokerRequestDTO.ge);
                 break;
-			case REPLACE:
-	        	requestBody = new DocumentReferenceDTO();
-	            requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
-	            requestBody.setOperation(ProcessorOperationEnum.REPLACE);
+            case REPLACE:
+                requestBody = new DocumentDTO();
+                requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
+                requestBody.setOperation(ProcessorOperationEnum.REPLACE);
                 requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
                 requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
                 if (ety != null && ety.getData() != null) {
@@ -114,15 +118,15 @@ public class BrokerClient implements IBrokerClient {
                     throw new BusinessException(MSG_UNSUPPORTED);
                 }
                 break;
-	        	
-	        case DELETE: 
-	        	break;
+
+            case DELETE:
+                break;
 
             case PUBLISH:
-	        default:
-	        	requestBody = new DocumentReferenceDTO();
-	            requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
-	            requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
+            default:
+                requestBody = new DocumentDTO();
+                requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
+                requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
                 requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
                 requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
                 if (ety != null && ety.getData() != null) {
@@ -130,28 +134,29 @@ public class BrokerClient implements IBrokerClient {
                 } else {
                     throw new BusinessException(MSG_UNSUPPORTED);
                 }
-	        	break;
-        } 
-        
-        return requestBody; 
+                break;
+        }
+
+        return requestBody;
 
     }
-    
-    private String buildRequestPath(final ProcessorOperationEnum operation, final String identifier, final String workflowInstanceId,
-    		final String fiscalCode) {
+
+    private String buildRequestPath(final ProcessorOperationEnum operation, final String identifier,
+            final String workflowInstanceId,
+            final String fiscalCode) {
         String requestPath = "";
 
-        switch(operation) {
+        switch (operation) {
             case UPDATE:
                 requestPath = "/metadata";
                 break;
             case DELETE:
-                requestPath = "/identifier/"+ identifier + "/" + fiscalCode;
+                requestPath = "/identifier/" + identifier + "/" + fiscalCode;
                 break;
             case REPLACE:
             case PUBLISH:
-            	requestPath = "/workflowinstanceid/"+ workflowInstanceId;
-            	break;
+                requestPath = "/workflowinstanceid/" + workflowInstanceId;
+                break;
             default:
                 break;
         }

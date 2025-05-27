@@ -9,14 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StringUtility {
 
-	private StringUtility() {
-		// TODO Auto-generated constructor stub
-	}
+    private StringUtility() {
+    }
 
-	static public boolean isNullOrEmpty(String str) {
-		return str==null || str.isEmpty();
-	}
-	
+    static public boolean isNullOrEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
     public static String sha256(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

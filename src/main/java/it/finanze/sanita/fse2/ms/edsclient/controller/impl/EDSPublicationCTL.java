@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.finanze.sanita.fse2.ms.edsclient.controller.IEDSPublicationCTL;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.DocumentRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
@@ -26,57 +26,71 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *	Eds Publication controller.
+ * Eds Publication controller.
  */
 @Slf4j
 @RestController
 public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL {
-	 
-	@Autowired
-	private transient IEdsInvocationSRV edsInvocationSRV;
-    
+
+    @Autowired
+    private transient IEdsInvocationSRV edsInvocationSRV;
+
     @Override
-    public EdsResponseDTO publication(final PublicationRequestBodyDTO requestBodyDTO, HttpServletRequest request) {
-    	final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
-    	log.info("[START] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif", requestBodyDTO.getWorkflowInstanceId() );
-    	EdsResponseDTO out = edsInvocationSRV.publishByWorkflowInstanceId(requestBodyDTO); 
-    	log.info("[EXIT] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif", requestBodyDTO.getWorkflowInstanceId() );
+    public EdsResponseDTO publish(final PublicationRequestBodyDTO requestBody, HttpServletRequest request) {
+
+        final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
+        log.info("[START] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif",
+                requestBody.getWorkflowInstanceId());
+
+        DestinationEnum destination = DestinationEnum.fromString(requestBody.getDestination());
+        EdsResponseDTO out = edsInvocationSRV.publish(requestBody.getIdentificativoDoc(),
+                requestBody.getWorkflowInstanceId(), destination);
+
+        log.info("[EXIT] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif",
+                requestBody.getWorkflowInstanceId());
         return out;
     }
 
-	@Override
-	public EdsResponseDTO delete(String ooid,String fiscalCode, HttpServletRequest request) {
-		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
-		
-		log.info("[START] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
-		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
-		EdsResponseDTO out = edsInvocationSRV.deleteByIdentifier(ooid,fiscalCode,enums); 
-    	log.info("[EXIT] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID() );
-    	
-		return out;
-	}
+    @Override
+    public EdsResponseDTO replace(final String idDoc, final DocumentRequestDTO replaceInfo,
+            final HttpServletRequest request) {
 
-	@Override
-	public EdsResponseDTO replace(final String idDoc, final IndexerValueDTO replaceInfo, final HttpServletRequest request) {
-		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
+        final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
+        log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(),
+                "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc());
 
-		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(), "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc() );
-		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
-		EdsResponseDTO out = edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId(),enums);
-		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(), "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc() );
-		return out;
-	}
+        EdsResponseDTO out = edsInvocationSRV.replace(replaceInfo.getIdDoc(),
+                replaceInfo.getWorkflowInstanceId(), replaceInfo.getDestination());
 
-	@Override
-	public EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
-		final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
-		
-		log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc );
-		DestinationEnum enums = DestinationEnum.SEND_TO_UAR; //TODO 
-		EdsResponseDTO output = edsInvocationSRV.updateByRequest(idDoc, dto,enums,dto.getFiscalCode());
-		log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(), "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
-		
-		return output;
-	}
+        log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(),
+                "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc());
+        return out;
+    }
+
+    @Override
+    public EdsResponseDTO delete(String ooid, String fiscalCode, HttpServletRequest request) {
+        final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
+
+        log.info("[START] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
+        DestinationEnum enums = DestinationEnum.SEND_TO_UAR; // TODO
+        EdsResponseDTO out = edsInvocationSRV.delete(ooid, fiscalCode, enums);
+        log.info("[EXIT] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
+
+        return out;
+    }
+
+    @Override
+    public EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
+        final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
+
+        log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(),
+                "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
+        DestinationEnum enums = DestinationEnum.SEND_TO_UAR; // TODO
+        EdsResponseDTO output = edsInvocationSRV.update(idDoc, dto, enums, dto.getFiscalCode());
+        log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(),
+                "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
+
+        return output;
+    }
 
 }

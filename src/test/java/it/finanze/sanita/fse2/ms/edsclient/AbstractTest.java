@@ -24,8 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.DocumentRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.IndexerValueDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationMetadataReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
@@ -44,6 +44,7 @@ public abstract class AbstractTest {
 
     /**
      * Get transaction events generic method
+     * 
      * @param workflowInstanceId of the transaction
      * @return entity containing all the events found
      */
@@ -55,41 +56,42 @@ public abstract class AbstractTest {
         PublicationRequestBodyDTO requestBodyDTO = new PublicationRequestBodyDTO();
         requestBodyDTO.setWorkflowInstanceId(workflowInstanceId);
         return restTemplate.postForEntity(url, requestBodyDTO, EdsResponseDTO.class);
-    } 
-    
-    ResponseEntity<EdsResponseDTO> callUpdateEdsClient(final String idDoc, final String workflowInstanceId, PublicationMetadataReqDTO dto) {
+    }
+
+    ResponseEntity<EdsResponseDTO> callUpdateEdsClient(final String idDoc, final String workflowInstanceId,
+            PublicationMetadataReqDTO dto) {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
                 "/v1/documents/" + idDoc + "/metadata";
 
-        PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO(); 
-        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate,"FISCAL_CODE"));
-        
+        PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO();
+        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(
+                new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate, "FISCAL_CODE"));
+
         return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
     }
-    
-    
+
     ResponseEntity<EdsResponseDTO> callReplaceEdsClient(final String idDoc, final String workflowInstanceId) {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
                 "/v1/documents/" + idDoc;
 
-        IndexerValueDTO dtoReplace = new IndexerValueDTO(); 
-        dtoReplace.setWorkflowInstanceId(workflowInstanceId); 
+        DocumentRequestDTO dtoReplace = new DocumentRequestDTO();
+        dtoReplace.setWorkflowInstanceId(workflowInstanceId);
         dtoReplace.setIdDoc(idDoc);
-        HttpEntity<IndexerValueDTO> request = new HttpEntity<IndexerValueDTO>(dtoReplace); 
-        
+        HttpEntity<DocumentRequestDTO> request = new HttpEntity<DocumentRequestDTO>(dtoReplace);
+
         return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
-    } 
-    
+    }
+
     ResponseEntity<EdsResponseDTO> callDeleteEdsClient(final String ooid) {
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
                 "/v1/documents/" + ooid;
-        
+
         return restTemplate.exchange(url, HttpMethod.DELETE, null, EdsResponseDTO.class);
     }
 

@@ -25,7 +25,7 @@ import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
 import it.finanze.sanita.fse2.ms.edsclient.service.impl.EdsInvocationSRV;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ComponentScan(basePackages = {Constants.ComponentScan.BASE})
+@ComponentScan(basePackages = { Constants.ComponentScan.BASE })
 @ActiveProfiles(Constants.Profile.TEST)
 public class EdsInvocationSRVTest {
 
@@ -42,7 +42,7 @@ public class EdsInvocationSRVTest {
     private ConfigSRV configSRV;
 
     @Test
-    void testReplaceByWorkflowInstanceIdAndIdentifier(){
+    void testReplaceByWorkflowInstanceIdAndIdentifier() {
         EdsResponseDTO out = new EdsResponseDTO();
         IniEdsInvocationETY iniEdsInvocationETY = new IniEdsInvocationETY();
         String workFlowInstanceId = "test";
@@ -51,26 +51,27 @@ public class EdsInvocationSRVTest {
         iniEdsInvocationETY.setData(new Document("key", "test"));
         out.setEsito(true);
         DestinationEnum enums = DestinationEnum.SEND_TO_UAR;
-        when(brokerClient.dispatchAndSendData(Mockito.any(),enums)).thenReturn(out);
-        when(edsInvocationRepo.findByWorkflowInstanceId(Mockito.anyString())).thenReturn(iniEdsInvocationETY);
+        when(brokerClient.dispatchAndSendData(Mockito.any(), enums)).thenReturn(out);
+        when(edsInvocationRepo.find(Mockito.anyString())).thenReturn(iniEdsInvocationETY);
         when(configSRV.isRemoveMetadataEnable()).thenReturn(true);
-        edsInvocationSRV.replaceByWorkflowInstanceIdAndIdentifier(identifier, workFlowInstanceId,enums);
+        edsInvocationSRV.replace(identifier, workFlowInstanceId, enums);
 
-        verify(edsInvocationRepo, times(1)).removeByWorkflowInstanceId(Mockito.anyString());
+        verify(edsInvocationRepo, times(1)).remove(Mockito.anyString());
     }
 
     @Test
-    void testPublishByWorkflowInstanceIdAndPriorityDocumentNotFound(){
+    void testPublishByWorkflowInstanceIdAndPriorityDocumentNotFound() {
         EdsResponseDTO out;
         String workFlowInstanceId = "test";
         PublicationRequestBodyDTO request = new PublicationRequestBodyDTO();
         request.setWorkflowInstanceId(workFlowInstanceId);
 
-        when(edsInvocationRepo.findByWorkflowInstanceId(Mockito.anyString())).thenReturn(null);
-        out = edsInvocationSRV.publishByWorkflowInstanceId(request);
+        when(edsInvocationRepo.find(Mockito.anyString())).thenReturn(null);
+        out = edsInvocationSRV.publish(request.getIdentificativoDoc(), request.getWorkflowInstanceId(),
+                DestinationEnum.fromString(request.getDestination()));
 
-
-        assertEquals(out.getMessageError(), "Nessun documento trovato per il workflowInstanceId: " + request.getWorkflowInstanceId());
+        assertEquals(out.getMessageError(),
+                "Nessun documento trovato per il workflowInstanceId: " + request.getWorkflowInstanceId());
     }
 
 }

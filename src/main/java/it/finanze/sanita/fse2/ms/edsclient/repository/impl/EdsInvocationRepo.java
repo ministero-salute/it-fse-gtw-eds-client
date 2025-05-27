@@ -29,37 +29,37 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EdsInvocationRepo implements IEdsInvocationRepo {
 
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = 7040678309937387997L;
+    /**
+     * Serial version uid.
+     */
+    private static final long serialVersionUID = 7040678309937387997L;
 
-	@Autowired
-	private MongoTemplate mongo;
+    @Autowired
+    private MongoTemplate mongo;
 
-	@Override
-	public IniEdsInvocationETY findByWorkflowInstanceId(final String wif) {
-		IniEdsInvocationETY out;
-		Query query = new Query(Criteria.where(FIELD_WIF).is(wif));
-		try {
-			out = mongo.findOne(query, IniEdsInvocationETY.class);
-		} catch(Exception ex) {
-			log.error("Error while running find by transaction id query : " , ex);
-			throw new BusinessException("Error while running find by transaction id query : " , ex);
-		}
-		return out;
-	}
+    @Override
+    public IniEdsInvocationETY find(final String wif) {
+        IniEdsInvocationETY out;
+        Query query = new Query(Criteria.where(FIELD_WIF).is(wif));
+        try {
+            out = mongo.findOne(query, IniEdsInvocationETY.class);
+        } catch (Exception ex) {
+            log.error("Error while running find by transaction id query : ", ex);
+            throw new BusinessException("Error while running find by transaction id query : ", ex);
+        }
+        return out;
+    }
 
-	@Override
-	public IniEdsInvocationETY removeByWorkflowInstanceId(String wif) {
-		Query search = new Query(where(FIELD_WIF).is(wif));
-		IniEdsInvocationETY out;
-		try {
-			out = mongo.findAndRemove(search, IniEdsInvocationETY.class);
-		} catch (Exception ex) {
-			log.error("Unable to remove document with wif '{}' due to: {}", wif, ex.getMessage());
-			throw new BusinessException(ex);
-		}
-		return out;
-	}
+    @Override
+    public IniEdsInvocationETY remove(String wif) {
+        Query search = new Query(where(FIELD_WIF).is(wif));
+        IniEdsInvocationETY out;
+        try {
+            out = mongo.findAndRemove(search, IniEdsInvocationETY.class);
+        } catch (Exception ex) {
+            log.error("Unable to remove document with wif '{}' due to: {}", wif, ex.getMessage());
+            throw new BusinessException(ex);
+        }
+        return out;
+    }
 }
