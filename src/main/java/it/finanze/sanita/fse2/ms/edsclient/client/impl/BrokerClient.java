@@ -11,6 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
+import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.config.BrokerCfg;
@@ -53,16 +55,18 @@ public class BrokerClient implements IBrokerClient {
 
     @Override
     public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO, DestinationEnum destination) {
+
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
-
-        String endpoint = brokerCfg.getBrokerHost() + "/v1/" + destination.getRestPath() + "/document";
-
-        final String url = endpoint + buildRequestPath(brokerRequestDTO.getOperation(),
-                brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
-                brokerRequestDTO.getFiscalCode());
         final String successLog = "Informazioni inviate al broker";
         final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
+
+        URI url = UriComponentsBuilder
+                .fromUriString(brokerCfg.getBrokerHost() + "/v1/" + destination.getRestPath() + "/document"
+                        + buildRequestPath(brokerRequestDTO.getOperation(),
+                                brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
+                                brokerRequestDTO.getFiscalCode()))
+                .build().toUri();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
