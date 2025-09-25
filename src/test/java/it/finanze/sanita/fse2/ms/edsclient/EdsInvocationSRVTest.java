@@ -25,7 +25,6 @@ import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
 import it.finanze.sanita.fse2.ms.edsclient.service.impl.EdsInvocationSRV;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ComponentScan(basePackages = { Constants.ComponentScan.BASE })
 @ActiveProfiles(Constants.Profile.TEST)
 public class EdsInvocationSRVTest {
 

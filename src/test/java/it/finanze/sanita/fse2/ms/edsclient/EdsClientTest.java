@@ -51,7 +51,6 @@ import it.finanze.sanita.fse2.ms.edsclient.service.impl.ConfigSRV;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ComponentScan(basePackages = {Constants.ComponentScan.BASE})
 @ActiveProfiles(Constants.Profile.TEST)
 class EdsClientTest extends AbstractTest {
 

@@ -20,7 +20,6 @@ import lombok.Data;
 @Component
 public class BrokerCfg {
 
-	/** EDS Ingestion Config **/
 	@Value("${srv-broker.url.host}")
 	private String brokerHost;
 
