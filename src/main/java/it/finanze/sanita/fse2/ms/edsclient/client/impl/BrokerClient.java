@@ -29,7 +29,6 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
-import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
@@ -54,7 +53,7 @@ public class BrokerClient implements IBrokerClient {
     private BrokerCfg brokerCfg;
 
     @Override
-    public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO, DestinationEnum destination) {
+    public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
 
         EdsResponseDTO output = new EdsResponseDTO();
         final Date startingDate = new Date();
@@ -62,7 +61,7 @@ public class BrokerClient implements IBrokerClient {
         final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
         URI url = UriComponentsBuilder
-                .fromUriString(brokerCfg.getBrokerHost() + "/v1/" + destination.getRestPath() + "/document"
+                .fromUriString(brokerCfg.getBrokerHost() + "/v1/eds/document"
                         + buildRequestPath(brokerRequestDTO.getOperation(),
                                 brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
                                 brokerRequestDTO.getFiscalCode()))
