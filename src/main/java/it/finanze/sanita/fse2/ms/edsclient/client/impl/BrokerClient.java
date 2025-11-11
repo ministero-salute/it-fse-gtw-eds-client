@@ -107,7 +107,7 @@ public class BrokerClient implements IBrokerClient {
                 requestBody.setOperation(ProcessorOperationEnum.UPDATE);
                 requestBody.setJsonString(JsonUtility.objectToJson(brokerRequestDTO.getUpdateReqDTO()));
                 requestBody.setFiscalCode(brokerRequestDTO.getFiscalCode());
-                // requestBody.setRde(brokerRequestDTO.ge);
+                requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
                 break;
             case REPLACE:
                 requestBody = new DocumentDTO();
