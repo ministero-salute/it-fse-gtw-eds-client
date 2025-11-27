@@ -13,16 +13,14 @@ package it.finanze.sanita.fse2.ms.edsclient.service;
 
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.enums.DestinationEnum;
 
 public interface IEdsInvocationSRV {
 
-    EdsResponseDTO publish(String idDoc, String workflowInstanceId, DestinationEnum destination);
+    EdsResponseDTO publish(String idDoc, String workflowInstanceId);
 
-    EdsResponseDTO replace(String idDoc, String workflowInstanceId, DestinationEnum destination);
+    EdsResponseDTO replace(String idDoc, String workflowInstanceId);
 
-    EdsResponseDTO delete(String identifier, String fiscalCode, DestinationEnum destinationEnum);
+    EdsResponseDTO delete(String identifier, String fiscalCode);
 
-    EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, DestinationEnum destinationEnum,
-            String fiscalCode);
+    EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, String fiscalCode);
 }
