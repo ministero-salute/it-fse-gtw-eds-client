@@ -12,12 +12,12 @@
 package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
 import java.net.URI;
-import java.net.http.HttpHeaders;
 import java.util.Date;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
