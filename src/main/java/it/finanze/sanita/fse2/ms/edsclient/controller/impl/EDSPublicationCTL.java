@@ -41,8 +41,7 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
         log.info("[START] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif",
                 requestBody.getWorkflowInstanceId());
 
-        EdsResponseDTO out = edsInvocationSRV.publish(requestBody.getIdentificativoDoc(),
-                        requestBody.getWorkflowInstanceId());
+        EdsResponseDTO out = edsInvocationSRV.publish(requestBody.getIdentificativoDoc(), requestBody.getWorkflowInstanceId());
 
         log.info("[EXIT] {}() with arguments {}={}, {}={}", "publication", "traceId", traceInfoDTO.getTraceID(), "wif",
                 requestBody.getWorkflowInstanceId());
@@ -57,8 +56,7 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
         log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(),
                 "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc());
 
-        EdsResponseDTO out = edsInvocationSRV.replace(replaceInfo.getIdDoc(),
-                        replaceInfo.getWorkflowInstanceId());
+        EdsResponseDTO out = edsInvocationSRV.replace(replaceInfo.getIdDoc(), replaceInfo.getWorkflowInstanceId());
 
         log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "replace", "traceId", traceInfoDTO.getTraceID(),
                 "wif", replaceInfo.getWorkflowInstanceId(), "idDoc", replaceInfo.getIdDoc());

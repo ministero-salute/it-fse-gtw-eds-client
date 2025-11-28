@@ -12,12 +12,12 @@
 package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
 import java.net.URI;
+import java.net.http.HttpHeaders;
 import java.util.Date;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -38,7 +38,7 @@ import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component("uarClient")
+@Component
 public class BrokerClient implements IBrokerClient {
 
     private static final String MSG_UNSUPPORTED = "Unsupported exception";
@@ -61,7 +61,7 @@ public class BrokerClient implements IBrokerClient {
         final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
         URI url = UriComponentsBuilder
-                .fromUriString(brokerCfg.getBrokerHost() + "/v1/eds/document"
+                .fromUriString(brokerCfg.getBrokerHost() + "/v1/ingestion/document"
                         + buildRequestPath(brokerRequestDTO.getOperation(),
                                 brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
                                 brokerRequestDTO.getFiscalCode()))

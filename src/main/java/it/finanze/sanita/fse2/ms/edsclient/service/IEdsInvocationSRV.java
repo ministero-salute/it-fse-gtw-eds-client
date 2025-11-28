@@ -22,6 +22,5 @@ public interface IEdsInvocationSRV {
 
     EdsResponseDTO delete(String identifier, String fiscalCode);
 
-    EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO,
-            String fiscalCode);
+    EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, String fiscalCode);
 }
