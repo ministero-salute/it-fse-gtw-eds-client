@@ -20,6 +20,7 @@ import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetDocumentReferenceResDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.repository.IEdsInvocationRepo;
@@ -136,4 +137,9 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
         return brokerClient.dispatchAndSendData(brokerRequestDto);
 
     }
+
+	@Override
+	public GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode) {
+		return brokerClient.getDocumentReference(fiscalCode, masterIdentifier);
+	}
 }

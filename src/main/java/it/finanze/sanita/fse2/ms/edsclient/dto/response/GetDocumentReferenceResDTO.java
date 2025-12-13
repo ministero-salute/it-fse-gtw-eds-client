@@ -9,21 +9,28 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.edsclient.service;
+package it.finanze.sanita.fse2.ms.edsclient.dto.response;
 
-import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetDocumentReferenceResDTO;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public interface IEdsInvocationSRV {
+/**
+ * 
+ *
+ *	DTO used to return check exist result.
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+public class GetDocumentReferenceResDTO extends ResponseDTO {
 
-    EdsResponseDTO publish(String idDoc, String workflowInstanceId);
-
-    EdsResponseDTO replace(String idDoc, String workflowInstanceId);
-
-    EdsResponseDTO delete(String identifier, String fiscalCode);
-
-    EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, String fiscalCode);
+	private String documentReference;
+	
+	public GetDocumentReferenceResDTO(final LogTraceInfoDTO traceInfo, final String inDocumentReference) {
+		super(traceInfo);
+		documentReference = inDocumentReference;
+	}
+	
     
-    GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode);
 }
