@@ -12,6 +12,7 @@
 package it.finanze.sanita.fse2.ms.edsclient.controller.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.finanze.sanita.fse2.ms.edsclient.controller.IEDSPublicationCTL;
@@ -19,6 +20,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.DocumentRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetDocumentReferenceResDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.ms.edsclient.service.IEdsInvocationSRV;
 import jakarta.servlet.http.HttpServletRequest;
@@ -85,6 +87,12 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
                 "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
 
         return output;
+    }
+
+    @Override
+    public ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(String fiscalCode, String masterIdentifier, HttpServletRequest request) {
+        GetDocumentReferenceResDTO documentReference = edsInvocationSRV.getDocumentReference(masterIdentifier, fiscalCode);
+        return ResponseEntity.ok(documentReference);
     }
 
 }

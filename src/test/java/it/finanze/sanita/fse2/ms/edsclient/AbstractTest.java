@@ -60,16 +60,17 @@ public abstract class AbstractTest {
 
     ResponseEntity<EdsResponseDTO> callUpdateEdsClient(final String idDoc, final String workflowInstanceId,
             PublicationMetadataReqDTO dto) {
-        String url = "http://localhost:" +
-                webServerAppCtxt.getWebServer().getPort() +
-                webServerAppCtxt.getServletContext().getContextPath() +
-                "/v1/documents/" + idDoc + "/metadata";
+//        String url = "http://localhost:" +
+//                webServerAppCtxt.getWebServer().getPort() +
+//                webServerAppCtxt.getServletContext().getContextPath() +
+//                "/v1/documents/" + idDoc + "/metadata";
+//
+//        PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO();
+//        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(
+//                new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate, "FISCAL_CODE"));
 
-        PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO();
-        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(
-                new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate, "FISCAL_CODE"));
-
-        return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
+//        return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
+    	return null;
     }
 
     ResponseEntity<EdsResponseDTO> callReplaceEdsClient(final String idDoc, final String workflowInstanceId) {

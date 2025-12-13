@@ -12,7 +12,9 @@
 package it.finanze.sanita.fse2.ms.edsclient.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,12 +26,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.DocumentRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.PublicationRequestBodyDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.ErrorResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetDocumentReferenceResDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Size;
 
@@ -78,5 +84,21 @@ public interface IEDSPublicationCTL {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
     EdsResponseDTO delete(@Size(min = 1, max = 256) @PathVariable(value = "idDoc", required = true) String idDoc,
             @PathVariable(value = "fiscalCode", required = true) String fiscalCode, HttpServletRequest request);
+    
+    /**
+     * Function to retrieve the list of all documents from the staging database.
+     * 
+     * @param request The Http Servlet Request
+     * @return DocumentReferenceDTO List of Document Reference DTO
+     */
+    @GetMapping(value = "/document/{fiscalCode}/{masterIdentifier}", produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    @Operation(summary = "Returns the list of all documents from the staging database", description = "Servizio che consente di ritornare la lista dei documenti dal database di staging.")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = DocumentDTO.class)))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Richiesta Documents avvenuta con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = GetDocumentReferenceResDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+    ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(@PathVariable String fiscalCode,@PathVariable String masterIdentifier,HttpServletRequest request);
+    
 
 }
