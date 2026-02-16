@@ -11,6 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.controller;
 
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetIngestionStatusResponseDTO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -99,6 +100,18 @@ public interface IEDSPublicationCTL {
             @ApiResponse(responseCode = "200", description = "Richiesta Documents avvenuta con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = GetDocumentReferenceResDTO.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
     ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(@PathVariable String fiscalCode,@PathVariable String masterIdentifier,HttpServletRequest request);
-    
+
+
+    @GetMapping("/status/{workflowInstanceId}")
+    @Operation(summary = "Recupero stato ingestion da broker", description = "Recupera lo stato di ingestion della transazione dal broker tramite il workflow instance id.")
+    @ApiResponse(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = GetIngestionStatusResponseDTO.class)))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Stato ingestion recuperato con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = GetIngestionStatusResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
+    GetIngestionStatusResponseDTO getIngestionStatus(
+            @Size(min = 1, max = 256) @PathVariable(value = "workflowInstanceId", required = true) String workflowInstanceId,
+            HttpServletRequest request);
 
 }
