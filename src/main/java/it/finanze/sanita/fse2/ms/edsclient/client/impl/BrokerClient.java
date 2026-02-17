@@ -71,6 +71,7 @@ public class BrokerClient implements IBrokerClient {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
+		headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
 
 		try {
 			DocumentDTO requestBody = buildRequestBody(brokerRequestDTO);
@@ -176,7 +177,13 @@ public class BrokerClient implements IBrokerClient {
 				.buildAndExpand(fiscalCode, masterIdentifier)
 				.toUri();
 
-		return restTemplate.getForObject(uri, GetDocumentReferenceResDTO.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+		headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
+
+		HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+		return restTemplate.exchange(uri, org.springframework.http.HttpMethod.GET, entity, GetDocumentReferenceResDTO.class).getBody();
 	}
 
     @Override
@@ -192,6 +199,7 @@ public class BrokerClient implements IBrokerClient {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
+            headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
