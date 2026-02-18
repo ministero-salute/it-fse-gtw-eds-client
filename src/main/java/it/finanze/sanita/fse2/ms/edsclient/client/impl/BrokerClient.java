@@ -62,7 +62,7 @@ public class BrokerClient implements IBrokerClient {
 		final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
 		URI url = UriComponentsBuilder
-				.fromUriString(brokerCfg.getBrokerHost() + "/v1/ingestion/document"
+				.fromUriString(brokerCfg.getBrokerHost() + "/edsalim/v1/ingestion/document"
 						+ buildRequestPath(brokerRequestDTO.getOperation(),
 								brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
 								brokerRequestDTO.getFiscalCode()))
