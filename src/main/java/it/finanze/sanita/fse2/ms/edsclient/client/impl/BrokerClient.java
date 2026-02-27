@@ -192,7 +192,7 @@ public class BrokerClient implements IBrokerClient {
 
         URI url = UriComponentsBuilder
                 .fromUriString(brokerCfg.getBrokerHost())
-                .path("/v1/ingestion/status/{workflowInstanceId}")
+                .path("edsalim/v1/ingestion/status/{workflowInstanceId}")
                 .encode()
                 .buildAndExpand(workflowInstanceId)
                 .toUri();
