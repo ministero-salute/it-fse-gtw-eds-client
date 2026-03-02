@@ -11,6 +11,8 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.controller.impl;
 
+import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetIngestionStatusResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +37,24 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
 
     @Autowired
     private transient IEdsInvocationSRV edsInvocationSRV;
+
+    @Autowired
+    private transient IBrokerClient brokerClient;
+
+    @Override
+    public GetIngestionStatusResponseDTO getIngestionStatus(String workflowInstanceId, HttpServletRequest request) {
+            final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
+            log.info("[START] {}() with arguments {}={}, {}={}", "getIngestionStatus", "traceId",
+                            traceInfoDTO.getTraceID(),
+                            "workflowInstanceId", workflowInstanceId);
+
+            GetIngestionStatusResponseDTO response = brokerClient.getIngestionStatus(workflowInstanceId);
+
+            log.info("[EXIT] {}() with arguments {}={}, {}={}", "getIngestionStatus", "traceId",
+                            traceInfoDTO.getTraceID(),
+                            "workflowInstanceId", workflowInstanceId);
+            return response;
+    }
 
     @Override
     public EdsResponseDTO publish(final PublicationRequestBodyDTO requestBody, HttpServletRequest request) {

@@ -14,6 +14,7 @@ package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 import java.net.URI;
 import java.util.Date;
 
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetIngestionStatusResponseDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -70,6 +71,7 @@ public class BrokerClient implements IBrokerClient {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
+		headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
 
 		try {
 			DocumentDTO requestBody = buildRequestBody(brokerRequestDTO);
@@ -175,10 +177,45 @@ public class BrokerClient implements IBrokerClient {
 				.buildAndExpand(fiscalCode, masterIdentifier)
 				.toUri();
 
-		return restTemplate.getForObject(uri, GetDocumentReferenceResDTO.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+		headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
 
+		HttpEntity<Void> entity = new HttpEntity<>(headers);
 
+		return restTemplate.exchange(uri, org.springframework.http.HttpMethod.GET, entity, GetDocumentReferenceResDTO.class).getBody();
 	}
+
+    @Override
+    public GetIngestionStatusResponseDTO getIngestionStatus(String workflowInstanceId) {
+        log.debug("BrokerClient - Calling broker to retrieve ingestion status");
+
+        URI url = UriComponentsBuilder
+                .fromUriString(brokerCfg.getBrokerHost())
+                .path("edsalim/v1/ingestion/status/{workflowInstanceId}")
+                .encode()
+                .buildAndExpand(workflowInstanceId)
+                .toUri();
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
+
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            GetIngestionStatusResponseDTO response = restTemplate.exchange(
+                    url,
+                    org.springframework.http.HttpMethod.GET,
+                    entity,
+                    GetIngestionStatusResponseDTO.class).getBody();
+
+            log.debug("BrokerClient - Ingestion status retrieved successfully");
+            return response;
+        } catch (Exception ex) {
+            log.error("Error calling broker getIngestionStatus API: {}", ex.getMessage(), ex);
+            throw new BusinessException("Error calling broker getIngestionStatus API", ex);
+        }
+    }
 
 
 }

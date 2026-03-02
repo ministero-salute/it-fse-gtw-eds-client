@@ -69,6 +69,10 @@ public final class Constants {
 
 		public static final String MOCKED_GATEWAY_NAME = "mocked-gateway";
 
+		public static final String X_SUBJECT_ROLE_HEADER = "x-subject-role";
+
+		public static final String SUBJECT_ROLE_GTW = "GTW";
+
 		public static final Map<ProcessorOperationEnum, HttpMethod> methodMap = new EnumMap<>(ProcessorOperationEnum.class);
 		static {
 			methodMap.put(ProcessorOperationEnum.PUBLISH, HttpMethod.POST);
