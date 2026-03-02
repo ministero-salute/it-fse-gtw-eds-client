@@ -171,7 +171,7 @@ public class BrokerClient implements IBrokerClient {
 	public GetDocumentReferenceResDTO getDocumentReference(String fiscalCode, String masterIdentifier) {
 		final URI uri = UriComponentsBuilder
 				.fromUriString(brokerCfg.getBrokerHost())
-				.path("/v1/ingestion/document-reference/{fiscalCode}/{masterIdentifier}")
+				.path("/edsalim/v1/ingestion/document-reference/{fiscalCode}/{masterIdentifier}")
 				.buildAndExpand(fiscalCode, masterIdentifier)
 				.toUri();
 
