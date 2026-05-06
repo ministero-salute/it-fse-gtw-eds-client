@@ -51,7 +51,7 @@ public class GetIngestionStatusResponseDTO {
     @Schema(description = "RDE code", example = "120")
     private String rde;
 
-    @JsonProperty("detail")
-    @Schema(description = "Additional detail information about the transaction status")
-    private String detail;
+    @JsonProperty("message")
+    @Schema(description = "Additional information about the transaction status")
+    private String message;
 }
