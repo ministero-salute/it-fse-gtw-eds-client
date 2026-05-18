@@ -24,11 +24,5 @@ public class EDSClientApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EDSClientApplication.class, args);
 	}
-	
-	@Bean
-	@Qualifier("restTemplate")
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
 
 }
