@@ -86,23 +86,23 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
     }
 
     @Override
-    public EdsResponseDTO delete(String ooid, String fiscalCode, HttpServletRequest request) {
+    public EdsResponseDTO delete(String ooid, String fiscalCode, String jwt, HttpServletRequest request) {
         final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 
         log.info("[START] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
-        EdsResponseDTO out = edsInvocationSRV.delete(ooid, fiscalCode);
+        EdsResponseDTO out = edsInvocationSRV.delete(ooid, fiscalCode, jwt);
         log.info("[EXIT] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
 
         return out;
     }
 
     @Override
-    public EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO dto, HttpServletRequest request) {
+    public EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO dto, String jwt, HttpServletRequest request) {
         final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 
         log.info("[START] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(),
                 "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
-        EdsResponseDTO output = edsInvocationSRV.update(idDoc, dto, dto.getFiscalCode());
+        EdsResponseDTO output = edsInvocationSRV.update(idDoc, dto, dto.getFiscalCode(), jwt);
         log.info("[EXIT] {}() with arguments {}={}, {}={}, {}={}", "update", "traceId", traceInfoDTO.getTraceID(),
                 "wif", dto.getWorkflowInstanceId(), "idDoc", idDoc);
 

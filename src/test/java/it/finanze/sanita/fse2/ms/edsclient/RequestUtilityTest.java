@@ -16,18 +16,19 @@ import it.finanze.sanita.fse2.ms.edsclient.utility.RequestUtility;
 import org.bson.Document;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(Constants.Profile.TEST)
+/**
+ * Unit test for {@link RequestUtility}. Its methods are static and pure, so the test runs as
+ * plain JUnit without booting a Spring context (which would require MongoDB / broker infra).
+ */
 public class RequestUtilityTest {
 
 	@Test
@@ -89,5 +90,56 @@ public class RequestUtilityTest {
 		String expectedField = "fieldName";
 		String actualField = RequestUtility.extractFieldFromMetadata(listMetadata, "fieldName");
 		assertEquals(expectedField, actualField);
+	}
+
+	@Test
+	@DisplayName("Extract JWT claims maps the payload and omits absent delegation_scope")
+	void testExtractJwtClaimsSuccess() {
+		List<Document> listMetadata = new ArrayList<>();
+		Document payload = new Document();
+		payload.put("sub", "RSSMRA22A01A399Z");
+		payload.put("subject_role", "AAS");
+		payload.put("person_id", "BMTBTS01A01I526W");
+		payload.put("purpose_of_use", "TREATMENT");
+		payload.put("locality", "201123456");
+		payload.put("subject_organization", "Regione Marche");
+		payload.put("subject_organization_id", "110");
+		payload.put("patient_consent", true); // outside JWT_PAYLOAD_CLAIMS -> must be omitted
+		listMetadata.add(new Document("tokenEntry", new Document("payload", payload)));
+
+		Map<String, Object> claims = RequestUtility.extractJwtClaims(listMetadata);
+
+		assertEquals("RSSMRA22A01A399Z", claims.get("sub"));
+		assertEquals("AAS", claims.get("subject_role"));
+		assertEquals("BMTBTS01A01I526W", claims.get("person_id"));
+		assertEquals("TREATMENT", claims.get("purpose_of_use"));
+		assertEquals("201123456", claims.get("locality"));
+		assertEquals("Regione Marche", claims.get("subject_organization"));
+		assertEquals("110", claims.get("subject_organization_id"));
+		assertFalse(claims.containsKey("delegation_scope"), "delegation_scope must be omitted when absent");
+		assertFalse(claims.containsKey("patient_consent"), "claims outside JWT_PAYLOAD_CLAIMS must be omitted");
+		assertEquals(7, claims.size());
+	}
+
+	@Test
+	@DisplayName("Extract JWT claims forwards delegation_scope when present")
+	void testExtractJwtClaimsWithDelegationScope() {
+		List<Document> listMetadata = new ArrayList<>();
+		Document payload = new Document();
+		payload.put("sub", "RSSMRA22A01A399Z");
+		payload.put("delegation_scope", "CAREGIVER");
+		listMetadata.add(new Document("tokenEntry", new Document("payload", payload)));
+
+		Map<String, Object> claims = RequestUtility.extractJwtClaims(listMetadata);
+
+		assertEquals("RSSMRA22A01A399Z", claims.get("sub"));
+		assertEquals("CAREGIVER", claims.get("delegation_scope"));
+	}
+
+	@Test
+	@DisplayName("Extract JWT claims returns empty map for null metadata")
+	void testExtractJwtClaimsNull() {
+		Map<String, Object> claims = RequestUtility.extractJwtClaims(null);
+		assertTrue(claims.isEmpty());
 	}
 }

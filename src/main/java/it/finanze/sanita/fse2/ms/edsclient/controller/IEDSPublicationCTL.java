@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,7 +75,8 @@ public interface IEDSPublicationCTL {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
     EdsResponseDTO update(@Size(min = 1, max = 256) @PathVariable(value = "idDoc", required = true) String idDoc,
-            @RequestBody EdsMetadataUpdateReqDTO req, HttpServletRequest request);
+            @RequestBody EdsMetadataUpdateReqDTO req,
+            @RequestHeader(value = "Agid-JWT-Signature", required = false) String jwt, HttpServletRequest request);
 
     @DeleteMapping("/documents/{idDoc}/{fiscalCode}")
     @Operation(summary = "Delete risorsa fhir", description = "Delete risorsa fhir.")
@@ -84,7 +86,8 @@ public interface IEDSPublicationCTL {
             @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
     EdsResponseDTO delete(@Size(min = 1, max = 256) @PathVariable(value = "idDoc", required = true) String idDoc,
-            @PathVariable(value = "fiscalCode", required = true) String fiscalCode, HttpServletRequest request);
+            @PathVariable(value = "fiscalCode", required = true) String fiscalCode,
+            @RequestHeader(value = "Agid-JWT-Signature", required = false) String jwt, HttpServletRequest request);
     
     /**
      * Function to retrieve the list of all documents from the staging database.

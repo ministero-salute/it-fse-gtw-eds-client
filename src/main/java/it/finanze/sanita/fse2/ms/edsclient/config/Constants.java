@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.HttpMethod;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,6 +73,16 @@ public final class Constants {
 		public static final String X_SUBJECT_ROLE_HEADER = "x-subject-role";
 
 		public static final String SUBJECT_ROLE_GTW = "GTW";
+
+		/**
+		 * Ordered set of claim names copied from the upstream {@code tokenEntry.payload}
+		 * into the outbound broker JWT. Referenced by both source paths (ETY extraction
+		 * and inbound-JWT re-signing) so the claim set has a single definition.
+		 */
+		public static final List<String> JWT_PAYLOAD_CLAIMS = List.of(
+				"sub", "subject_role", "person_id", "purpose_of_use",
+				"locality", "subject_organization", "subject_organization_id",
+				"delegation_scope");
 
 		public static final Map<ProcessorOperationEnum, HttpMethod> methodMap = new EnumMap<>(ProcessorOperationEnum.class);
 		static {

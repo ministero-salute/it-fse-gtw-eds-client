@@ -37,7 +37,14 @@ public class BrokerRequestDTO {
     private String identifier;
     
     private String workflowInstanceId;
-    
+
     private String fiscalCode;
+
+    /**
+     * Inbound {@code Agid-JWT-Signature} value for UPDATE/DELETE operations, to be
+     * re-signed toward the broker. Null for PUBLISH/REPLACE (claims come from the ETY).
+     */
+    @Nullable
+    private String jwt;
 
 }

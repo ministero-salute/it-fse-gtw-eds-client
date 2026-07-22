@@ -1,12 +1,12 @@
 /*
  * SPDX-License-Identifier: AGPL-3.0-or-later
- * 
+ *
  * Copyright (C) 2023 Ministero della Salute
- * 
+ *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 package it.finanze.sanita.fse2.ms.edsclient.client.impl;
@@ -37,6 +37,8 @@ import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.edsclient.logging.LoggerHelper;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.utility.JsonUtility;
+import it.finanze.sanita.fse2.ms.edsclient.utility.JwtUtility;
+import it.finanze.sanita.fse2.ms.edsclient.utility.RequestUtility;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -54,6 +56,9 @@ public class BrokerClient implements IBrokerClient {
 	@Autowired
 	private BrokerCfg brokerCfg;
 
+	@Autowired
+	private JwtUtility jwtUtility;
+
 	@Override
 	public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
 
@@ -69,9 +74,7 @@ public class BrokerClient implements IBrokerClient {
 								brokerRequestDTO.getFiscalCode()))
 				.build().toUri();
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/json");
-		headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
+		HttpHeaders headers = createAuthenticatedHeaders(brokerRequestDTO);
 
 		try {
 			DocumentDTO requestBody = buildRequestBody(brokerRequestDTO);
@@ -177,9 +180,7 @@ public class BrokerClient implements IBrokerClient {
 				.buildAndExpand(fiscalCode, masterIdentifier)
 				.toUri();
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/json");
-		headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
+		HttpHeaders headers = createAuthenticatedHeaders();
 
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -197,9 +198,7 @@ public class BrokerClient implements IBrokerClient {
                 .buildAndExpand(workflowInstanceId)
                 .toUri();
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-            headers.set(Constants.AppConstants.X_SUBJECT_ROLE_HEADER, Constants.AppConstants.SUBJECT_ROLE_GTW);
+			HttpHeaders headers = createAuthenticatedHeaders();
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -217,5 +216,71 @@ public class BrokerClient implements IBrokerClient {
         }
     }
 
+	/**
+	 * Creates HTTP headers with JWT
+	 * 
+	 * @return HttpHeaders with Content-Type, Agid-JWT-Signature (JWT)
+	 */
+	private HttpHeaders createAuthenticatedHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+
+		// Add JWT token in Agid-JWT-Signature header (new authentication method)
+		String jwtToken = jwtUtility.generateToken();
+		headers.set("Agid-JWT-Signature", jwtToken);
+
+		log.debug("Generated JWT token for Broker authentication in Agid-JWT-Signature header");
+		return headers;
+	}
+
+	/**
+	 * Creates HTTP headers with a structured {@code Agid-JWT-Signature} token whose
+	 * claims describe the original requester, selecting the token source by
+	 * operation:
+	 * <ul>
+	 * <li><b>PUBLISH / REPLACE</b>: claims are extracted from the
+	 * {@code tokenEntry.payload}
+	 * of the request's {@link IniEdsInvocationETY} metadata.</li>
+	 * <li><b>UPDATE / DELETE</b>: the inbound {@code Agid-JWT-Signature} value
+	 * carried on
+	 * {@link BrokerRequestDTO#getJwt()} is re-signed with this service's key; if it
+	 * is
+	 * missing, falls back to the simple {@code subject_role=GTW} token.</li>
+	 * </ul>
+	 *
+	 * @param dto the broker request carrying the operation and its token source
+	 * @return HttpHeaders with Content-Type and Agid-JWT-Signature (structured JWT)
+	 */
+	private HttpHeaders createAuthenticatedHeaders(BrokerRequestDTO dto) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+
+		String jwtToken;
+		switch (dto.getOperation()) {
+		case UPDATE:
+		case DELETE:
+			if (dto.getJwt() != null && !dto.getJwt().isBlank()) {
+				jwtToken = jwtUtility.reSignToken(dto.getJwt());
+			} else {
+				jwtToken = jwtUtility.generateToken();
+			}
+			break;
+		case PUBLISH:
+		case REPLACE:
+		default:
+			IniEdsInvocationETY ety = dto.getIniEdsInvocationETY();
+			if (ety != null && ety.getMetadata() != null) {
+				jwtToken = jwtUtility.generateToken(RequestUtility.extractJwtClaims(ety.getMetadata()));
+			} else {
+				jwtToken = jwtUtility.generateToken();
+			}
+			break;
+	}
+	headers.set("Agid-JWT-Signature", jwtToken);
+
+		log.debug("Generated JWT token for Broker authentication ({}) in Agid-JWT-Signature header",
+				dto.getOperation());
+		return headers;
+	}
 
 }

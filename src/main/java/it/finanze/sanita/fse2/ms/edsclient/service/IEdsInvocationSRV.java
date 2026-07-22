@@ -21,9 +21,9 @@ public interface IEdsInvocationSRV {
 
     EdsResponseDTO replace(String idDoc, String workflowInstanceId);
 
-    EdsResponseDTO delete(String identifier, String fiscalCode);
+    EdsResponseDTO delete(String identifier, String fiscalCode, String jwt);
 
-    EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, String fiscalCode);
+    EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, String fiscalCode, String jwt);
     
     GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode);
 }

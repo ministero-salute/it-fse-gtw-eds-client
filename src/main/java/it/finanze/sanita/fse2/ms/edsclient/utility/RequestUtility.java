@@ -11,15 +11,50 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.utility;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.Document;
 
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 
 public class RequestUtility {
-	
+
     private RequestUtility() {}
+
+    /**
+     * Extracts the JWT claims to forward to the broker from the {@code tokenEntry.payload}
+     * object inside the {@code metadata} array of an {@link it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY}.
+     *
+     * <p>Only the names listed in {@link Constants.AppConstants#JWT_PAYLOAD_CLAIMS} are copied,
+     * and only when the payload actually contains them, so absent fields (e.g. {@code delegation_scope})
+     * are omitted rather than defaulted.</p>
+     *
+     * @param metadata the ETY metadata list (may be {@code null})
+     * @return an ordered map of the claims present in the payload; empty if metadata/payload is missing
+     */
+    public static Map<String, Object> extractJwtClaims(final List<Document> metadata) {
+        final Map<String, Object> claims = new LinkedHashMap<>();
+        if (metadata == null) {
+            return claims;
+        }
+        for (Document meta : metadata) {
+            if (meta.get("tokenEntry") != null) {
+                final Document token = (Document) meta.get("tokenEntry");
+                final Document payload = (Document) token.get("payload");
+                if (payload != null) {
+                    for (String name : Constants.AppConstants.JWT_PAYLOAD_CLAIMS) {
+                        if (payload.containsKey(name)) {
+                            claims.put(name, payload.get(name));
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        return claims;
+    }
     public static String extractFieldFromMetadata(List<Document> metadata, String fieldName) {
         String field = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;
         for (Document meta : metadata) {
