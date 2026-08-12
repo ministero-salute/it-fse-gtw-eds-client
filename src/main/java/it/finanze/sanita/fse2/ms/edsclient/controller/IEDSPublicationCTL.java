@@ -102,7 +102,8 @@ public interface IEDSPublicationCTL {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Richiesta Documents avvenuta con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = GetDocumentReferenceResDTO.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
-    ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(@PathVariable String fiscalCode,@PathVariable String masterIdentifier,HttpServletRequest request);
+    ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(@PathVariable String fiscalCode,@PathVariable String masterIdentifier,
+            @RequestHeader(value = "Agid-JWT-Signature", required = false) String jwt, HttpServletRequest request);
 
 
     @GetMapping("/status/{workflowInstanceId}")

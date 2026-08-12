@@ -139,7 +139,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
     }
 
 	@Override
-	public GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode) {
-		return brokerClient.getDocumentReference(fiscalCode, masterIdentifier);
+	public GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode, String jwt) {
+		return brokerClient.getDocumentReference(fiscalCode, masterIdentifier, jwt);
 	}
 }

@@ -13,7 +13,7 @@ public interface IBrokerClient {
 
 	EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO);
 	
-	GetDocumentReferenceResDTO getDocumentReference(String fiscalCode, String masterIdentifier);
+	GetDocumentReferenceResDTO getDocumentReference(String fiscalCode, String masterIdentifier, String jwt);
 
     GetIngestionStatusResponseDTO getIngestionStatus(String workflowInstanceId);
 }

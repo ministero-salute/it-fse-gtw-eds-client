@@ -25,5 +25,5 @@ public interface IEdsInvocationSRV {
 
     EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, String fiscalCode, String jwt);
     
-    GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode);
+    GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode, String jwt);
 }

@@ -173,7 +173,7 @@ public class BrokerClient implements IBrokerClient {
 	}
 
 	@Override
-	public GetDocumentReferenceResDTO getDocumentReference(String fiscalCode, String masterIdentifier) {
+	public GetDocumentReferenceResDTO getDocumentReference(String fiscalCode, String masterIdentifier, String jwt) {
 		final URI uri = UriComponentsBuilder
 				.fromUriString(brokerCfg.getBrokerHost())
 				.path("/edsalim/v1/ingestion/document-reference/{fiscalCode}/{masterIdentifier}")
@@ -181,6 +181,10 @@ public class BrokerClient implements IBrokerClient {
 				.toUri();
 
 		HttpHeaders headers = createAuthenticatedHeaders();
+
+		if (jwt != null && !jwt.isEmpty()) {
+			headers.set("Agid-JWT-Signature", jwt);
+		}
 
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
 

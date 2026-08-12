@@ -111,8 +111,8 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
     }
 
     @Override
-    public ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(String fiscalCode, String masterIdentifier, HttpServletRequest request) {
-        GetDocumentReferenceResDTO documentReference = edsInvocationSRV.getDocumentReference(masterIdentifier, fiscalCode);
+    public ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(String fiscalCode, String masterIdentifier, String jwt, HttpServletRequest request) {
+        GetDocumentReferenceResDTO documentReference = edsInvocationSRV.getDocumentReference(masterIdentifier, fiscalCode, jwt);
         return ResponseEntity.ok(documentReference);
     }
 
