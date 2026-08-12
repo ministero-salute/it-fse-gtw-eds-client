@@ -90,6 +90,7 @@ public class EDSPublicationCTL extends AbstractCTL implements IEDSPublicationCTL
         final LogTraceInfoDTO traceInfoDTO = getLogTraceInfo();
 
         log.info("[START] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
+        log.info("JWT Ricevuto:"+jwt);
         EdsResponseDTO out = edsInvocationSRV.delete(ooid, fiscalCode, jwt);
         log.info("[EXIT] {}() with arguments {}={}", "delete", "traceId", traceInfoDTO.getTraceID());
 
