@@ -260,7 +260,8 @@ public class BrokerClient implements IBrokerClient {
 		case UPDATE:
 		case DELETE:
 			if (dto.getJwt() != null && !dto.getJwt().isBlank()) {
-				jwtToken = jwtUtility.reSignToken(dto.getJwt());
+//				jwtToken = jwtUtility.reSignToken(dto.getJwt());
+				jwtToken = dto.getJwt();
 			} else {
 				jwtToken = jwtUtility.generateToken();
 			}
