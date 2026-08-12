@@ -260,8 +260,9 @@ public class BrokerClient implements IBrokerClient {
 		case UPDATE:
 		case DELETE:
 			if (dto.getJwt() != null && !dto.getJwt().isBlank()) {
-//				jwtToken = jwtUtility.reSignToken(dto.getJwt());
+				//				jwtToken = jwtUtility.reSignToken(dto.getJwt());
 				jwtToken = dto.getJwt();
+				log.info("JWT TOKEN:"+jwtToken);
 			} else {
 				jwtToken = jwtUtility.generateToken();
 			}
@@ -276,11 +277,9 @@ public class BrokerClient implements IBrokerClient {
 				jwtToken = jwtUtility.generateToken();
 			}
 			break;
-	}
-	headers.set("Agid-JWT-Signature", jwtToken);
-
-		log.debug("Generated JWT token for Broker authentication ({}) in Agid-JWT-Signature header",
-				dto.getOperation());
+		}
+		headers.set("Agid-JWT-Signature", jwtToken);
+		log.debug("Generated JWT token for Broker authentication ({}) in Agid-JWT-Signature header", dto.getOperation());
 		return headers;
 	}
 
