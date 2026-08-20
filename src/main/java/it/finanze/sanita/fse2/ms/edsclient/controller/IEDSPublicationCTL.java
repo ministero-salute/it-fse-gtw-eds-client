@@ -76,7 +76,8 @@ public interface IEDSPublicationCTL {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
     EdsResponseDTO update(@Size(min = 1, max = 256) @PathVariable(value = "idDoc", required = true) String idDoc,
             @RequestBody EdsMetadataUpdateReqDTO req,
-            @RequestHeader(value = "Agid-JWT-Signature", required = false) String jwt, HttpServletRequest request);
+                    @RequestHeader(value = "Agid-JWT-Signature", required = true) String jwt,
+                    HttpServletRequest request);
 
     @DeleteMapping("/documents/{idDoc}/{fiscalCode}")
     @Operation(summary = "Delete risorsa fhir", description = "Delete risorsa fhir.")
@@ -87,7 +88,8 @@ public interface IEDSPublicationCTL {
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
     EdsResponseDTO delete(@Size(min = 1, max = 256) @PathVariable(value = "idDoc", required = true) String idDoc,
             @PathVariable(value = "fiscalCode", required = true) String fiscalCode,
-            @RequestHeader(value = "Agid-JWT-Signature", required = false) String jwt, HttpServletRequest request);
+                    @RequestHeader(value = "Agid-JWT-Signature", required = true) String jwt,
+                    HttpServletRequest request);
     
     /**
      * Function to retrieve the list of all documents from the staging database.
@@ -103,7 +105,8 @@ public interface IEDSPublicationCTL {
             @ApiResponse(responseCode = "200", description = "Richiesta Documents avvenuta con successo", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = GetDocumentReferenceResDTO.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = ErrorResponseDTO.class))) })
     ResponseEntity<GetDocumentReferenceResDTO> getDocumentReference(@PathVariable String fiscalCode,@PathVariable String masterIdentifier,
-            @RequestHeader(value = "Agid-JWT-Signature", required = false) String jwt, HttpServletRequest request);
+                    @RequestHeader(value = "Agid-JWT-Signature", required = true) String jwt,
+                    HttpServletRequest request);
 
 
     @GetMapping("/status/{workflowInstanceId}")
