@@ -11,30 +11,15 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.web.client.RestTemplate;
-
-import it.finanze.sanita.fse2.ms.edsclient.client.RestTemplateResponseErrorHandler;
 
 @SpringBootApplication
 public class EDSClientApplication {
 
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(EDSClientApplication.class, args);
 	}
-	
-	@Bean
-    @Qualifier("restTemplateWithErrorHandler")
-    public RestTemplate restTemplateWithError() {
-        RestTemplate rt = new RestTemplate();
-        rt.setErrorHandler(new RestTemplateResponseErrorHandler());
-        return rt;
-    }
 
 }

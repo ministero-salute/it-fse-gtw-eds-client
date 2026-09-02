@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import it.finanze.sanita.fse2.ms.edsclient.client.RestTemplateResponseErrorHandler;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -23,6 +25,15 @@ import java.security.cert.X509Certificate;
 @Configuration
 public class RestTemplateConfig {
 
+    /**
+     * Unico RestTemplate dell'applicazione: SSL context che accetta qualunque
+     * certificato server
+     * (i servizi interni espongono certificati firmati da una CA non presente nel
+     * trust store
+     * della JVM, che altrimenti fa fallire le chiamate con "PKIX path building
+     * failed")
+     * ed error handler custom per la traduzione degli errori HTTP.
+     */
     @Bean
     @Primary
     @Qualifier("restTemplate")
@@ -33,7 +44,10 @@ public class RestTemplateConfig {
         SimpleClientHttpRequestFactory requestFactory =
                 new HostnameVerifyingSslContextRequestFactory(sslContext);
 
-        return new RestTemplate(requestFactory);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+
+        return restTemplate;
     }
 
     public SSLContext createSslCustomContext()
