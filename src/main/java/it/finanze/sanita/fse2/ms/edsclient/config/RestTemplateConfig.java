@@ -2,6 +2,7 @@ package it.finanze.sanita.fse2.ms.edsclient.config;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +24,7 @@ import java.security.cert.X509Certificate;
 public class RestTemplateConfig {
 
     @Bean
+    @Primary
     @Qualifier("restTemplate")
     public RestTemplate restTemplate() throws Exception {
 
