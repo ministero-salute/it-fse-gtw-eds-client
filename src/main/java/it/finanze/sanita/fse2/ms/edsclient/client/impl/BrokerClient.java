@@ -17,7 +17,6 @@ import java.util.Date;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetIngestionStatusResponseDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -59,10 +58,6 @@ public class BrokerClient implements IBrokerClient {
 
 	@Autowired
 	private JwtUtility jwtUtility;
-
-	@Autowired
-	@Qualifier("restTemplateWithErrorHandler")
-	private RestTemplate restTemplateWithErrorHandler;
 
 	@Override
 	public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
@@ -193,7 +188,7 @@ public class BrokerClient implements IBrokerClient {
 
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-		return restTemplateWithErrorHandler.exchange(uri, org.springframework.http.HttpMethod.GET, entity, GetDocumentReferenceResDTO.class).getBody();
+		return restTemplate.exchange(uri, org.springframework.http.HttpMethod.GET, entity, GetDocumentReferenceResDTO.class).getBody();
 	}
 
     @Override
