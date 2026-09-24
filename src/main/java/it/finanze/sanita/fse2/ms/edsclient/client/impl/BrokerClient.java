@@ -246,9 +246,10 @@ public class BrokerClient implements IBrokerClient {
 
 		// Add JWT token in Agid-JWT-Signature header (new authentication method)
 		String jwtToken = jwtUtility.generateToken();
+		log.info("Agid-JWT-Signature: {}", jwtToken);
 		headers.set("Agid-JWT-Signature", jwtToken);
-
-		log.debug("Generated JWT token for Broker authentication in Agid-JWT-Signature header");
+ 
+		log.info("Generated JWT token for Broker authentication in Agid-JWT-Signature header");
 		return headers;
 	}
 
@@ -274,14 +275,13 @@ public class BrokerClient implements IBrokerClient {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
 
-		String jwtToken;
+		String jwtToken = null;
 		switch (dto.getOperation()) {
 		case UPDATE:
 		case DELETE:
 			if (dto.getJwt() != null && !dto.getJwt().isBlank()) {
 				//				jwtToken = jwtUtility.reSignToken(dto.getJwt());
 				jwtToken = dto.getJwt();
-				log.info("JWT TOKEN:"+jwtToken);
 			} else {
 				jwtToken = jwtUtility.generateToken();
 			}
@@ -299,6 +299,7 @@ public class BrokerClient implements IBrokerClient {
 			}
 			break;
 		}
+		log.info("Agid-JWT-Signature: {}", jwtToken);
 		headers.set("Agid-JWT-Signature", jwtToken);
 		log.debug("Generated JWT token for Broker authentication ({}) in Agid-JWT-Signature header", dto.getOperation());
 		return headers;
