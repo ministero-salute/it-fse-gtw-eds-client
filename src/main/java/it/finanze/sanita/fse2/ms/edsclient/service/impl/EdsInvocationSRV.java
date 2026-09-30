@@ -60,6 +60,12 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
         // Call EDS and send the document for publication
         if (StringUtils.isEmpty(out.getMessageError())) {
+
+            log.debug("IniEdsInvocationETY - metadata: {}, fiscalCode: {}, rde: {}",
+                    iniEdsInvocationETY != null ? iniEdsInvocationETY.getMetadata() : "ETY NULL",
+                    iniEdsInvocationETY != null ? iniEdsInvocationETY.getFiscalCode() : "ETY NULL",
+                    iniEdsInvocationETY != null ? iniEdsInvocationETY.getRde() : "ETY NULL");
+                    
             try {
                 BrokerRequestDTO request = BrokerRequestDTO.builder()
                         .updateReqDTO(null)
@@ -91,6 +97,10 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 
         // Retrieve document from DB
         IniEdsInvocationETY iniEdsInvocationETY = edsInvocationRepo.find(workflowInstanceId);
+        log.info("IniEdsInvocationETY (replace) - metadata: {}, fiscalCode: {}, rde: {}",
+                iniEdsInvocationETY != null ? iniEdsInvocationETY.getMetadata() : "ETY NULL",
+                iniEdsInvocationETY != null ? iniEdsInvocationETY.getFiscalCode() : "ETY NULL",
+                iniEdsInvocationETY != null ? iniEdsInvocationETY.getRde() : "ETY NULL");
 
         if (iniEdsInvocationETY == null || iniEdsInvocationETY.getData() == null) {
             String messageError = "Nessun documento trovato per il workflowInstanceId: " + workflowInstanceId;

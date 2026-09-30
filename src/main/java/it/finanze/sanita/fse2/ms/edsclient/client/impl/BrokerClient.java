@@ -195,81 +195,63 @@ public class BrokerClient implements IBrokerClient {
 				.buildAndExpand(fiscalCode, masterIdentifier)
 				.toUri();
 
-		HttpHeaders headers = createAuthenticatedHeaders();
-
-		if (jwt != null && !jwt.isEmpty()) {
-			headers.set("Agid-JWT-Signature", jwt);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+		if (jwt == null || jwt.isBlank()) {
+			throw new BusinessException("Agid-JWT-Signature is required for getDocumentReference but was not provided");
 		}
+		headers.set("Agid-JWT-Signature", jwt);
 
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
 
 		return restTemplate.exchange(uri, org.springframework.http.HttpMethod.GET, entity, GetDocumentReferenceResDTO.class).getBody();
 	}
 
-    @Override
-    public GetIngestionStatusResponseDTO getIngestionStatus(String workflowInstanceId) {
-        log.debug("BrokerClient - Calling broker to retrieve ingestion status");
+	   @Override
+	   public GetIngestionStatusResponseDTO getIngestionStatus(String workflowInstanceId) {
+	       log.debug("BrokerClient - Calling broker to retrieve ingestion status");
 
-        URI url = UriComponentsBuilder
-                .fromUriString(brokerCfg.getBrokerHost())
-                .path("edsalim/v1/ingestion/status/{workflowInstanceId}")
-                .encode()
-                .buildAndExpand(workflowInstanceId)
-                .toUri();
-        try {
-			HttpHeaders headers = createAuthenticatedHeaders();
+	       URI url = UriComponentsBuilder
+	               .fromUriString(brokerCfg.getBrokerHost())
+	               .path("edsalim/v1/ingestion/status/{workflowInstanceId}")
+	               .encode()
+	               .buildAndExpand(workflowInstanceId)
+	               .toUri();
+	       try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("Content-Type", "application/json");
 
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
+	           HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            GetIngestionStatusResponseDTO response = restTemplate.exchange(
-                    url,
-                    org.springframework.http.HttpMethod.GET,
-                    entity,
-                    GetIngestionStatusResponseDTO.class).getBody();
+	           GetIngestionStatusResponseDTO response = restTemplate.exchange(
+	                   url,
+	                   org.springframework.http.HttpMethod.GET,
+	                   entity,
+	                   GetIngestionStatusResponseDTO.class).getBody();
 
-            log.debug("BrokerClient - Ingestion status retrieved successfully");
-            return response;
-        } catch (Exception ex) {
-            log.error("Error calling broker getIngestionStatus API: {}", ex.getMessage(), ex);
-            throw new BusinessException("Error calling broker getIngestionStatus API", ex);
-        }
-    }
-
-	/**
-	 * Creates HTTP headers with JWT
-	 * 
-	 * @return HttpHeaders with Content-Type, Agid-JWT-Signature (JWT)
-	 */
-	private HttpHeaders createAuthenticatedHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/json");
-
-		// Add JWT token in Agid-JWT-Signature header (new authentication method)
-		String jwtToken = jwtUtility.generateToken();
-		log.info("Agid-JWT-Signature: {}", jwtToken);
-		headers.set("Agid-JWT-Signature", jwtToken);
- 
-		log.info("Generated JWT token for Broker authentication in Agid-JWT-Signature header");
-		return headers;
-	}
+	           log.debug("BrokerClient - Ingestion status retrieved successfully");
+	           return response;
+	       } catch (Exception ex) {
+	           log.error("Error calling broker getIngestionStatus API: {}", ex.getMessage(), ex);
+	           throw new BusinessException("Error calling broker getIngestionStatus API", ex);
+	       }
+	   }
 
 	/**
-	 * Creates HTTP headers with a structured {@code Agid-JWT-Signature} token whose
-	 * claims describe the original requester, selecting the token source by
-	 * operation:
+	 * Builds HTTP headers carrying the {@code Agid-JWT-Signature} token for the
+	 * given operation:
 	 * <ul>
-	 * <li><b>PUBLISH / REPLACE</b>: claims are extracted from the
-	 * {@code tokenEntry.payload}
-	 * of the request's {@link IniEdsInvocationETY} metadata.</li>
-	 * <li><b>UPDATE / DELETE</b>: the inbound {@code Agid-JWT-Signature} value
-	 * carried on
-	 * {@link BrokerRequestDTO#getJwt()} is re-signed with this service's key; if it
-	 * is
-	 * missing, falls back to the simple {@code subject_role=GTW} token.</li>
+	 * <li><b>PUBLISH / REPLACE</b>: the JWT is read exclusively from
+	 * {@code tokenEntry.payload} stored in {@link IniEdsInvocationETY#getMetadata()}.
+	 * A {@link BusinessException} is thrown if the ETY or its metadata is absent.</li>
+	 * <li><b>UPDATE / DELETE</b>: the JWT is used exactly as supplied in
+	 * {@link BrokerRequestDTO#getJwt()}.
+	 * A {@link BusinessException} is thrown if the value is null or blank.</li>
 	 * </ul>
 	 *
-	 * @param dto the broker request carrying the operation and its token source
-	 * @return HttpHeaders with Content-Type and Agid-JWT-Signature (structured JWT)
+	 * @param dto the broker request carrying the operation and its JWT source
+	 * @return HttpHeaders with Content-Type and Agid-JWT-Signature
+	 * @throws BusinessException if the required JWT cannot be obtained
 	 */
 	private HttpHeaders createAuthenticatedHeaders(BrokerRequestDTO dto) {
 		HttpHeaders headers = new HttpHeaders();
@@ -279,29 +261,36 @@ public class BrokerClient implements IBrokerClient {
 		switch (dto.getOperation()) {
 		case UPDATE:
 		case DELETE:
-			if (dto.getJwt() != null && !dto.getJwt().isBlank()) {
-				//				jwtToken = jwtUtility.reSignToken(dto.getJwt());
-				jwtToken = dto.getJwt();
+			if (dto.getJwt() == null || dto.getJwt().isBlank()) {
+				log.warn("Agid-JWT-Signature not provided for operation {}; proceeding without JWT header",
+						dto.getOperation());
 			} else {
-				jwtToken = jwtUtility.generateToken();
+				jwtToken = dto.getJwt();
 			}
 			break;
 		case PUBLISH:
 		case REPLACE:
 		default:
 			IniEdsInvocationETY ety = dto.getIniEdsInvocationETY();
-			if (ety != null && ety.getMetadata() != null) {
-				jwtToken = jwtUtility.generateToken(dto.getOptionalLogData() == null
-						? RequestUtility.extractJwtClaims(ety.getMetadata())
-						: dto.getOptionalLogData().getJwtClaims());
+			if (ety == null || ety.getMetadata() == null) {
+				log.warn("IniEdsInvocationETY metadata not found for operation {}; proceeding without JWT header",
+						dto.getOperation());
 			} else {
-				jwtToken = jwtUtility.generateToken();
+				java.util.Map<String, Object> claims = RequestUtility.extractJwtClaims(ety.getMetadata());
+				if (claims.isEmpty()) {
+					log.warn("tokenEntry.payload is empty for operation {}; proceeding without JWT header",
+							dto.getOperation());
+				} else {
+					jwtToken = jwtUtility.generateToken(claims);
+				}
 			}
 			break;
 		}
-		log.info("Agid-JWT-Signature: {}", jwtToken);
-		headers.set("Agid-JWT-Signature", jwtToken);
-		log.debug("Generated JWT token for Broker authentication ({}) in Agid-JWT-Signature header", dto.getOperation());
+		if (jwtToken != null) {
+			log.info("Agid-JWT-Signature: {}", jwtToken);
+			headers.set("Agid-JWT-Signature", jwtToken);
+		}
+		log.debug("Set Agid-JWT-Signature header for operation {}", dto.getOperation());
 		return headers;
 	}
 

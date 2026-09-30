@@ -69,12 +69,13 @@ public class RequestUtility {
     }
 
     /**
-     * Extracts the JWT claims to forward to the broker from the {@code tokenEntry.payload}
-     * object inside the {@code metadata} array of an {@link it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY}.
+     * Extracts the JWT claims stored inside {@code tokenEntry.payload} of the
+     * {@code metadata} array of an
+     * {@link it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY}.
      *
-     * <p>Only the names listed in {@link Constants.AppConstants#JWT_PAYLOAD_CLAIMS} are copied,
-     * and only when the payload actually contains them, so absent fields (e.g. {@code delegation_scope})
-     * are omitted rather than defaulted.</p>
+     * <p>The dispatcher serialises the original {@code JWTPayloadDTO} as a JSON
+     * object into {@code tokenEntry.payload}; this method reads that object back
+     * as a {@code Map} so that a new unsigned JWT can be built from it.</p>
      *
      * @param metadata the ETY metadata list (may be {@code null})
      * @return an ordered map of the claims present in the payload; empty if metadata/payload is missing
@@ -100,6 +101,7 @@ public class RequestUtility {
         }
         return claims;
     }
+
     public static String extractFieldFromMetadata(List<Document> metadata, String fieldName) {
         String field = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;
         for (Document meta : metadata) {
