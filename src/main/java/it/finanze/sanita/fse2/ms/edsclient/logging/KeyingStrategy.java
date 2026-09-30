@@ -9,44 +9,15 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.edsclient.dto;
+package it.finanze.sanita.fse2.ms.edsclient.logging;
 
-import lombok.Builder;
-import lombok.Data;
+public interface KeyingStrategy<E> {
 
-@Builder
-@Data
-public class LogDTO {
+    /**
+     * creates a byte array key for the given {@link ch.qos.logback.classic.spi.ILoggingEvent}
+     * @param e the logging event
+     * @return a key
+     */
+    byte[] createKey(E e);
 
-	final String log_type = "gateway-structured-log";
-	
-	private String message;
-	
-	private String operation;
-	
-	private String op_result;
-	
-	private String op_timestamp_start;
-	
-	private String op_timestamp_end;
-	
-	private String op_error;
-	
-	private String op_error_description;
-
-	private String op_issuer;
-
-	private String op_role;
-
-	private String op_fiscal_code;
-
-	private String op_document_type;
-
-	private String workflow_instance_id;
-
-	private String idDocumento;
-	
-	private String gateway_name;
-	
-	private String microservice_name;
 }

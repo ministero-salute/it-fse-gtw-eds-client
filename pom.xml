@@ -29,7 +29,6 @@
 		<sonar.organization>ministero-salute</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.exclusions>src/main/java/it/finanze/sanita/fse2/ms/edsclient/logging/**/*.*</sonar.exclusions>
-		<logback.version>1.5.16</logback.version>
 	</properties>
 
 	<dependencies>
@@ -65,18 +64,6 @@
 		    <version>2.8.13</version>
 		</dependency>
 
-		<!-- LOGBACK JSON -->
-		<dependency>
-			<groupId>ch.qos.logback.contrib</groupId>
-			<artifactId>logback-json-classic</artifactId>
-			<version>0.1.5</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback.contrib</groupId>
-			<artifactId>logback-jackson</artifactId>
-			<version>0.1.5</version>
-		</dependency>
-
 		<!-- DEVTOOL -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -95,6 +82,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+
+		<!-- KAFKA STRUCTURED LOGGING -->
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+			<version>3.1.7</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-pool2 -->

@@ -13,10 +13,13 @@ package it.finanze.sanita.fse2.ms.edsclient.logging;
 
 import com.google.gson.Gson;
 import it.finanze.sanita.fse2.ms.edsclient.dto.LogDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ILogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,96 +28,39 @@ import java.util.Date;
 @Service
 @Slf4j
 public class LoggerHelper {
-
-	/* 
-	 * Specify here the format for the dates 
-	 */
+	private static final Logger KAFKA_LOGGER = LoggerFactory.getLogger("kafka-logger");
 	private DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS"); 
 	
-	
-	/* 
-	 * Implements structured logs, at all logging levels
-	 */
-	public void trace(String message, ILogEnum operation, ResultLogEnum result, 
-		Date startDateOperation) {
-
-
-		LogDTO logDTO = LogDTO.builder().
-				message(message).
-				operation(operation.getCode()).
-				op_result(result.getCode()).
-				op_timestamp_start(dateFormat.format(startDateOperation)).
-				op_timestamp_end(dateFormat.format(new Date())).
-				build();
-
-		final String logMessage = new Gson().toJson(logDTO);
-		log.trace(logMessage);
-	} 
-	
-	public void debug(String message,  ILogEnum operation, ResultLogEnum result, 
-		Date startDateOperation) {
-
-		
-		LogDTO logDTO = LogDTO.builder().
-				message(message).
-				operation(operation.getCode()).
-				op_result(result.getCode()).
-				op_timestamp_start(dateFormat.format(startDateOperation)).
-				op_timestamp_end(dateFormat.format(new Date())).
-				build();
-		
-		final String logMessage = new Gson().toJson(logDTO);
-		log.debug(logMessage);
-	} 
-	 
 	public void info(String message, ILogEnum operation, ResultLogEnum result, 
-		Date startDateOperation) {
-
-		
-		LogDTO logDTO = LogDTO.builder().
-				message(message).
-				operation(operation.getCode()).
-				op_result(result.getCode()).
-				op_timestamp_start(dateFormat.format(startDateOperation)).
-				op_timestamp_end(dateFormat.format(new Date())).
-				build();
-		
-		final String logMessage = new Gson().toJson(logDTO);
+		Date startDateOperation, OptionalLogDataDTO optionalData) {
+		final String logMessage = new Gson().toJson(buildLog(message, operation, result,
+				startDateOperation, optionalData, null));
 		log.info(logMessage);
-	} 
-	
-	public void warn(String message, ILogEnum operation, ResultLogEnum result, 
-		Date startDateOperation) {
-
-		LogDTO logDTO = LogDTO.builder().
-				message(message).
-				operation(operation.getCode()).
-				op_result(result.getCode()).
-				op_timestamp_start(dateFormat.format(startDateOperation)).
-				op_timestamp_end(dateFormat.format(new Date())).
-				build();
-		
-		final String logMessage = new Gson().toJson(logDTO);
-		log.warn(logMessage);
- 
-	} 
+		KAFKA_LOGGER.info(logMessage);
+	}
 	
 	public void error(String message, ILogEnum operation, ResultLogEnum result, 
-		Date startDateOperation, ILogEnum error) {
-
-
-		LogDTO logDTO = LogDTO.builder().
-				message(message).
-				operation(operation.getCode()).
-				op_result(result.getCode()).
-				op_timestamp_start(dateFormat.format(startDateOperation)).
-				op_timestamp_end(dateFormat.format(new Date())).
-				op_error(error.getCode()).
-				op_error_description(error.getDescription()).
-				build();
-		
-		final String logMessage = new Gson().toJson(logDTO);
+		Date startDateOperation, ILogEnum error, OptionalLogDataDTO optionalData) {
+		final String logMessage = new Gson().toJson(buildLog(message, operation, result,
+				startDateOperation, optionalData, error));
 		log.error(logMessage);
-		
+		KAFKA_LOGGER.error(logMessage);
+	}
+
+	private LogDTO buildLog(String message, ILogEnum operation, ResultLogEnum result,
+			Date startDateOperation, OptionalLogDataDTO data, ILogEnum error) {
+		return LogDTO.builder()
+				.message(message).operation(operation.getCode()).op_result(result.getCode())
+				.op_timestamp_start(dateFormat.format(startDateOperation))
+				.op_timestamp_end(dateFormat.format(new Date()))
+				.op_error(error == null ? null : error.getCode())
+				.op_error_description(error == null ? null : error.getDescription())
+				.op_issuer(data == null ? null : data.getIssuer())
+				.op_role(data == null ? null : data.getRole())
+				.op_fiscal_code(data == null ? null : data.getFiscalCode())
+				.op_document_type(data == null ? null : data.getDocumentType())
+				.workflow_instance_id(data == null ? null : data.getWorkflowInstanceId())
+				.idDocumento(data == null ? null : data.getDocumentId())
+				.build();
 	}
 }

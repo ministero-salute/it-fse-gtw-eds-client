@@ -19,10 +19,12 @@ import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.edsclient.utility.RequestUtility;
 import it.finanze.sanita.fse2.ms.edsclient.repository.IEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.service.IConfigSRV;
@@ -65,6 +67,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
                         .operation(ProcessorOperationEnum.PUBLISH)
                         .identifier(idDoc)
                         .workflowInstanceId(workflowInstanceId)
+						.optionalLogData(extractOptionalLogData(iniEdsInvocationETY, idDoc, workflowInstanceId))
                         .build();
 
                 out = brokerClient.dispatchAndSendData(request);
@@ -102,6 +105,7 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
                     .operation(ProcessorOperationEnum.REPLACE)
                     .identifier(idDoc)
                     .workflowInstanceId(workflowInstanceId)
+					.optionalLogData(extractOptionalLogData(iniEdsInvocationETY, idDoc, workflowInstanceId))
                     .build();
 
             out = brokerClient.dispatchAndSendData(req);
@@ -141,5 +145,19 @@ public class EdsInvocationSRV implements IEdsInvocationSRV {
 	@Override
 	public GetDocumentReferenceResDTO getDocumentReference(String masterIdentifier, String fiscalCode, String jwt) {
 		return brokerClient.getDocumentReference(fiscalCode, masterIdentifier, jwt);
+	}
+
+	private OptionalLogDataDTO extractOptionalLogData(IniEdsInvocationETY invocation, String idDoc,
+			String workflowInstanceId) {
+		try {
+			return RequestUtility.extractOptionalLogData(invocation, idDoc, workflowInstanceId);
+		} catch (RuntimeException ex) {
+			log.warn("Unable to extract optional structured-log data", ex);
+			return OptionalLogDataDTO.builder()
+					.fiscalCode(invocation == null ? null : invocation.getFiscalCode())
+					.documentId(idDoc)
+					.workflowInstanceId(workflowInstanceId)
+					.build();
+		}
 	}
 }

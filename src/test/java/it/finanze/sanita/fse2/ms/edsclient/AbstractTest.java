@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -60,17 +61,14 @@ public abstract class AbstractTest {
 
     ResponseEntity<EdsResponseDTO> callUpdateEdsClient(final String idDoc, final String workflowInstanceId,
             PublicationMetadataReqDTO dto) {
-//        String url = "http://localhost:" +
-//                webServerAppCtxt.getWebServer().getPort() +
-//                webServerAppCtxt.getServletContext().getContextPath() +
-//                "/v1/documents/" + idDoc + "/metadata";
-//
-//        PublicationMetadataReqDTO dtoUpdate = new PublicationMetadataReqDTO();
-//        HttpEntity<EdsMetadataUpdateReqDTO> request = new HttpEntity<EdsMetadataUpdateReqDTO>(
-//                new EdsMetadataUpdateReqDTO(workflowInstanceId, dtoUpdate, "FISCAL_CODE"));
-
-//        return restTemplate.exchange(url, HttpMethod.PUT, request, EdsResponseDTO.class);
-    	return null;
+        String url = "http://localhost:" +
+                webServerAppCtxt.getWebServer().getPort() +
+                webServerAppCtxt.getServletContext().getContextPath() +
+                "/v1/documents/" + idDoc + "/metadata";
+        EdsMetadataUpdateReqDTO update = new EdsMetadataUpdateReqDTO(
+                idDoc, workflowInstanceId, JsonUtility.objectToJson(dto), "FISCAL_CODE");
+        return restTemplate.exchange(url, HttpMethod.PUT,
+                new HttpEntity<>(update, jwtHeaders()), EdsResponseDTO.class);
     }
 
     ResponseEntity<EdsResponseDTO> callReplaceEdsClient(final String idDoc, final String workflowInstanceId) {
@@ -88,13 +86,21 @@ public abstract class AbstractTest {
     }
 
     ResponseEntity<EdsResponseDTO> callDeleteEdsClient(final String ooid) {
+		String fiscalCode = "FISCAL_CODE";
         String url = "http://localhost:" +
                 webServerAppCtxt.getWebServer().getPort() +
                 webServerAppCtxt.getServletContext().getContextPath() +
-                "/v1/documents/" + ooid;
+                "/v1/documents/" + ooid + "/" + fiscalCode;
 
-        return restTemplate.exchange(url, HttpMethod.DELETE, null, EdsResponseDTO.class);
+        return restTemplate.exchange(url, HttpMethod.DELETE,
+                new HttpEntity<>(jwtHeaders()), EdsResponseDTO.class);
     }
+
+	private HttpHeaders jwtHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Agid-JWT-Signature", "test.jwt.signature");
+		return headers;
+	}
 
     @SuppressWarnings("unchecked")
     protected IniEdsInvocationETY insertIniEdsInvocation(final String workflowInstanceId) {

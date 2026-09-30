@@ -23,6 +23,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
+import java.net.URI;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -242,13 +243,13 @@ class EdsClientTest extends AbstractTest {
         DocumentResponseDTO mockResponse = new DocumentResponseDTO(logTraceInfoDTO);
         if (status.equals(HttpStatus.OK)) {
             doReturn(new ResponseEntity<>(mockResponse, HttpStatus.OK))
-                    .when(restTemplate).exchange(anyString(), eq(Constants.AppConstants.methodMap.get(operation)), any(HttpEntity.class), eq(DocumentResponseDTO.class));
+                    .when(restTemplate).exchange(any(URI.class), eq(Constants.AppConstants.methodMap.get(operation)), any(HttpEntity.class), eq(DocumentResponseDTO.class));
         } else if (status.is4xxClientError()) {
             doThrow(new ResourceAccessException(""))
-                    .when(restTemplate).exchange(anyString(), eq(Constants.AppConstants.methodMap.get(operation)), any(HttpEntity.class), eq(DocumentResponseDTO.class));
+                    .when(restTemplate).exchange(any(URI.class), eq(Constants.AppConstants.methodMap.get(operation)), any(HttpEntity.class), eq(DocumentResponseDTO.class));
         } else {
             doThrow(new BusinessException(""))
-                    .when(restTemplate).exchange(anyString(), eq(Constants.AppConstants.methodMap.get(operation)), any(HttpEntity.class), eq(DocumentResponseDTO.class));
+                    .when(restTemplate).exchange(any(URI.class), eq(Constants.AppConstants.methodMap.get(operation)), any(HttpEntity.class), eq(DocumentResponseDTO.class));
         }
     }
 }

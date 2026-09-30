@@ -31,6 +31,32 @@
 		</layout>
 	</appender>
 
+	<if condition='property("log.kafka-log.enable").equals("true")'>
+		<then>
+			<appender name="KAFKA"
+				class="it.finanze.sanita.fse2.ms.edsclient.logging.KafkaAppender">
+				<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+					<pattern>%msg%n</pattern>
+				</encoder>
+				<topic>${kafka.log.base-topic}</topic>
+				<keyingStrategy class="it.finanze.sanita.fse2.ms.edsclient.logging.HostNameKeyingStrategy" />
+				<deliveryStrategy class="it.finanze.sanita.fse2.ms.edsclient.logging.BlockingDeliveryStrategy">
+					<timeout>0</timeout>
+				</deliveryStrategy>
+				<producerConfig>bootstrap.servers=${kafka.bootstrap-servers}</producerConfig>
+				<producerConfig>client.id=${kafka.producer.client-id}</producerConfig>
+				<producerConfig>security.protocol=${kafka.properties.security.protocol}</producerConfig>
+				<producerConfig>sasl.mechanism=${kafka.properties.sasl.mechanism}</producerConfig>
+				<producerConfig>sasl.jaas.config=${kafka.properties.sasl.jaas.config}</producerConfig>
+				<producerConfig>ssl.truststore.location=${kafka.properties.ssl.truststore.location}</producerConfig>
+				<producerConfig>ssl.truststore.password=${kafka.properties.ssl.truststore.password}</producerConfig>
+			</appender>
+			<logger name="kafka-logger" level="INFO" additivity="false">
+				<appender-ref ref="KAFKA" />
+			</logger>
+		</then>
+	</if>
+
 	<appender name="json"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder

@@ -18,10 +18,55 @@ import java.util.Map;
 import org.bson.Document;
 
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
+import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
+import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 
 public class RequestUtility {
 
     private RequestUtility() {}
+
+    public static OptionalLogDataDTO extractOptionalLogData(final IniEdsInvocationETY invocation,
+            final String documentId, final String workflowInstanceId) {
+        final Map<String, Object> claims = new LinkedHashMap<>();
+        String issuer = Constants.AppConstants.UNKNOWN_ISSUER;
+        String role = Constants.AppConstants.JWT_MISSING_SUBJECT_ROLE;
+        String documentType = Constants.AppConstants.UNKNOWN_DOCUMENT_TYPE;
+
+        if (invocation != null && invocation.getMetadata() != null) {
+            for (Document metadata : invocation.getMetadata()) {
+                final Document tokenEntry = metadata.get("tokenEntry", Document.class);
+                if (tokenEntry != null) {
+                    final Document payload = tokenEntry.get("payload", Document.class);
+                    if (payload != null) {
+                        for (String name : Constants.AppConstants.JWT_PAYLOAD_CLAIMS) {
+                            if (payload.containsKey(name)) {
+                                claims.put(name, payload.get(name));
+                            }
+                        }
+                        issuer = valueOrDefault(payload.getString("iss"), issuer);
+                        role = valueOrDefault(payload.getString("subject_role"), role);
+                    }
+                }
+                final Document documentEntry = metadata.get("documentEntry", Document.class);
+                if (documentEntry != null) {
+                    documentType = valueOrDefault(documentEntry.getString("typeCode"), documentType);
+                }
+            }
+        }
+        return OptionalLogDataDTO.builder()
+                .issuer(issuer)
+                .role(role)
+                .fiscalCode(invocation == null ? null : invocation.getFiscalCode())
+                .documentType(documentType)
+                .workflowInstanceId(workflowInstanceId)
+                .documentId(documentId)
+                .jwtClaims(claims)
+                .build();
+    }
+
+    private static String valueOrDefault(final String value, final String defaultValue) {
+        return value == null || value.isBlank() ? defaultValue : value;
+    }
 
     /**
      * Extracts the JWT claims to forward to the broker from the {@code tokenEntry.payload}

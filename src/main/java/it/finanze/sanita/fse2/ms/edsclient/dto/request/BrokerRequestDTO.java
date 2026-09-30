@@ -14,6 +14,7 @@ package it.finanze.sanita.fse2.ms.edsclient.dto.request;
 import org.springframework.lang.Nullable;
 
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
+import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +40,9 @@ public class BrokerRequestDTO {
     private String workflowInstanceId;
 
     private String fiscalCode;
+
+    @Nullable
+    private OptionalLogDataDTO optionalLogData;
 
     /**
      * Inbound {@code Agid-JWT-Signature} value for UPDATE/DELETE operations, to be

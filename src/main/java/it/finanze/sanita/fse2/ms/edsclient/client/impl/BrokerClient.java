@@ -74,26 +74,41 @@ public class BrokerClient implements IBrokerClient {
 								brokerRequestDTO.getFiscalCode()))
 				.build().toUri();
 
-		HttpHeaders headers = createAuthenticatedHeaders(brokerRequestDTO);
-
 		try {
+			HttpHeaders headers = createAuthenticatedHeaders(brokerRequestDTO);
 			DocumentDTO requestBody = buildRequestBody(brokerRequestDTO);
 			HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
 
 			restTemplate.exchange(url, Constants.AppConstants.methodMap.get(brokerRequestDTO.getOperation()), entity,
 					DocumentResponseDTO.class);
 
-			logger.info(successLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.OK,
-					startingDate);
 			output.setEsito(true);
+			logSuccess(successLog, brokerRequestDTO, startingDate);
 		} catch (Exception ex) {
-			logger.error(errorLog, brokerRequestDTO.getOperation().getOperationLogEnum(), ResultLogEnum.KO,
-					startingDate, brokerRequestDTO.getOperation().getErrorLogEnum());
 			output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
 			output.setMessageError(ex.getMessage());
+			logError(errorLog, brokerRequestDTO, startingDate);
 		}
 
 		return output;
+	}
+
+	private void logSuccess(String message, BrokerRequestDTO request, Date startingDate) {
+		try {
+			logger.info(message, request.getOperation().getOperationLogEnum(), ResultLogEnum.OK,
+					startingDate, request.getOptionalLogData());
+		} catch (RuntimeException ex) {
+			log.warn("Unable to emit successful broker structured log", ex);
+		}
+	}
+
+	private void logError(String message, BrokerRequestDTO request, Date startingDate) {
+		try {
+			logger.error(message, request.getOperation().getOperationLogEnum(), ResultLogEnum.KO,
+					startingDate, request.getOperation().getErrorLogEnum(), request.getOptionalLogData());
+		} catch (RuntimeException ex) {
+			log.warn("Unable to emit failed broker structured log", ex);
+		}
 	}
 
 	private DocumentDTO buildRequestBody(BrokerRequestDTO brokerRequestDTO) {
@@ -276,7 +291,9 @@ public class BrokerClient implements IBrokerClient {
 		default:
 			IniEdsInvocationETY ety = dto.getIniEdsInvocationETY();
 			if (ety != null && ety.getMetadata() != null) {
-				jwtToken = jwtUtility.generateToken(RequestUtility.extractJwtClaims(ety.getMetadata()));
+				jwtToken = jwtUtility.generateToken(dto.getOptionalLogData() == null
+						? RequestUtility.extractJwtClaims(ety.getMetadata())
+						: dto.getOptionalLogData().getJwtClaims());
 			} else {
 				jwtToken = jwtUtility.generateToken();
 			}
