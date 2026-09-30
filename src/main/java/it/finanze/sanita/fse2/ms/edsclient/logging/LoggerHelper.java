@@ -17,6 +17,8 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ILogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +30,12 @@ import java.util.Date;
 @Service
 @Slf4j
 public class LoggerHelper {
+
 	private static final Logger KAFKA_LOGGER = LoggerFactory.getLogger("kafka-logger");
 	private DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS"); 
+
+	@Value("${spring.application.name}")
+	private String msName;
 	
 	public void info(String message, ILogEnum operation, ResultLogEnum result, 
 		Date startDateOperation, OptionalLogDataDTO optionalData) {
@@ -51,6 +57,7 @@ public class LoggerHelper {
 			Date startDateOperation, OptionalLogDataDTO data, ILogEnum error) {
 		return LogDTO.builder()
 				.message(message).operation(operation.getCode()).op_result(result.getCode())
+				.microservice_name(msName)
 				.op_timestamp_start(dateFormat.format(startDateOperation))
 				.op_timestamp_end(dateFormat.format(new Date()))
 				.op_error(error == null ? null : error.getCode())

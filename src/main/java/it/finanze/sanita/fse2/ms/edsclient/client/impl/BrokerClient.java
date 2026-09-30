@@ -31,6 +31,7 @@ import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetDocumentReferenceResDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.OperationLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.exceptions.BusinessException;
@@ -95,8 +96,10 @@ public class BrokerClient implements IBrokerClient {
 
 	private void logSuccess(String message, BrokerRequestDTO request, Date startingDate) {
 		try {
-			logger.info(message, request.getOperation().getOperationLogEnum(), ResultLogEnum.OK,
-					startingDate, request.getOptionalLogData());
+
+			logger.info(OperationLogEnum.SEND_TO_UAR.getDescription(), OperationLogEnum.SEND_TO_UAR,
+                    ResultLogEnum.OK, startingDate, request.getOptionalLogData());
+
 		} catch (RuntimeException ex) {
 			log.warn("Unable to emit successful broker structured log", ex);
 		}
@@ -104,7 +107,7 @@ public class BrokerClient implements IBrokerClient {
 
 	private void logError(String message, BrokerRequestDTO request, Date startingDate) {
 		try {
-			logger.error(message, request.getOperation().getOperationLogEnum(), ResultLogEnum.KO,
+			logger.error(message, OperationLogEnum.SEND_TO_UAR, ResultLogEnum.KO,
 					startingDate, request.getOperation().getErrorLogEnum(), request.getOptionalLogData());
 		} catch (RuntimeException ex) {
 			log.warn("Unable to emit failed broker structured log", ex);

@@ -16,7 +16,8 @@ public enum OperationLogEnum implements ILogEnum {
 	PUB_CDA2("PUB-CDA2", "Pubblicazione CDA2"),
 	DELETE_CDA2("DELETE-CDA2", "Cancellazione CDA2"),
 	REPLACE_CDA2("REPLACE-CDA2", "Replace CDA2"),
-	UPDATE_CDA("UPDATE-CDA2", "Update CDA2"); 
+	UPDATE_CDA("UPDATE-CDA2", "Update CDA2"),
+	SEND_TO_UAR("SEND-TO-UAR", "Invio documento a UAR");
 
 	private String code;
 	
