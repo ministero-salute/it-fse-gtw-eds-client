@@ -65,7 +65,6 @@ public class BrokerClient implements IBrokerClient {
 
 		EdsResponseDTO output = new EdsResponseDTO();
 		final Date startingDate = new Date();
-		final String successLog = "Informazioni inviate al broker";
 		final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
 
 		URI url = UriComponentsBuilder
@@ -84,7 +83,7 @@ public class BrokerClient implements IBrokerClient {
 					DocumentResponseDTO.class);
 
 			output.setEsito(true);
-			logSuccess(successLog, brokerRequestDTO, startingDate);
+			logSuccess(brokerRequestDTO, startingDate);
 		} catch (Exception ex) {
 			output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
 			output.setMessageError(ex.getMessage());
@@ -94,7 +93,7 @@ public class BrokerClient implements IBrokerClient {
 		return output;
 	}
 
-	private void logSuccess(String message, BrokerRequestDTO request, Date startingDate) {
+	private void logSuccess(BrokerRequestDTO request, Date startingDate) {
 		try {
 
 			logger.info(OperationLogEnum.SEND_TO_UAR.getDescription(), OperationLogEnum.SEND_TO_UAR,

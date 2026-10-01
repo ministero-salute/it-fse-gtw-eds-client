@@ -14,6 +14,7 @@ package it.finanze.sanita.fse2.ms.edsclient.logging;
 import com.google.gson.Gson;
 import it.finanze.sanita.fse2.ms.edsclient.dto.LogDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
+import it.finanze.sanita.fse2.ms.edsclient.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ILogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,13 @@ public class LoggerHelper {
 
 	private static final Logger KAFKA_LOGGER = LoggerFactory.getLogger("kafka-logger");
 	private DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS"); 
+
+	private final IConfigClient configClient;
+	private String gatewayName;
+
+	public LoggerHelper(IConfigClient configClient) {
+		this.configClient = configClient;
+	}
 
 	@Value("${spring.application.name}")
 	private String msName;
@@ -58,16 +66,32 @@ public class LoggerHelper {
 		return LogDTO.builder()
 				.message(message).operation(operation.getCode()).op_result(result.getCode())
 				.microservice_name(msName)
+				.gateway_name(getGatewayName())
 				.op_timestamp_start(dateFormat.format(startDateOperation))
 				.op_timestamp_end(dateFormat.format(new Date()))
 				.op_error(error == null ? null : error.getCode())
 				.op_error_description(error == null ? null : error.getDescription())
 				.op_issuer(data == null ? null : data.getIssuer())
+				.op_locality(data == null ? null : data.getLocality())
 				.op_role(data == null ? null : data.getRole())
 				.op_fiscal_code(data == null ? null : data.getFiscalCode())
 				.op_document_type(data == null ? null : data.getDocumentType())
 				.workflow_instance_id(data == null ? null : data.getWorkflowInstanceId())
 				.idDocumento(data == null ? null : data.getDocumentId())
+				.op_application_id(data == null ? null : data.getApplicationId())
+				.op_application_vendor(data == null ? null : data.getApplicationVendor())
+				.op_application_version(data == null ? null : data.getApplicationVersion())
 				.build();
+	}
+
+	private String getGatewayName() {
+		if (gatewayName == null) {
+			try {
+				gatewayName = configClient.getGatewayName();
+			} catch (RuntimeException ex) {
+				log.warn("Unable to retrieve gateway name for structured log", ex);
+			}
+		}
+		return gatewayName;
 	}
 }

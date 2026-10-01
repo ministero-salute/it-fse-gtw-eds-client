@@ -6,7 +6,7 @@
 	<groupId>it.finanze.sanita.fse2</groupId>
 	<artifactId>gtw-eds-client-ms</artifactId>
 	<name>gtw-eds-client-ms</name>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<description>Gateway EDS Client FSE</description>
 
 	<parent>

@@ -60,9 +60,18 @@ public class RequestUtility {
                 .documentType(documentType)
                 .workflowInstanceId(workflowInstanceId)
                 .documentId(documentId)
+				.locality(stringClaim(claims, "locality"))
+				.applicationId(stringClaim(claims, "subject_application_id"))
+				.applicationVendor(stringClaim(claims, "subject_application_vendor"))
+				.applicationVersion(stringClaim(claims, "subject_application_version"))
                 .jwtClaims(claims)
                 .build();
     }
+
+	private static String stringClaim(final Map<String, Object> claims, final String name) {
+		Object value = claims.get(name);
+		return value == null ? null : String.valueOf(value);
+	}
 
     private static String valueOrDefault(final String value, final String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;

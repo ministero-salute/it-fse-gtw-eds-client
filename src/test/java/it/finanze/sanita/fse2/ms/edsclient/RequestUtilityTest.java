@@ -12,6 +12,8 @@
 package it.finanze.sanita.fse2.ms.edsclient;
 
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
+import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
+import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.edsclient.utility.RequestUtility;
 import org.bson.Document;
 import org.junit.jupiter.api.DisplayName;
@@ -93,7 +95,7 @@ public class RequestUtilityTest {
 	}
 
 	@Test
-	@DisplayName("Extract JWT claims maps the payload and omits absent delegation_scope")
+	@DisplayName("Extract JWT claims maps the allowed payload")
 	void testExtractJwtClaimsSuccess() {
 		List<Document> listMetadata = new ArrayList<>();
 		Document payload = new Document();
@@ -122,8 +124,8 @@ public class RequestUtilityTest {
 	}
 
 	@Test
-	@DisplayName("Extract JWT claims forwards delegation_scope when present")
-	void testExtractJwtClaimsWithDelegationScope() {
+	@DisplayName("Extract JWT claims omits delegation_scope when present")
+	void testExtractJwtClaimsWithoutDelegationScope() {
 		List<Document> listMetadata = new ArrayList<>();
 		Document payload = new Document();
 		payload.put("sub", "RSSMRA22A01A399Z");
@@ -133,7 +135,7 @@ public class RequestUtilityTest {
 		Map<String, Object> claims = RequestUtility.extractJwtClaims(listMetadata);
 
 		assertEquals("RSSMRA22A01A399Z", claims.get("sub"));
-		assertEquals("CAREGIVER", claims.get("delegation_scope"));
+		assertFalse(claims.containsKey("delegation_scope"));
 	}
 
 	@Test
@@ -141,5 +143,23 @@ public class RequestUtilityTest {
 	void testExtractJwtClaimsNull() {
 		Map<String, Object> claims = RequestUtility.extractJwtClaims(null);
 		assertTrue(claims.isEmpty());
+	}
+
+	@Test
+	@DisplayName("Extract optional structured-log application and locality fields")
+	void testExtractOptionalLogDataAdditionalFields() {
+		Document payload = new Document("locality", "201123456")
+				.append("subject_application_id", "app-id")
+				.append("subject_application_vendor", "vendor")
+				.append("subject_application_version", "1.0");
+		IniEdsInvocationETY invocation = new IniEdsInvocationETY();
+		invocation.setMetadata(List.of(new Document("tokenEntry", new Document("payload", payload))));
+
+		OptionalLogDataDTO data = RequestUtility.extractOptionalLogData(invocation, "document-id", "workflow-id");
+
+		assertEquals("201123456", data.getLocality());
+		assertEquals("app-id", data.getApplicationId());
+		assertEquals("vendor", data.getApplicationVendor());
+		assertEquals("1.0", data.getApplicationVersion());
 	}
 }

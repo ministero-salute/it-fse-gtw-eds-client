@@ -62,6 +62,8 @@ public final class Constants {
 	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static final class AppConstants {
 
+		public static final String LOG_TYPE_CONTROL = "control-structured-log";
+
 		public static final String UNKNOWN_ISSUER = "UNKNOWN_ISSUER";
 
 		public static final String UNKNOWN_DOCUMENT_TYPE = "UNKNOWN_DOCUMENT_TYPE";
@@ -82,7 +84,8 @@ public final class Constants {
 		public static final List<String> JWT_PAYLOAD_CLAIMS = List.of(
 				"sub", "subject_role", "person_id", "purpose_of_use",
 				"locality", "subject_organization", "subject_organization_id",
-				"delegation_scope");
+				"subject_application_id", "subject_application_vendor",
+				"subject_application_version");
 
 		public static final Map<ProcessorOperationEnum, HttpMethod> methodMap = new EnumMap<>(ProcessorOperationEnum.class);
 		static {

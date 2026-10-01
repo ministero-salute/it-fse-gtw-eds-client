@@ -9,20 +9,16 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.edsclient.client;
+package it.finanze.sanita.fse2.ms.edsclient.client.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import it.finanze.sanita.fse2.ms.edsclient.dto.ConfigItemDTO;
-import it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum;
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class WhoIsResponseDTO {
 
-/**
- * Interface of gtw-config Client.
- */
-public interface IConfigClient {
-
-	ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type);
-
-	String getGatewayName();
-
-	String getProps(String props, String previous, ConfigItemTypeEnum ms);
+    private String gatewayName;
 }

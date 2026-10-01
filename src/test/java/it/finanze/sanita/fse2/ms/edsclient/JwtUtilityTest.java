@@ -86,7 +86,7 @@ class JwtUtilityTest {
     }
 
     @Test
-    @DisplayName("reSignToken preserves the payload claims and omits delegation_scope when absent")
+	@DisplayName("reSignToken preserves the allowed payload claims")
     void reSignTokenPreservesClaims() {
         // Build an inbound unsigned token as if produced by an upstream party.
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -120,8 +120,8 @@ class JwtUtilityTest {
     }
 
     @Test
-    @DisplayName("reSignToken forwards delegation_scope when present inbound")
-    void reSignTokenForwardsDelegationScope() {
+	@DisplayName("reSignToken drops delegation_scope when present inbound")
+	void reSignTokenDropsDelegationScope() {
         String payloadJson = "{\"sub\":\"RSSMRA22A01A399Z\",\"delegation_scope\":\"CAREGIVER\"}";
         String encodedPayload = Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
@@ -131,7 +131,7 @@ class JwtUtilityTest {
 
         Claims parsed = parseUnsigned(jwtUtility.reSignToken(inbound));
         assertEquals("RSSMRA22A01A399Z", parsed.get("sub"));
-        assertEquals("CAREGIVER", parsed.get("delegation_scope"));
+		assertFalse(parsed.containsKey("delegation_scope"));
     }
 
     @Test

@@ -14,6 +14,7 @@ package it.finanze.sanita.fse2.ms.edsclient.dto.request;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import it.finanze.sanita.fse2.ms.edsclient.dto.AbstractDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.AttivitaClinicaEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.HealthcareFacilityEnum;
@@ -35,17 +36,17 @@ public class PublicationMetadataReqDTO extends AbstractDTO {
 
 	private static final long serialVersionUID = 8736849367644751300L;
 
-	@Schema(description = "Tipologia struttura che ha prodotto il documento", required = true)
+	@Schema(description = "Tipologia struttura che ha prodotto il documento", requiredMode = RequiredMode.REQUIRED)
 	private HealthcareFacilityEnum tipologiaStruttura;
 
 	@Schema(description = "Regole di accesso")
 	@Size(min = 0, max = 100)
 	private List<String> attiCliniciRegoleAccesso;
 
-	@Schema(description = "Tipo documento alto livello", required = true)
+	@Schema(description = "Tipo documento alto livello", requiredMode = RequiredMode.REQUIRED)
 	private TipoDocAltoLivEnum tipoDocumentoLivAlto;
 
-	@Schema(description = "Assetto organizzativo che ha portato alla creazione del documento", required = true)
+	@Schema(description = "Assetto organizzativo che ha portato alla creazione del documento", requiredMode = RequiredMode.REQUIRED)
 	private PracticeSettingCodeEnum assettoOrganizzativo;
 	 
 	@Schema(description = "Data inizio prestazione")
@@ -60,10 +61,10 @@ public class PublicationMetadataReqDTO extends AbstractDTO {
 	@Size(min = 0, max = 100)
 	private String conservazioneANorma;
 
-	@Schema(description = "Tipo attività clinica",required = true)
+	@Schema(description = "Tipo attività clinica", requiredMode = RequiredMode.REQUIRED)
 	private AttivitaClinicaEnum tipoAttivitaClinica;
 
-	@Schema(description = "Identificativo sottomissione",required = true)
+	@Schema(description = "Identificativo sottomissione", requiredMode = RequiredMode.REQUIRED)
 	@Size(min = 0, max = 100)
 	private String identificativoSottomissione;
 

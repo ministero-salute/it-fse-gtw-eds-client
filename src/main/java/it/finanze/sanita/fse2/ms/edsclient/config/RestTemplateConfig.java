@@ -1,4 +1,30 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ * 
+ * Copyright (C) 2023 Ministero della Salute
+ * 
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 package it.finanze.sanita.fse2.ms.edsclient.config;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,30 +34,13 @@ import org.springframework.web.client.RestTemplate;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.RestTemplateResponseErrorHandler;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
 @Configuration
 public class RestTemplateConfig {
 
     /**
-     * Unico RestTemplate dell'applicazione: SSL context che accetta qualunque
-     * certificato server
-     * (i servizi interni espongono certificati firmati da una CA non presente nel
-     * trust store
-     * della JVM, che altrimenti fa fallire le chiamate con "PKIX path building
-     * failed")
+     * Unico RestTemplate dell'applicazione: SSL context che accetta qualunque certificato server
+     * (i servizi interni espongono certificati firmati da una CA non presente nel trust store
+     * della JVM, che altrimenti fa fallire le chiamate con "PKIX path building failed")
      * ed error handler custom per la traduzione degli errori HTTP.
      */
     @Bean

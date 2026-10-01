@@ -13,6 +13,7 @@ package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.edsclient.client.routes.ConfigClientRoutes;
+import it.finanze.sanita.fse2.ms.edsclient.client.response.WhoIsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ConfigItemTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,12 @@ public class ConfigClient implements IConfigClient {
     @Override
     public ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type) {
         return client.getForObject(routes.getConfigItems(type), ConfigItemDTO.class);
+    }
+
+    @Override
+    public String getGatewayName() {
+        WhoIsResponseDTO response = client.getForObject(routes.whois(), WhoIsResponseDTO.class);
+        return response == null ? null : response.getGatewayName();
     }
 
     @Override

@@ -11,6 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.edsclient.dto;
 
+import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,7 +19,7 @@ import lombok.Data;
 @Data
 public class LogDTO {
 
-	final String log_type = "gateway-structured-log";
+	final String log_type = Constants.AppConstants.LOG_TYPE_CONTROL;
 	
 	private String message;
 	
@@ -36,6 +37,8 @@ public class LogDTO {
 
 	private String op_issuer;
 
+	private String op_locality;
+
 	private String op_role;
 
 	private String op_fiscal_code;
@@ -45,6 +48,12 @@ public class LogDTO {
 	private String workflow_instance_id;
 
 	private String idDocumento;
+
+	private String op_application_id;
+
+	private String op_application_vendor;
+
+	private String op_application_version;
 	
 	private String gateway_name;
 	

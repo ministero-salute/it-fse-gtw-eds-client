@@ -15,6 +15,10 @@ public class OptionalLogDataDTO {
     String documentType;
     String workflowInstanceId;
     String documentId;
+    String locality;
+    String applicationId;
+    String applicationVendor;
+    String applicationVersion;
     @Builder.Default
     Map<String, Object> jwtClaims = Collections.emptyMap();
 }
