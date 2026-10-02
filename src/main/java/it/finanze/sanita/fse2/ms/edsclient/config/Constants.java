@@ -82,8 +82,9 @@ public final class Constants {
 		 * and inbound-JWT re-signing) so the claim set has a single definition.
 		 */
 		public static final List<String> JWT_PAYLOAD_CLAIMS = List.of(
-				"sub", "subject_role", "person_id", "purpose_of_use",
+				"iss", "sub", "subject_role", "person_id", "purpose_of_use",
 				"locality", "subject_organization", "subject_organization_id",
+				"resource_hl7_type",
 				"subject_application_id", "subject_application_vendor",
 				"subject_application_version");
 
