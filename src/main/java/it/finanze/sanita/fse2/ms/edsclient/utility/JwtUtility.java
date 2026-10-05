@@ -78,12 +78,17 @@ public class JwtUtility {
         if (claims == null || claims.isEmpty()) {
             return generateToken();
         }
+        // Always remap subject_role to the fixed gateway value, regardless of what
+        // the upstream token carried.  All other claims are forwarded unchanged.
+        Map<String, Object> remapped = new LinkedHashMap<>(claims);
+        remapped.put("subject_role", Constants.AppConstants.SUBJECT_ROLE_GTW);
+
         String token = Jwts.builder()
                 .issuedAt(new Date())
-                .claims().add(claims).and()
+                .claims().add(remapped).and()
                 .compact();
 
-        log.debug("JWT token generated with {} payload claim(s)", claims.size());
+        log.debug("JWT token generated with {} payload claim(s) (subject_role forced to GTW)", remapped.size());
         return token;
     }
 
