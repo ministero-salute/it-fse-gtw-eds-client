@@ -202,7 +202,7 @@ public class BrokerClient implements IBrokerClient {
 		if (jwt == null || jwt.isBlank()) {
 			throw new BusinessException("Agid-JWT-Signature is required for getDocumentReference but was not provided");
 		}
-		headers.set("Agid-JWT-Signature", jwtUtility.reSignToken(jwt));
+		headers.set("Agid-JWT-Signature", jwtUtility.buildTokenFromInboundJwt(jwt));
 
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -240,20 +240,12 @@ public class BrokerClient implements IBrokerClient {
 	   }
 
 	/**
-	 * Builds HTTP headers carrying the {@code Agid-JWT-Signature} token for the
-	 * given operation:
-	 * <ul>
-	 * <li><b>PUBLISH / REPLACE</b>: the JWT is read exclusively from
-	 * {@code tokenEntry.payload} stored in {@link IniEdsInvocationETY#getMetadata()}.
-	 * A {@link BusinessException} is thrown if the ETY or its metadata is absent.</li>
-	 * <li><b>UPDATE / DELETE</b>: the JWT is used exactly as supplied in
-	 * {@link BrokerRequestDTO#getJwt()}.
-	 * A {@link BusinessException} is thrown if the value is null or blank.</li>
-	 * </ul>
+	 * Costruisce gli header HTTP con il token {@code Agid-JWT-Signature} per
+	 * l'operazione richiesta
+	 * In tutti i casi {@code subject_role} viene sempre forzato a {@code "GTW"}.
 	 *
-	 * @param dto the broker request carrying the operation and its JWT source
-	 * @return HttpHeaders with Content-Type and Agid-JWT-Signature
-	 * @throws BusinessException if the required JWT cannot be obtained
+	 * @param dto il broker request con l'operazione e la sorgente del JWT
+	 * @return HttpHeaders con Content-Type e Agid-JWT-Signature
 	 */
 	private HttpHeaders createAuthenticatedHeaders(BrokerRequestDTO dto) {
 		HttpHeaders headers = new HttpHeaders();
@@ -263,36 +255,21 @@ public class BrokerClient implements IBrokerClient {
 		switch (dto.getOperation()) {
 		case UPDATE:
 		case DELETE:
-			if (dto.getJwt() == null || dto.getJwt().isBlank()) {
-				log.warn("Agid-JWT-Signature not provided for operation {}; proceeding without JWT header",
-						dto.getOperation());
-			} else {
-				jwtToken = jwtUtility.reSignToken(dto.getJwt());
-			}
+			jwtToken = jwtUtility.buildTokenFromInboundJwt(dto.getJwt());
 			break;
 		case PUBLISH:
 		case REPLACE:
 		default:
 			IniEdsInvocationETY ety = dto.getIniEdsInvocationETY();
-			if (ety == null || ety.getMetadata() == null) {
-				log.warn("IniEdsInvocationETY metadata not found for operation {}; proceeding without JWT header",
-						dto.getOperation());
-			} else {
-				java.util.Map<String, Object> claims = RequestUtility.extractJwtClaims(ety.getMetadata());
-				if (claims.isEmpty()) {
-					log.warn("tokenEntry.payload is empty for operation {}; proceeding without JWT header",
-							dto.getOperation());
-				} else {
-					jwtToken = jwtUtility.generateToken(claims);
-				}
-			}
+			java.util.Map<String, Object> claims = RequestUtility.extractJwtClaims(ety.getMetadata());
+			jwtToken = jwtUtility.buildTokenFromClaims(claims);
 			break;
 		}
 		if (jwtToken != null) {
-			log.info("Agid-JWT-Signature: {}", jwtToken);
+			log.debug("Agid-JWT-Signature: {}", jwtToken);
 			headers.set("Agid-JWT-Signature", jwtToken);
 		}
-		log.debug("Set Agid-JWT-Signature header for operation {}", dto.getOperation());
+		log.info("Set Agid-JWT-Signature header for operation {}", dto.getOperation());
 		return headers;
 	}
 

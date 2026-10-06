@@ -23,111 +23,110 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Utility class for JWT token generation.
- * Generates unsigned ({@code alg: none}) JWT tokens that act as a plain claims container
- * for broker authentication — the receiving microservice reads the claims without needing
- * any shared secret. The token carries only an {@code iat} timestamp plus the payload
- * claims (no {@code iss} / {@code exp}).
+ * Utility per la generazione di token JWT non firmati ({@code alg: none}) usati
+ * come contenitore di claim per l'autenticazione verso il broker.
+ *
+ * <p>Espone due flussi pubblici distinti, che condividono la stessa logica
+ * interna tramite il metodo privato {@link #buildToken(Map)}:</p>
+ * <ul>
+ *   <li>{@link #buildTokenFromClaims(Map)} — flusso <b>da Mongo</b>: riceve le
+ *       claim già estratte dal documento {@code tokenEntry.payload} salvato su
+ *       MongoDB e genera un token pulito con {@code subject_role} forzato a
+ *       {@code "GTW"}.</li>
+ *   <li>{@link #buildTokenFromInboundJwt(String)} — flusso <b>da request</b>:
+ *       riceve il token JWT in arrivo dalla chiamata HTTP, ne decodifica il
+ *       payload senza verifica firma, filtra le sole claim ammesse e genera un
+ *       token pulito con {@code subject_role} forzato a {@code "GTW"}.</li>
+ * </ul>
+ *
+ * <p>Il token prodotto porta solo un timestamp {@code iat} e le claim di payload;
+ * non contiene {@code iss} né {@code exp}.</p>
  */
 @Slf4j
 @Component
 public class JwtUtility {
 
     /**
-     * Generates a JWT token with subject_role claim set to "GTW".
+     * Flusso <b>da Mongo</b>: genera un token JWT a partire dalle claim già estratte
+     * da {@code tokenEntry.payload} (tramite {@link RequestUtility#extractJwtClaims}).
      *
-     * @return JWT token as string
+     * <p>Se {@code claims} è {@code null} o vuoto, produce un token minimale con
+     * il solo {@code subject_role=GTW}. In tutti gli altri casi {@code subject_role}
+     * viene sempre forzato a {@code "GTW"} indipendentemente dal valore upstream.</p>
+     *
+     * @param claims le claim da includere nel token (es. da {@code RequestUtility.extractJwtClaims})
+     * @return token JWT non firmato come stringa
      */
-    public String generateToken() {
-        String token = Jwts.builder()
-                .issuedAt(new Date())
-                .claim("subject_role", Constants.AppConstants.SUBJECT_ROLE_GTW)
-                .compact();
-
-        log.debug("JWT token generated");
-        return token;
-    }
-
-    /**
-     * Generates a JWT token with custom subject_role.
-     *
-     * @param subjectRole the subject role to include in the token
-     * @return JWT token as string
-     */
-    public String generateToken(String subjectRole) {
-        String token = Jwts.builder()
-                .issuedAt(new Date())
-                .claim("subject_role", subjectRole)
-                .compact();
-
-        log.debug("JWT token generated with subject_role: {}", subjectRole);
-        return token;
-    }
-
-    /**
-     * Generates a JWT token carrying the supplied payload claims.
-     *
-     * <p>Carries only an {@code iat} timestamp plus every entry of {@code claims} as a data
-     * claim. The token is unsigned ({@code alg: none}). If {@code claims} is null or empty,
-     * falls back to the simple token.</p>
-     *
-     * @param claims the payload claims to include (e.g. from {@code RequestUtility.extractJwtClaims})
-     * @return JWT token as string
-     */
-    public String generateToken(Map<String, Object> claims) {
+    public String buildTokenFromClaims(Map<String, Object> claims) {
         if (claims == null || claims.isEmpty()) {
-            return generateToken();
+            return buildToken(new LinkedHashMap<>());
         }
-        // Always remap subject_role to the fixed gateway value, regardless of what
-        // the upstream token carried.  All other claims are forwarded unchanged.
-        Map<String, Object> remapped = new LinkedHashMap<>(claims);
-        remapped.put("subject_role", Constants.AppConstants.SUBJECT_ROLE_GTW);
-
-        String token = Jwts.builder()
-                .issuedAt(new Date())
-                .claims().add(remapped).and()
-                .compact();
-
-        log.debug("JWT token generated with {} payload claim(s) (subject_role forced to GTW)", remapped.size());
-        return token;
+        return buildToken(claims);
     }
 
     /**
-     * Re-packages an inbound JWT into a fresh unsigned JWT, preserving only the claims
-     * listed in {@link Constants.AppConstants#JWT_PAYLOAD_CLAIMS}.
+     * Flusso <b>da request</b>: ri-pacchettizza un JWT in arrivo in un nuovo token
+     * non firmato, preservando solo le claim elencate in
+     * {@link Constants.AppConstants#JWT_PAYLOAD_CLAIMS} e forzando
+     * {@code subject_role} a {@code "GTW"}.
      *
-     * <p>The inbound token's payload is decoded <b>without signature verification</b> (it works
-     * for both signed and unsigned inbound tokens). On any parsing failure, falls back to the
-     * simple {@code subject_role=GTW} token so the call still succeeds.</p>
+     * <p>Il payload del token in ingresso viene decodificato <b>senza verifica
+     * della firma</b> (funziona sia con token firmati sia non firmati). In caso di
+     * errore di parsing, il fallback produce un token minimale con il solo
+     * {@code subject_role=GTW}.</p>
      *
-     * @param incomingJwt the inbound {@code Agid-JWT-Signature} value
-     * @return a fresh unsigned JWT with the same claim structure, or the fallback token
+     * @param inboundJwt il valore {@code Agid-JWT-Signature} in ingresso
+     * @return token JWT non firmato come stringa, o token di fallback in caso di errore
      */
     @SuppressWarnings("unchecked")
-    public String reSignToken(String incomingJwt) {
+    public String buildTokenFromInboundJwt(String inboundJwt) {
         try {
-            String[] parts = incomingJwt.split("\\.");
+            String[] parts = inboundJwt.split("\\.");
             if (parts.length < 2) {
-                log.warn("Inbound JWT is malformed (expected at least 2 segments); falling back to simple token");
-                return generateToken();
+                log.warn("JWT in ingresso malformato (attesi almeno 2 segmenti); fallback al token minimale");
+                return buildToken(new LinkedHashMap<>());
             }
             String payloadJson = new String(
                 Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
             Map<String, Object> parsed = JsonUtility.jsonToObject(payloadJson, Map.class);
             if (parsed == null) {
-                log.warn("Inbound JWT payload could not be parsed; falling back to simple token");
-                return generateToken();
+                log.warn("Payload del JWT in ingresso non parsabile; fallback al token minimale");
+                return buildToken(new LinkedHashMap<>());
             }
-            Map<String, Object> claims = new LinkedHashMap<>();
+            Map<String, Object> filtered = new LinkedHashMap<>();
             for (String name : Constants.AppConstants.JWT_PAYLOAD_CLAIMS) {
                 if (parsed.containsKey(name)) {
-                    claims.put(name, parsed.get(name));
+                    filtered.put(name, parsed.get(name));
                 }
             }
-            return generateToken(claims);
+            return buildToken(filtered);
         } catch (Exception ex) {
-            log.warn("Failed to re-sign inbound JWT; falling back to simple token: {}", ex.getMessage());
-            return generateToken();
+            log.warn("Impossibile ri-pacchettizzare il JWT in ingresso; fallback al token minimale: {}", ex.getMessage());
+            return buildToken(new LinkedHashMap<>());
         }
+    }
+
+    /**
+     * Metodo privato condiviso dai due flussi pubblici.
+     *
+     * <p>Costruisce un token JWT non firmato ({@code alg: none}) con le claim
+     * fornite, forzando sempre {@code subject_role} a {@code "GTW"} e aggiungendo
+     * il timestamp {@code iat}. Se {@code claims} è vuoto, produce un token con il
+     * solo {@code subject_role}.</p>
+     *
+     * @param claims le claim già filtrate e validate dal chiamante
+     * @return token JWT non firmato come stringa
+     */
+    private String buildToken(Map<String, Object> claims) {
+        Map<String, Object> payload = new LinkedHashMap<>(claims);
+        payload.put("subject_role", Constants.AppConstants.SUBJECT_ROLE_GTW);
+
+        String token = Jwts.builder()
+                .issuedAt(new Date())
+                .claims().add(payload).and()
+                .compact();
+
+        log.debug("Token JWT generato con {} claim (subject_role forzato a GTW)", payload.size());
+        return token;
     }
 }
