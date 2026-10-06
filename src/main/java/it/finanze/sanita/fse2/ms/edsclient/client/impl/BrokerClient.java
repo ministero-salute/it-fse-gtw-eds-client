@@ -202,7 +202,7 @@ public class BrokerClient implements IBrokerClient {
 		if (jwt == null || jwt.isBlank()) {
 			throw new BusinessException("Agid-JWT-Signature is required for getDocumentReference but was not provided");
 		}
-		headers.set("Agid-JWT-Signature", jwt);
+		headers.set("Agid-JWT-Signature", jwtUtility.reSignToken(jwt));
 
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -267,7 +267,7 @@ public class BrokerClient implements IBrokerClient {
 				log.warn("Agid-JWT-Signature not provided for operation {}; proceeding without JWT header",
 						dto.getOperation());
 			} else {
-				jwtToken = dto.getJwt();
+				jwtToken = jwtUtility.reSignToken(dto.getJwt());
 			}
 			break;
 		case PUBLISH:

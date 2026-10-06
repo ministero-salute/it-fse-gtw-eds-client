@@ -56,11 +56,11 @@ class JwtUtilityTest {
     }
 
     @Test
-    @DisplayName("generateToken(Map) carries each supplied claim in an unsigned token")
+    @DisplayName("generateToken(Map) carries each supplied claim in an unsigned token and forces subject_role to GTW")
     void generateTokenWithClaims() {
         Map<String, Object> claims = new LinkedHashMap<>();
         claims.put("sub", "RSSMRA22A01A399Z");
-        claims.put("subject_role", "AAS");
+        claims.put("subject_role", "AAS"); // upstream value — must be overridden
         claims.put("person_id", "BMTBTS01A01I526W");
         claims.put("purpose_of_use", "TREATMENT");
         claims.put("locality", "201123456");
@@ -71,10 +71,16 @@ class JwtUtilityTest {
         assertNotNull(token);
 
         Claims parsed = parseUnsigned(token);
-        for (Map.Entry<String, Object> entry : claims.entrySet()) {
-            assertEquals(entry.getValue(), parsed.get(entry.getKey()),
-                    "claim " + entry.getKey() + " should be preserved");
-        }
+        // subject_role must always be remapped to GTW, regardless of the upstream value
+        assertEquals(Constants.AppConstants.SUBJECT_ROLE_GTW, parsed.get("subject_role"),
+                "subject_role must always be forced to GTW");
+        // all other claims must be preserved unchanged
+        assertEquals("RSSMRA22A01A399Z", parsed.get("sub"));
+        assertEquals("BMTBTS01A01I526W", parsed.get("person_id"));
+        assertEquals("TREATMENT", parsed.get("purpose_of_use"));
+        assertEquals("201123456", parsed.get("locality"));
+        assertEquals("Regione Marche", parsed.get("subject_organization"));
+        assertEquals("110", parsed.get("subject_organization_id"));
         assertFalse(parsed.containsKey("delegation_scope"), "delegation_scope must be absent when not supplied");
     }
 
@@ -86,12 +92,12 @@ class JwtUtilityTest {
     }
 
     @Test
-	@DisplayName("reSignToken preserves the allowed payload claims")
+ @DisplayName("reSignToken preserves the allowed payload claims and forces subject_role to GTW")
     void reSignTokenPreservesClaims() {
         // Build an inbound unsigned token as if produced by an upstream party.
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("sub", "RSSMRA22A01A399Z");
-        payload.put("subject_role", "AAS");
+        payload.put("subject_role", "AAS"); // upstream value — must be overridden
         payload.put("person_id", "BMTBTS01A01I526W");
         payload.put("purpose_of_use", "TREATMENT");
         payload.put("locality", "201123456");
@@ -106,10 +112,12 @@ class JwtUtilityTest {
         String reSigned = jwtUtility.reSignToken(inbound);
         assertNotNull(reSigned);
 
-        // Re-packaged into a fresh unsigned token carrying only the allowed payload claims.
+        // Re-packaged into a fresh unsigned token carrying only the allowed payload claims;
+        // subject_role must always be forced to GTW regardless of the upstream value.
         Claims parsed = parseUnsigned(reSigned);
         assertEquals("RSSMRA22A01A399Z", parsed.get("sub"));
-        assertEquals("AAS", parsed.get("subject_role"));
+        assertEquals(Constants.AppConstants.SUBJECT_ROLE_GTW, parsed.get("subject_role"),
+                "subject_role must always be forced to GTW");
         assertEquals("BMTBTS01A01I526W", parsed.get("person_id"));
         assertEquals("TREATMENT", parsed.get("purpose_of_use"));
         assertEquals("201123456", parsed.get("locality"));
