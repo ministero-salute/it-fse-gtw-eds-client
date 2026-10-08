@@ -107,12 +107,20 @@ public class JwtUtility {
     public String reSignToken(String incomingJwt) {
         try {
             String[] parts = incomingJwt.split("\\.");
+            // Determine which segment is the payload:
+            // - standard JWT (>= 2 parts): parts[1] is the payload
+            // - single-segment token (GovWay / raw payload): parts[0] is the payload directly
+            String payloadSegment = parts.length >= 2 ? parts[1] : parts[0];
             if (parts.length < 2) {
-                log.warn("Inbound JWT is malformed (expected at least 2 segments); falling back to simple token");
-                return generateToken();
+                log.warn("Inbound JWT has a single segment; treating it directly as payload");
             }
+            // Base64URL segments in JWTs never carry padding; add it back before decoding
+            String padded = payloadSegment;
+            int mod = padded.length() % 4;
+            if (mod == 2) padded += "==";
+            else if (mod == 3) padded += "=";
             String payloadJson = new String(
-                Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+                Base64.getUrlDecoder().decode(padded), StandardCharsets.UTF_8);
             Map<String, Object> parsed = JsonUtility.jsonToObject(payloadJson, Map.class);
             if (parsed == null) {
                 log.warn("Inbound JWT payload could not be parsed; falling back to simple token");
