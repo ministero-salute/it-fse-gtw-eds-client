@@ -47,7 +47,7 @@ public class EdsInvocationSRVTest {
         iniEdsInvocationETY.setWorkflowInstanceId("test");
         iniEdsInvocationETY.setData(new Document("key", "test"));
         out.setEsito(true);
-        when(brokerClient.dispatchAndSendData(Mockito.any())).thenReturn(out);
+        when(brokerClient.replace(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(out);
         when(edsInvocationRepo.find(Mockito.anyString())).thenReturn(iniEdsInvocationETY);
         when(configSRV.isRemoveMetadataEnable()).thenReturn(true);
         edsInvocationSRV.replace(identifier, workFlowInstanceId);

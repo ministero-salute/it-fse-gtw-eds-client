@@ -13,24 +13,26 @@ package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Map;
 
-import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetIngestionStatusResponseDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import it.finanze.sanita.fse2.ms.edsclient.client.IBrokerClient;
 import it.finanze.sanita.fse2.ms.edsclient.config.BrokerCfg;
-import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
-import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetDocumentReferenceResDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetIngestionStatusResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.OperationLogEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ProcessorOperationEnum;
 import it.finanze.sanita.fse2.ms.edsclient.enums.ResultLogEnum;
@@ -46,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class BrokerClient implements IBrokerClient {
 
-	private static final String MSG_UNSUPPORTED = "Unsupported exception";
+	private static final String BASE_DOCUMENT_PATH = "/edsalim/v1/ingestion/document";
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -60,217 +62,181 @@ public class BrokerClient implements IBrokerClient {
 	@Autowired
 	private JwtUtility jwtUtility;
 
+	// -------------------------------------------------------------------------
+	// Operazioni su documento (PUBLISH / REPLACE / UPDATE / DELETE)
+	// -------------------------------------------------------------------------
+
 	@Override
-	public EdsResponseDTO dispatchAndSendData(BrokerRequestDTO brokerRequestDTO) {
-
-		EdsResponseDTO output = new EdsResponseDTO();
-		final Date startingDate = new Date();
-		final String errorLog = "Errore riscontrato durante l'invio delle informazioni al broker";
-
-		URI url = UriComponentsBuilder
-				.fromUriString(brokerCfg.getBrokerHost() + "/edsalim/v1/ingestion/document"
-						+ buildRequestPath(brokerRequestDTO.getOperation(),
-								brokerRequestDTO.getIdentifier(), brokerRequestDTO.getWorkflowInstanceId(),
-								brokerRequestDTO.getFiscalCode()))
-				.build().toUri();
-
-		try {
-			HttpHeaders headers = createAuthenticatedHeaders(brokerRequestDTO);
-			DocumentDTO requestBody = buildRequestBody(brokerRequestDTO);
-			HttpEntity<?> entity = new HttpEntity<>(requestBody, headers);
-
-			restTemplate.exchange(url, Constants.AppConstants.methodMap.get(brokerRequestDTO.getOperation()), entity,
-					DocumentResponseDTO.class);
-
-			output.setEsito(true);
-			logSuccess(brokerRequestDTO, startingDate);
-		} catch (Exception ex) {
-			output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
-			output.setMessageError(ex.getMessage());
-			logError(errorLog, brokerRequestDTO, startingDate);
-		}
-
-		return output;
+	public EdsResponseDTO publish(String idDoc, String workflowInstanceId, IniEdsInvocationETY ety,
+			OptionalLogDataDTO logData) {
+		URI url = documentUri("/workflowinstanceid/" + workflowInstanceId);
+		DocumentDTO body = buildEtyBody(idDoc, ProcessorOperationEnum.PUBLISH, ety);
+		HttpHeaders headers = jwtHeadersFromMongo(ety);
+		return executeBrokerCall(HttpMethod.POST, url, body, headers, logData,
+				ProcessorOperationEnum.PUBLISH.getErrorLogEnum());
 	}
 
-	private void logSuccess(BrokerRequestDTO request, Date startingDate) {
-		try {
-
-			logger.info(OperationLogEnum.SEND_TO_UAR.getDescription(), OperationLogEnum.SEND_TO_UAR,
-                    ResultLogEnum.OK, startingDate, request.getOptionalLogData());
-
-		} catch (RuntimeException ex) {
-			log.warn("Unable to emit successful broker structured log", ex);
-		}
+	@Override
+	public EdsResponseDTO replace(String idDoc, String workflowInstanceId, IniEdsInvocationETY ety,
+			OptionalLogDataDTO logData) {
+		URI url = documentUri("/workflowinstanceid/" + workflowInstanceId);
+		DocumentDTO body = buildEtyBody(idDoc, ProcessorOperationEnum.REPLACE, ety);
+		HttpHeaders headers = jwtHeadersFromMongo(ety);
+		return executeBrokerCall(HttpMethod.PUT, url, body, headers, logData,
+				ProcessorOperationEnum.REPLACE.getErrorLogEnum());
 	}
 
-	private void logError(String message, BrokerRequestDTO request, Date startingDate) {
-		try {
-			logger.error(message, OperationLogEnum.SEND_TO_UAR, ResultLogEnum.KO,
-					startingDate, request.getOperation().getErrorLogEnum(), request.getOptionalLogData());
-		} catch (RuntimeException ex) {
-			log.warn("Unable to emit failed broker structured log", ex);
-		}
+	@Override
+	public EdsResponseDTO update(String idDoc, EdsMetadataUpdateReqDTO updateReqDTO, String fiscalCode, String jwt) {
+		URI url = documentUri("/metadata");
+		DocumentDTO body = new DocumentDTO();
+		body.setIdentifier(idDoc);
+		body.setOperation(ProcessorOperationEnum.UPDATE);
+		body.setJsonString(updateReqDTO.getDocumentReference());
+		body.setFiscalCode(fiscalCode);
+		HttpHeaders headers = jwtHeadersFromRequest(jwt);
+		return executeBrokerCall(HttpMethod.PUT, url, body, headers, null,
+				ProcessorOperationEnum.UPDATE.getErrorLogEnum());
 	}
 
-	private DocumentDTO buildRequestBody(BrokerRequestDTO brokerRequestDTO) {
-		DocumentDTO requestBody = null;
-		IniEdsInvocationETY ety = brokerRequestDTO.getIniEdsInvocationETY() != null
-				? brokerRequestDTO.getIniEdsInvocationETY()
-						: null;
-
-		switch (brokerRequestDTO.getOperation()) {
-		case UPDATE:
-			if (brokerRequestDTO.getUpdateReqDTO() == null) {
-				// bad request
-				throw new BusinessException(MSG_UNSUPPORTED);
-			}
-			requestBody = new DocumentDTO();
-			requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
-			requestBody.setOperation(ProcessorOperationEnum.UPDATE);
-			requestBody.setJsonString(brokerRequestDTO.getUpdateReqDTO().getDocumentReference());
-			requestBody.setFiscalCode(brokerRequestDTO.getFiscalCode());
-			//                requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
-			break;
-		case REPLACE:
-			requestBody = new DocumentDTO();
-			requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
-			requestBody.setOperation(ProcessorOperationEnum.REPLACE);
-			requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
-			requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
-			if (ety != null && ety.getData() != null) {
-				requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
-			} else {
-				throw new BusinessException(MSG_UNSUPPORTED);
-			}
-			break;
-
-		case DELETE:
-			break;
-
-		case PUBLISH:
-		default:
-			requestBody = new DocumentDTO();
-			requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
-			requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
-			requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
-			requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
-			if (ety != null && ety.getData() != null) {
-				requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
-			} else {
-				throw new BusinessException(MSG_UNSUPPORTED);
-			}
-			break;
-		}
-
-		return requestBody;
-
+	@Override
+	public EdsResponseDTO delete(String identifier, String fiscalCode, String jwt) {
+		URI url = documentUri(UriComponentsBuilder.newInstance()
+				.path("/identifier/{id}/{cf}")
+				.buildAndExpand(identifier, fiscalCode)
+				.toUriString());
+		HttpHeaders headers = jwtHeadersFromRequest(jwt);
+		return executeBrokerCall(HttpMethod.DELETE, url, null, headers, null,
+				ProcessorOperationEnum.DELETE.getErrorLogEnum());
 	}
 
-	private String buildRequestPath(final ProcessorOperationEnum operation, final String identifier,
-			final String workflowInstanceId,
-			final String fiscalCode) {
-		String requestPath = "";
-
-		switch (operation) {
-		case UPDATE:
-			requestPath = "/metadata";
-			break;
-		case DELETE:
-			requestPath = "/identifier/" + identifier + "/" + fiscalCode;
-			break;
-		case REPLACE:
-		case PUBLISH:
-			requestPath = "/workflowinstanceid/" + workflowInstanceId;
-			break;
-		default:
-			break;
-		}
-		return requestPath;
-	}
+	// -------------------------------------------------------------------------
+	// Query
+	// -------------------------------------------------------------------------
 
 	@Override
 	public GetDocumentReferenceResDTO getDocumentReference(String fiscalCode, String masterIdentifier, String jwt) {
-		final URI uri = UriComponentsBuilder
+		URI uri = UriComponentsBuilder
 				.fromUriString(brokerCfg.getBrokerHost())
 				.path("/edsalim/v1/ingestion/document-reference/{fiscalCode}/{masterIdentifier}")
 				.buildAndExpand(fiscalCode, masterIdentifier)
 				.toUri();
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/json");
 		if (jwt == null || jwt.isBlank()) {
-			throw new BusinessException("Agid-JWT-Signature is required for getDocumentReference but was not provided");
+			throw new BusinessException("Agid-JWT-Signature è obbligatorio per getDocumentReference");
 		}
-		headers.set("Agid-JWT-Signature", jwtUtility.buildTokenFromInboundJwt(jwt));
-
+		HttpHeaders headers = jwtHeadersFromRequest(jwt);
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-		return restTemplate.exchange(uri, org.springframework.http.HttpMethod.GET, entity, GetDocumentReferenceResDTO.class).getBody();
+		return restTemplate.exchange(uri, HttpMethod.GET, entity, GetDocumentReferenceResDTO.class).getBody();
 	}
 
-	   @Override
-	   public GetIngestionStatusResponseDTO getIngestionStatus(String workflowInstanceId) {
-	       log.debug("BrokerClient - Calling broker to retrieve ingestion status");
+	@Override
+	public GetIngestionStatusResponseDTO getIngestionStatus(String workflowInstanceId) {
+		log.debug("BrokerClient - recupero ingestion status per {}", workflowInstanceId);
 
-	       URI url = UriComponentsBuilder
-	               .fromUriString(brokerCfg.getBrokerHost())
-	               .path("edsalim/v1/ingestion/status/{workflowInstanceId}")
-	               .encode()
-	               .buildAndExpand(workflowInstanceId)
-	               .toUri();
-	       try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.set("Content-Type", "application/json");
+		URI url = UriComponentsBuilder
+				.fromUriString(brokerCfg.getBrokerHost())
+				.path("edsalim/v1/ingestion/status/{workflowInstanceId}")
+				.encode()
+				.buildAndExpand(workflowInstanceId)
+				.toUri();
+		try {
+			HttpHeaders headers = jsonHeaders();
+			HttpEntity<Void> entity = new HttpEntity<>(headers);
+			GetIngestionStatusResponseDTO response = restTemplate
+					.exchange(url, HttpMethod.GET, entity, GetIngestionStatusResponseDTO.class).getBody();
+			log.debug("BrokerClient - ingestion status recuperato con successo");
+			return response;
+		} catch (Exception ex) {
+			log.error("Errore chiamata broker getIngestionStatus: {}", ex.getMessage(), ex);
+			throw new BusinessException("Errore chiamata broker getIngestionStatus", ex);
+		}
+	}
 
-	           HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-	           GetIngestionStatusResponseDTO response = restTemplate.exchange(
-	                   url,
-	                   org.springframework.http.HttpMethod.GET,
-	                   entity,
-	                   GetIngestionStatusResponseDTO.class).getBody();
-
-	           log.debug("BrokerClient - Ingestion status retrieved successfully");
-	           return response;
-	       } catch (Exception ex) {
-	           log.error("Error calling broker getIngestionStatus API: {}", ex.getMessage(), ex);
-	           throw new BusinessException("Error calling broker getIngestionStatus API", ex);
-	       }
-	   }
+	// -------------------------------------------------------------------------
+	// Metodi di supporto
+	// -------------------------------------------------------------------------
 
 	/**
-	 * Costruisce gli header HTTP con il token {@code Agid-JWT-Signature} per
-	 * l'operazione richiesta
-	 * In tutti i casi {@code subject_role} viene sempre forzato a {@code "GTW"}.
-	 *
-	 * @param dto il broker request con l'operazione e la sorgente del JWT
-	 * @return HttpHeaders con Content-Type e Agid-JWT-Signature
+	 * Esegue la chiamata HTTP verso il broker per le operazioni su documento,
+	 * gestisce il logging strutturato e restituisce l'esito.
 	 */
-	private HttpHeaders createAuthenticatedHeaders(BrokerRequestDTO dto) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/json");
+	private EdsResponseDTO executeBrokerCall(HttpMethod method, URI url, DocumentDTO body,
+			HttpHeaders headers, OptionalLogDataDTO logData, it.finanze.sanita.fse2.ms.edsclient.enums.ErrorLogEnum errorLogEnum) {
+		EdsResponseDTO output = new EdsResponseDTO();
+		Date startingDate = new Date();
+		try {
+			HttpEntity<?> entity = new HttpEntity<>(body, headers);
+			restTemplate.exchange(url, method, entity, DocumentResponseDTO.class);
+			output.setEsito(true);
+			logSuccess(startingDate, logData);
+		} catch (Exception ex) {
+			output.setExClassCanonicalName(ExceptionUtils.getRootCause(ex).getClass().getCanonicalName());
+			output.setMessageError(ex.getMessage());
+			logError("Errore invio informazioni al broker", startingDate, errorLogEnum, logData);
+		}
+		return output;
+	}
 
-		String jwtToken = null;
-		switch (dto.getOperation()) {
-		case UPDATE:
-		case DELETE:
-			jwtToken = jwtUtility.buildTokenFromInboundJwt(dto.getJwt());
-			break;
-		case PUBLISH:
-		case REPLACE:
-		default:
-			IniEdsInvocationETY ety = dto.getIniEdsInvocationETY();
-			java.util.Map<String, Object> claims = RequestUtility.extractJwtClaims(ety.getMetadata());
-			jwtToken = jwtUtility.buildTokenFromClaims(claims);
-			break;
+	/** Costruisce il body per le operazioni PUBLISH/REPLACE che leggono da ETY (Mongo). */
+	private DocumentDTO buildEtyBody(String idDoc, ProcessorOperationEnum op, IniEdsInvocationETY ety) {
+		if (ety == null || ety.getData() == null) {
+			throw new BusinessException("IniEdsInvocationETY o data assente per operazione " + op);
 		}
-		if (jwtToken != null) {
-			log.debug("Agid-JWT-Signature: {}", jwtToken);
-			headers.set("Agid-JWT-Signature", jwtToken);
-		}
-		log.info("Set Agid-JWT-Signature header for operation {}", dto.getOperation());
+		DocumentDTO body = new DocumentDTO();
+		body.setIdentifier(idDoc);
+		body.setOperation(op);
+		body.setFiscalCode(ety.getFiscalCode());
+		body.setRde(ety.getRde());
+		body.setJsonString(JsonUtility.objectToJson(ety.getData()));
+		return body;
+	}
+
+	/** Header con JWT ricavato dai metadati ETY salvati su Mongo (flusso PUBLISH/REPLACE). */
+	private HttpHeaders jwtHeadersFromMongo(IniEdsInvocationETY ety) {
+		Map<String, Object> claims = RequestUtility.extractJwtClaims(ety.getMetadata());
+		HttpHeaders headers = jsonHeaders();
+		headers.set("Agid-JWT-Signature", jwtUtility.buildTokenFromClaims(claims));
 		return headers;
 	}
 
+	/** Header con JWT ri-pacchettizzato dal token in ingresso (flusso UPDATE/DELETE/GET). */
+	private HttpHeaders jwtHeadersFromRequest(String inboundJwt) {
+		HttpHeaders headers = jsonHeaders();
+		headers.set("Agid-JWT-Signature", jwtUtility.buildTokenFromInboundJwt(inboundJwt));
+		return headers;
+	}
+
+	/** Header base con solo Content-Type. */
+	private HttpHeaders jsonHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "application/json");
+		return headers;
+	}
+
+	/** Costruisce la URI per gli endpoint sotto {@code /edsalim/v1/ingestion/document}. */
+	private URI documentUri(String path) {
+		return UriComponentsBuilder
+				.fromUriString(brokerCfg.getBrokerHost() + BASE_DOCUMENT_PATH + path)
+				.build().toUri();
+	}
+
+	private void logSuccess(Date startingDate, OptionalLogDataDTO logData) {
+		try {
+			logger.info(OperationLogEnum.SEND_TO_UAR.getDescription(), OperationLogEnum.SEND_TO_UAR,
+					ResultLogEnum.OK, startingDate, logData);
+		} catch (RuntimeException ex) {
+			log.warn("Impossibile emettere log strutturato di successo verso broker", ex);
+		}
+	}
+
+	private void logError(String message, Date startingDate,
+			it.finanze.sanita.fse2.ms.edsclient.enums.ErrorLogEnum errorLogEnum, OptionalLogDataDTO logData) {
+		try {
+			logger.error(message, OperationLogEnum.SEND_TO_UAR, ResultLogEnum.KO,
+					startingDate, errorLogEnum, logData);
+		} catch (RuntimeException ex) {
+			log.warn("Impossibile emettere log strutturato di errore verso broker", ex);
+		}
+	}
 }
