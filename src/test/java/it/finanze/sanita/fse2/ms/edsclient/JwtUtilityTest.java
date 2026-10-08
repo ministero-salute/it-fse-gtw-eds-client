@@ -143,6 +143,31 @@ class JwtUtilityTest {
     }
 
     @Test
+    @DisplayName("reSignToken handles a GovWay single-segment payload (no header, no signature, no padding)")
+    void reSignTokenGovWaySingleSegment() {
+        // GovWay strips the header and signature, forwarding only the payload as a raw
+        // Base64URL string (no padding). This must be decoded and re-packaged correctly.
+        String payloadJson = "{\"sub\":\"RSSMRA22A01A399Z\",\"subject_role\":\"AAS\","
+                + "\"person_id\":\"BMTBTS01A01I526W\",\"purpose_of_use\":\"UPDATE\","
+                + "\"locality\":\"Bologna AUSL^^^^^&2.16.840.1.113883.2.9.4.1.1&ISO^^^^08010\","
+                + "\"subject_organization\":\"Regione Emilia-Romagna\","
+                + "\"subject_organization_id\":\"080\",\"patient_consent\":true,"
+                + "\"action_id\":\"DELETE\"}";
+        // Encode without padding, exactly as GovWay does
+        String singleSegment = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
+
+        String reSigned = jwtUtility.reSignToken(singleSegment);
+        assertNotNull(reSigned);
+
+        Claims parsed = parseUnsigned(reSigned);
+        assertEquals(Constants.AppConstants.SUBJECT_ROLE_GTW, parsed.get("subject_role"),
+                "subject_role must be forced to GTW even from a single-segment GovWay token");
+        assertEquals("RSSMRA22A01A399Z", parsed.get("sub"));
+        assertEquals("BMTBTS01A01I526W", parsed.get("person_id"));
+    }
+
+    @Test
     @DisplayName("reSignToken falls back to the simple token on a malformed input")
     void reSignTokenMalformedFallsBack() {
         Claims parsed = parseUnsigned(jwtUtility.reSignToken("not-a-jwt"));
