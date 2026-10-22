@@ -19,6 +19,7 @@ import org.bson.Document;
 
 import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.dto.OptionalLogDataDTO;
+import it.finanze.sanita.fse2.ms.edsclient.enums.DocumentTypeEnum;
 import it.finanze.sanita.fse2.ms.edsclient.repository.entity.IniEdsInvocationETY;
 
 public class RequestUtility {
@@ -49,7 +50,8 @@ public class RequestUtility {
                 }
                 final Document documentEntry = metadata.get("documentEntry", Document.class);
                 if (documentEntry != null) {
-                    documentType = valueOrDefault(documentEntry.getString("typeCode"), documentType);
+                    DocumentTypeEnum type = DocumentTypeEnum.getByCode(documentEntry.getString("typeCode"));
+                    documentType = valueOrDefault(type != null ? type.getDocumentType() : null, documentType);
                 }
             }
         }
