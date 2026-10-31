@@ -128,6 +128,36 @@ class BrokerClientIsolationTest {
         verifyNoInteractions(jwt);
     }
 
+    @ParameterizedTest
+    @EnumSource(value = ProcessorOperationEnum.class, names = {"PUBLISH", "REPLACE"})
+    void missingInvocationStillReportsNullPointerFailureBeforeTransport(ProcessorOperationEnum operation) {
+        BrokerRequestDTO request = request(operation);
+        request.setIniEdsInvocationETY(null);
+
+        EdsResponseDTO result = client.dispatchAndSendData(request);
+
+        assertFalse(result.isEsito());
+        assertEquals(NullPointerException.class.getCanonicalName(), result.getExClassCanonicalName());
+        verifyNoInteractions(http, jwt);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = ProcessorOperationEnum.class, names = {"UPDATE", "DELETE"})
+    void missingInvocationAndTokenStillAllowUpdateAndDelete(ProcessorOperationEnum operation) {
+        BrokerRequestDTO request = request(operation);
+        request.setIniEdsInvocationETY(null);
+        for (String token : new String[] {null, "", " "}) {
+            request.setJwt(token);
+            assertTrue(client.dispatchAndSendData(request).isEsito());
+        }
+
+        ArgumentCaptor<HttpEntity<?>> entity = ArgumentCaptor.forClass(HttpEntity.class);
+        verify(http, times(3)).exchange(any(URI.class), eq(Constants.AppConstants.methodMap.get(operation)),
+                entity.capture(), eq(DocumentResponseDTO.class));
+        entity.getAllValues().forEach(value -> assertFalse(value.getHeaders().containsKey("Agid-JWT-Signature")));
+        verifyNoInteractions(jwt);
+    }
+
     @Test
     void successfulDispatchSurvivesLoggingFailure() {
         doThrow(new IllegalStateException("logger unavailable")).when(logger).info(anyString(), any(), any(), any(), any());

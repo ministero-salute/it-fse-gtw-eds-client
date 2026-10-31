@@ -13,6 +13,7 @@ package it.finanze.sanita.fse2.ms.edsclient.client.impl;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Objects;
 
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetIngestionStatusResponseDTO;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -29,6 +30,7 @@ import it.finanze.sanita.fse2.ms.edsclient.config.Constants;
 import it.finanze.sanita.fse2.ms.edsclient.dto.DocumentDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.EdsResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.request.BrokerRequestDTO;
+import it.finanze.sanita.fse2.ms.edsclient.dto.request.EdsMetadataUpdateReqDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.DocumentResponseDTO;
 import it.finanze.sanita.fse2.ms.edsclient.dto.response.GetDocumentReferenceResDTO;
 import it.finanze.sanita.fse2.ms.edsclient.enums.OperationLogEnum;
@@ -115,30 +117,30 @@ public class BrokerClient implements IBrokerClient {
 
 	private DocumentDTO buildRequestBody(BrokerRequestDTO brokerRequestDTO) {
 		DocumentDTO requestBody = null;
-		IniEdsInvocationETY ety = brokerRequestDTO.getIniEdsInvocationETY() != null
-				? brokerRequestDTO.getIniEdsInvocationETY()
-						: null;
+		IniEdsInvocationETY ety = brokerRequestDTO.getIniEdsInvocationETY();
 
 		switch (brokerRequestDTO.getOperation()) {
 		case UPDATE:
-			if (brokerRequestDTO.getUpdateReqDTO() == null) {
+			EdsMetadataUpdateReqDTO updateReqDTO = brokerRequestDTO.getUpdateReqDTO();
+			if (updateReqDTO == null) {
 				// bad request
 				throw new BusinessException(MSG_UNSUPPORTED);
 			}
 			requestBody = new DocumentDTO();
 			requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 			requestBody.setOperation(ProcessorOperationEnum.UPDATE);
-			requestBody.setJsonString(brokerRequestDTO.getUpdateReqDTO().getDocumentReference());
+			requestBody.setJsonString(updateReqDTO.getDocumentReference());
 			requestBody.setFiscalCode(brokerRequestDTO.getFiscalCode());
 			//                requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
 			break;
 		case REPLACE:
+			Objects.requireNonNull(ety);
 			requestBody = new DocumentDTO();
 			requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 			requestBody.setOperation(ProcessorOperationEnum.REPLACE);
-			requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
-			requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
-			if (ety != null && ety.getData() != null) {
+			requestBody.setFiscalCode(ety.getFiscalCode());
+			requestBody.setRde(ety.getRde());
+			if (ety.getData() != null) {
 				requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
 			} else {
 				throw new BusinessException(MSG_UNSUPPORTED);
@@ -150,12 +152,13 @@ public class BrokerClient implements IBrokerClient {
 
 		case PUBLISH:
 		default:
+			Objects.requireNonNull(ety);
 			requestBody = new DocumentDTO();
 			requestBody.setIdentifier(brokerRequestDTO.getIdentifier());
 			requestBody.setOperation(ProcessorOperationEnum.PUBLISH);
-			requestBody.setFiscalCode(brokerRequestDTO.getIniEdsInvocationETY().getFiscalCode());
-			requestBody.setRde(brokerRequestDTO.getIniEdsInvocationETY().getRde());
-			if (ety != null && ety.getData() != null) {
+			requestBody.setFiscalCode(ety.getFiscalCode());
+			requestBody.setRde(ety.getRde());
+			if (ety.getData() != null) {
 				requestBody.setJsonString(JsonUtility.objectToJson(ety.getData()));
 			} else {
 				throw new BusinessException(MSG_UNSUPPORTED);
@@ -263,11 +266,12 @@ public class BrokerClient implements IBrokerClient {
 		switch (dto.getOperation()) {
 		case UPDATE:
 		case DELETE:
-			if (dto.getJwt() == null || dto.getJwt().isBlank()) {
+			String jwt = dto.getJwt();
+			if (jwt == null || jwt.isBlank()) {
 				log.warn("Agid-JWT-Signature not provided for operation {}; proceeding without JWT header",
 						dto.getOperation());
 			} else {
-				jwtToken = jwtUtility.reSignToken(dto.getJwt());
+				jwtToken = jwtUtility.reSignToken(jwt);
 			}
 			break;
 		case PUBLISH:
